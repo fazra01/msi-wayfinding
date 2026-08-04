@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#FE4E04" />
+  <title>Griffin Museum — Your Visit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app">
+
+    <!-- ============================ HOME ============================ -->
+    <section id="screen-home" class="screen is-active">
+      <div class="masthead">
+        <img src="images/griffin-msi-logo.png" alt="Griffin Museum of Science and Industry" class="brand-logo"
+             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+        <div class="brand-fallback" aria-hidden="true"><b>Griffin</b><span>Museum of Science + Industry</span></div>
+      </div>
+
+      <h1 class="display h1 center" style="margin-bottom:10px;">How can we<br>help you today?</h1>
+      <p class="lede center" style="margin-bottom:26px;">Pick up your visit from the kiosk, or find your way to anywhere in the museum.</p>
+
+      <button id="go-plan" class="choice">
+        <span style="padding:24px 24px 0;" class="kicker">Continue where you left off</span>
+        <span style="padding:0 24px;" class="title">My Plan</span>
+        <span style="padding:0 24px;" class="desc">See your itinerary, track progress, and navigate to each stop.</span>
+        <span style="margin:16px 24px 24px;" class="arrow">→</span>
+      </button>
+
+      <button id="go-find" class="choice">
+        <span style="padding:24px 24px 0;" class="kicker">Go anywhere</span>
+        <span style="padding:0 24px;" class="title">Find Your Way</span>
+        <span style="padding:0 24px;" class="desc">Step-by-step directions to any exhibit, amenity, or exit.</span>
+        <span style="margin:16px 24px 24px;" class="arrow">→</span>
+      </button>
+
+      <div class="spacer"></div>
+      <button class="access-toggle" data-access-toggle aria-pressed="false">Accessible Route: Off</button>
+    </section>
+
+    <!-- ============================ MY PLAN ============================ -->
+    <section id="screen-plan" class="screen">
+      <button id="plan-back" class="back">← Home</button>
+      <p class="eyebrow">Today's plan</p>
+      <h2 class="display h2" style="margin-bottom:16px;">Your visit</h2>
+
+      <div class="card">
+        <div class="progress-track"><div id="plan-progress-fill" class="progress-fill" style="width:0%"></div></div>
+        <div id="plan-progress-meta" class="progress-meta"></div>
+        <ul id="plan-stops" class="stop-list"></ul>
+      </div>
+
+      <div class="btn-row">
+        <button id="plan-start" class="btn btn-primary">Start visit</button>
+        <button id="plan-continue" class="btn btn-secondary hidden">Continue visit</button>
+      </div>
+    </section>
+
+    <!-- ======================= FIRST / NEXT STOP ======================= -->
+    <section id="screen-stop" class="screen">
+      <button id="stop-back" class="back">← Plan</button>
+      <div class="spacer"></div>
+      <p id="stop-kicker" class="eyebrow center">Your first stop is</p>
+      <h1 id="stop-name" class="display h1 center"></h1>
+      <p id="stop-meta" class="lede center"></p>
+      <div id="stop-ticket" class="card hidden center" style="margin-top:20px;">
+        <span class="ticket-badge">Timed ticket required</span>
+        <p style="margin:12px 0 0; color:var(--ink-soft); font-size:14px; font-weight:500;">Have your entry ticket ready when you arrive.</p>
+      </div>
+      <div class="spacer"></div>
+      <div class="btn-row">
+        <button id="stop-go" class="btn btn-primary">Start navigation</button>
+      </div>
+    </section>
+
+    <!-- ===================== FIND YOUR WAY: START ===================== -->
+    <section id="screen-find-start" class="screen">
+      <button id="find-start-back" class="back">← Home</button>
+      <p class="eyebrow">Find your way</p>
+      <h2 class="display h2" style="margin-bottom:18px;">Where are you starting?</h2>
+
+      <button id="find-last" class="choice">
+        <span style="padding:24px 24px 0;" class="kicker">Quickest</span>
+        <span style="padding:0 24px; font-size:26px;" class="title">Last destination</span>
+        <span style="padding:0 24px;" class="desc">Start from the last place you visited on your plan.</span>
+        <span style="margin:16px 24px 24px;" class="arrow">→</span>
+      </button>
+
+      <button id="find-new" class="choice">
+        <span style="padding:24px 24px 0;" class="kicker">Anywhere</span>
+        <span style="padding:0 24px; font-size:26px;" class="title">A new location</span>
+        <span style="padding:0 24px;" class="desc">Pick a spot you can see near you to start from.</span>
+        <span style="margin:16px 24px 24px;" class="arrow">→</span>
+      </button>
+    </section>
+
+    <!-- ============================ SEARCH ============================ -->
+    <section id="screen-search" class="screen">
+      <button id="search-back" class="back">← Back</button>
+      <h2 id="search-title" class="display h2" style="margin-bottom:2px;">Where do you want to go?</h2>
+      <p id="search-sub" class="lede" style="margin-bottom:14px;"></p>
+      <input id="search-input" class="search-field" type="search" placeholder="Search exhibits, amenities, exits…" autocomplete="off" />
+      <div id="search-tabs" class="tabs"></div>
+      <div id="search-results" class="results"></div>
+      <div class="spacer"></div>
+    </section>
+
+    <!-- ========================= NAVIGATION ========================= -->
+    <section id="screen-nav" class="screen">
+      <button id="nav-back" class="back">← Back</button>
+      <div class="nav-head">
+        <div>
+          <div class="nav-dest-label">Heading to</div>
+          <div id="nav-dest" class="nav-dest"></div>
+        </div>
+        <div id="nav-floor" class="floor-pill"></div>
+      </div>
+
+      <div class="map-card">
+        <svg id="nav-map" class="map-svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Route map"></svg>
+      </div>
+
+      <div id="nav-directions" class="directions"></div>
+
+      <div class="btn-row" style="margin-top:14px;">
+        <button id="nav-advance" class="btn btn-primary">Navigate to Next Floor →</button>
+        <button id="nav-recover" class="btn btn-secondary">Off Route? Update My Location</button>
+        <div class="center" style="margin-top:10px;"><button id="nav-exit" class="nav-link">End navigation</button></div>
+      </div>
+    </section>
+
+    <!-- ========================== ARRIVAL ========================== -->
+    <section id="screen-arrival" class="screen">
+      <div class="spacer"></div>
+      <div class="arrival-badge">✓</div>
+      <h1 id="arrival-title" class="display h1 center">Destination reached</h1>
+      <p id="arrival-sub" class="lede center"></p>
+      <div class="spacer"></div>
+      <div class="btn-row">
+        <button id="arrival-continue" class="btn btn-primary">Continue to next stop</button>
+        <button id="arrival-else" class="btn btn-secondary">Find something else</button>
+        <button id="arrival-back-plan" class="btn btn-ghost">Back to My Plan</button>
+      </div>
+    </section>
+
+    <!-- =========================== ERROR =========================== -->
+    <section id="screen-error" class="screen">
+      <div class="spacer"></div>
+      <h2 class="display h2 center">Map didn't load</h2>
+      <p id="boot-error" class="lede center">
+        The routing graph couldn't be read. If you're opening this file directly,
+        run it from a local server (e.g. <code>python3 -m http.server</code>) so
+        <code>graph.json</code> can load.
+      </p>
+      <div class="btn-row"><button id="error-reload" class="btn btn-primary">Try again</button></div>
+      <div class="spacer"></div>
+    </section>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

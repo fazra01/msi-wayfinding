@@ -1,0 +1,2374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Griffin Museum of Science + Industry — Plan My Visit Kiosk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --orange:#FE4E04;
+    --orange-deep:#E64300;
+    --orange-dark:#C93800;
+    --orange-pill:#FF4B00;
+    --orange-tint:#FFF1EA;
+    --orange-tint2:#FFE3D4;
+    --cream:#FFFBF8;
+    --ink:#2A140A;
+    --ink-soft:#6B4433;
+    --line:#F0D9CC;
+    --white:#FFFFFF;
+    --shadow: 0 18px 40px rgba(120,40,0,0.18);
+    --shadow-sm: 0 6px 16px rgba(120,40,0,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html,body{
+    width:100%; height:100%; overflow:hidden;
+    background:#1a1a1a;
+    font-family:'Inter',sans-serif;
+  }
+  .stage-wrap{
+    position:fixed; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:#141414;
+  }
+  .kiosk{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:1920px; height:1080px;
+    transform-origin:center center;
+    background: var(--cream);
+    overflow:hidden;
+    box-shadow: 0 0 80px rgba(0,0,0,0.5);
+    border-radius: 6px;
+  }
+  .display{ font-family:'Anton', sans-serif; font-weight:400; text-transform:uppercase; letter-spacing:0.5px; }
+
+  /* ---------- SCREEN BASE ---------- */
+  .screen{
+    position:absolute; inset:0;
+    opacity:0; pointer-events:none;
+    transform: translateY(14px) scale(0.994);
+    transition: opacity .38s ease, transform .38s ease;
+  }
+  .screen.active{
+    opacity:1; pointer-events:auto;
+    transform: translateY(0) scale(1);
+  }
+
+  /* ---------- HOME SCREEN ---------- */
+  #screen-home{ background: var(--orange); }
+  .home-topbar{
+    position:absolute; top:0; left:0; right:0; height:132px;
+    display:flex; align-items:center; justify-content:flex-end;
+    padding:0 64px; z-index:20;
+  }
+  /* Logo presentation matches find-my-way.html exactly (centred, 240px, with
+     the same text fallback if the image asset is missing). */
+  .brand{ display:flex; align-items:center; gap:18px; }
+  .brand-logo{ width:240px; height:auto; display:block; }
+  .topbar-logo{
+    position:absolute; left:50%; top:50%;
+    transform:translate(-50%,-50%);
+    display:flex; align-items:center;
+  }
+  .brand-fallback{ display:none; color:#fff; line-height:1.05; text-align:center; }
+  .brand-fallback b{ display:block; font-family:'Anton',sans-serif; font-size:26px; letter-spacing:0.5px; }
+  .brand-fallback span{ display:block; font-size:12px; font-weight:700; letter-spacing:2px; opacity:0.85; margin-top:4px; }
+  .brand-badge{
+    width:64px; height:64px; border-radius:16px;
+    background: var(--orange-deep);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,0.25);
+  }
+  .brand-text{ color:#fff; line-height:1.15; }
+  .brand-text b{ display:block; font-family:'Anton',sans-serif; font-size:22px; letter-spacing:0.5px; }
+  .brand-text span{ display:block; font-size:13px; font-weight:600; opacity:0.85; letter-spacing:1.5px; }
+
+  .lang-select{
+    position:relative;
+    display:flex; align-items:center; gap:10px;
+    color:#fff; font-weight:700; letter-spacing:1.5px; font-size:16px;
+    background:rgba(255,255,255,0.12); padding:14px 22px; border-radius:40px;
+    cursor:pointer; border:1px solid rgba(255,255,255,0.35);
+    transition: background .2s ease;
+  }
+  .lang-select:hover{ background:rgba(255,255,255,0.22); }
+  .lang-menu{
+    position:absolute; top:64px; right:0; background:#fff; border-radius:16px;
+    box-shadow: var(--shadow); overflow:hidden; min-width:200px;
+    opacity:0; transform: translateY(-8px); pointer-events:none;
+    transition: all .2s ease; z-index:50;
+  }
+  .lang-menu.open{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .lang-menu button{
+    width:100%; text-align:left; padding:18px 22px; border:none; background:none;
+    font-family:'Inter',sans-serif; font-size:16px; font-weight:600; color:var(--ink);
+    display:flex; align-items:center; justify-content:space-between; cursor:pointer;
+  }
+  .lang-menu button:hover{ background:var(--orange-tint); }
+
+  .home-headline{
+    text-align:center; color:#fff; font-size:44px; margin-top:150px; padding:0 40px;
+    letter-spacing:1px;
+  }
+
+  .home-cards{
+    position:absolute; top:330px; left:0; right:0; bottom:70px;
+    display:flex; gap:56px; padding:0 165px;
+  }
+  .home-card{
+    position:relative; flex:1; border-radius:28px; overflow:hidden;
+    cursor:pointer; border:none; box-shadow: var(--shadow);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .home-card:hover{ transform: translateY(-6px); box-shadow: 0 26px 55px rgba(0,0,0,0.3); }
+  .home-card:active{ transform: translateY(-1px) scale(0.995); }
+  .home-card .art{ position:absolute; inset:0; }
+  .home-card .pill{
+    position:absolute; left:44px; bottom:44px;
+    font-family:'Anton',sans-serif; font-size:34px; letter-spacing:0.5px;
+    padding:22px 40px; border-radius:16px;
+  }
+  .home-card.plan .pill{ background:var(--orange-pill); color:#fff; }
+  .home-card.find .pill{ background:#fff; color:var(--orange-pill); }
+
+  /* illustrative art panels, since we don't use external photography */
+  .art-plan{
+    background-image: url("images/plan-my-visit.png");
+    background-size: cover;
+    background-position: center;
+  }
+  .art-find{
+    background-image: url("images/find-my-way.png");
+    background-size: cover;
+    background-position: center;
+  }
+  .art-svg{
+  display:none;
+  }
+
+  /* ---------- SHARED HEADER (non-home screens) ---------- */
+  .app-header{
+    position:absolute; top:0; left:0; right:0; height:150px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 56px; background:var(--white);
+    border-bottom:1px solid var(--line);
+    z-index:20;
+  }
+  .header-left{ display:flex; align-items:center; gap:22px; }
+  .back-btn{
+    min-width:150px; height:72px; padding:0 26px; border-radius:36px;
+    background:var(--orange-tint); border:2px solid var(--orange-tint2);
+    display:flex; align-items:center; justify-content:center; gap:12px; cursor:pointer;
+    color:var(--orange-deep); transition: background .2s ease, transform .15s ease;
+    font-family:'Inter',sans-serif; font-size:20px; font-weight:800;
+  }
+  .back-btn:hover{ background:var(--orange-tint2); }
+  .back-btn:active{ transform:scale(0.94); }
+  .header-title{ line-height:1.2; }
+  .header-title .eyebrow{ font-size:15px; font-weight:700; letter-spacing:2px; color:var(--orange-deep); }
+  .header-title h1{ font-family:'Anton',sans-serif; font-size:32px; color:var(--ink); letter-spacing:0.3px; }
+
+  .progress{
+    display:flex; align-items:center; gap:14px;
+  }
+  .progress .step{
+    display:flex; align-items:center; gap:10px;
+    padding:10px 18px 10px 10px; border-radius:30px;
+    background:var(--orange-tint);
+  }
+  .progress .dot{
+    width:34px; height:34px; border-radius:50%;
+    background:var(--line); color:var(--ink-soft);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:15px; transition: all .25s ease;
+  }
+  .progress .dot.done{ background:var(--orange); color:#fff; }
+  .progress .dot.current{ background:var(--orange-deep); color:#fff; box-shadow:0 0 0 5px var(--orange-tint2); }
+  .progress .label{ font-size:14px; font-weight:700; color:var(--ink-soft); letter-spacing:0.4px; }
+  .progress-track{ display:flex; align-items:center; }
+  .progress-track .seg{ width:46px; height:4px; background:var(--line); }
+  .progress-track .seg.done{ background:var(--orange); }
+
+  .header-lang{
+    display:flex; align-items:center; gap:10px; color:var(--ink-soft); font-weight:700;
+    letter-spacing:1px; font-size:14px; background:var(--orange-tint); padding:12px 20px; border-radius:40px;
+    cursor:pointer;
+  }
+
+  /* ---------- BODY / SCROLL AREA ---------- */
+  .app-body{
+    position:absolute; top:150px; left:0; right:0; bottom:170px;
+    overflow-y:auto; padding:48px 90px 40px;
+  }
+  .app-body::-webkit-scrollbar{ width:10px; }
+  .app-body::-webkit-scrollbar-thumb{ background:var(--orange-tint2); border-radius:10px; }
+
+  .section-lede{ max-width:1100px; margin-bottom:36px; }
+  .section-lede h2{ font-family:'Anton',sans-serif; font-size:40px; color:var(--ink); margin-bottom:10px; letter-spacing:0.3px; }
+  .section-lede p{ font-size:19px; color:var(--ink-soft); font-weight:500; line-height:1.5; }
+
+  /* ---------- BOTTOM ACTION BAR ---------- */
+  .action-bar{
+    position:absolute; left:0; right:0; bottom:0; height:170px;
+    background:#fff; border-top:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 90px; z-index:20;
+  }
+  .action-info{ display:flex; align-items:center; gap:20px; }
+  .action-info .count-badge{
+    background:var(--orange); color:#fff; font-weight:800; font-size:22px;
+    width:60px; height:60px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+  .action-info .count-text{ font-size:18px; font-weight:700; color:var(--ink); }
+  .action-info .count-sub{ font-size:15px; color:var(--ink-soft); font-weight:500; }
+
+  .btn{
+    font-family:'Anton',sans-serif; letter-spacing:0.5px; font-size:24px;
+    padding:26px 52px; border-radius:18px; border:none; cursor:pointer;
+    display:inline-flex; align-items:center; gap:14px;
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease, opacity .2s ease;
+  }
+  .btn:active{ transform:scale(0.97); }
+  .btn-primary{ background:var(--orange); color:#fff; box-shadow: var(--shadow-sm); }
+  .btn-primary:hover{ background:var(--orange-deep); }
+  .btn-primary:disabled{ background:#E9D9CE; color:#B39C8D; cursor:not-allowed; box-shadow:none; }
+  .btn-ghost{ background:var(--orange-tint); color:var(--orange-deep); }
+  .btn-ghost:hover{ background:var(--orange-tint2); }
+
+  /* ---------- CATEGORY GRID ---------- */
+  .cat-grid{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap:32px; max-width:1740px;
+  }
+  .cat-card{
+    position:relative; border-radius:24px; padding:38px 34px; cursor:pointer;
+    background:#fff; border:3px solid var(--line); min-height:230px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    transition: all .2s ease;
+  }
+  .cat-card:hover{ border-color:var(--orange-tint2); transform:translateY(-3px); box-shadow: var(--shadow-sm); }
+  .cat-card.selected{ border-color:var(--orange); background:var(--orange-tint); box-shadow: var(--shadow-sm); }
+  .cat-icon-wrap{
+    width:72px; height:72px; border-radius:18px; background:var(--orange-tint);
+    display:flex; align-items:center; justify-content:center; color:var(--orange-deep);
+    margin-bottom:8px;
+  }
+  .cat-card.selected .cat-icon-wrap{ background:var(--orange); color:#fff; }
+  .cat-name{ font-family:'Anton',sans-serif; font-size:25px; color:var(--ink); letter-spacing:0.3px; margin-top:14px; }
+  .cat-desc{ font-size:15.5px; color:var(--ink-soft); font-weight:500; margin-top:8px; line-height:1.4; }
+  .cat-check{
+    position:absolute; top:24px; right:24px; width:36px; height:36px; border-radius:50%;
+    background:var(--orange); color:#fff; display:flex; align-items:center; justify-content:center;
+    opacity:0; transform:scale(0.6); transition: all .2s ease;
+  }
+  .cat-card.selected .cat-check{ opacity:1; transform:scale(1); }
+
+
+  .ticket-badge{
+    display:inline-flex;
+    align-items:center;
+    width:max-content;
+    margin-bottom:10px;
+    padding:6px 12px;
+    border-radius:999px;
+    background:var(--orange);
+    color:#fff;
+    font-size:12px;
+    font-weight:800;
+    letter-spacing:0.45px;
+    text-transform:uppercase;
+  }
+
+  /* ---------- EXHIBIT CARDS ---------- */
+  .exhibit-grid{ display:grid; grid-template-columns: repeat(2, 1fr); gap:28px; max-width:1740px; }
+  .exhibit-card{
+    display:flex; gap:24px; background:#fff; border:2px solid var(--line); border-radius:22px;
+    padding:26px; align-items:flex-start; transition: all .2s ease;
+  }
+  .exhibit-card.added{ border-color:var(--orange); background:var(--orange-tint); }
+  .exhibit-icon{
+    width:78px; height:78px; min-width:78px; border-radius:16px; background:var(--orange-tint2);
+    display:flex; align-items:center; justify-content:center; color:var(--orange-deep);
+  }
+  .exhibit-card.added .exhibit-icon{ background:var(--orange); color:#fff; }
+  .exhibit-body{ flex:1; }
+  .exhibit-tags{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .exhibit-tag{ font-size:12.5px; font-weight:700; letter-spacing:0.6px; color:var(--orange-deep); background:var(--orange-tint2); padding:5px 12px; border-radius:20px; text-transform:uppercase; }
+  .exhibit-name{ font-family:'Anton',sans-serif; font-size:23px; color:var(--ink); letter-spacing:0.2px; }
+  .exhibit-desc{ font-size:15.5px; color:var(--ink-soft); font-weight:500; margin:8px 0 12px; line-height:1.45; }
+  .exhibit-meta{ display:flex; align-items:center; gap:8px; font-size:14.5px; font-weight:700; color:var(--ink-soft); }
+  .exhibit-actions{ display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+  .add-btn{
+    display:flex; align-items:center; gap:10px; padding:14px 24px; border-radius:14px; border:none;
+    font-weight:800; font-size:16px; cursor:pointer; white-space:nowrap;
+    background:var(--orange); color:#fff; transition: all .18s ease;
+  }
+  .add-btn.added{ background:#fff; color:var(--orange-deep); border:2px solid var(--orange); }
+  .add-btn:active{ transform:scale(0.95); }
+
+  .recommendation-divider{
+    grid-column:1 / -1;
+    width:100%;
+    margin:18px 0 4px;
+    padding-top:28px;
+    border-top:2px solid rgba(255,255,255,0.42);
+  }
+
+  .recommendation-divider h3{
+    font-family:'Anton',sans-serif;
+    font-size:30px;
+    color:#fff;
+    letter-spacing:0.4px;
+    margin-bottom:6px;
+  }
+
+  .recommendation-divider p{
+    font-size:16px;
+    font-weight:600;
+    color:rgba(255,255,255,0.88);
+  }
+
+  /* ---------- BUILDER SCREEN ---------- */
+  .builder-layout{ max-width:1200px; }
+  .builder-col h3{ font-family:'Anton',sans-serif; font-size:24px; color:var(--ink); margin-bottom:18px; letter-spacing:0.3px; }
+  .visit-list{ display:flex; flex-direction:column; gap:16px; }
+  .visit-row{
+    display:flex; align-items:center; gap:18px; background:#fff; border:2px solid var(--line);
+    border-radius:18px; padding:18px 20px;
+  }
+  .visit-row .exhibit-icon{ width:56px; height:56px; min-width:56px; border-radius:12px; }
+  .visit-row .row-name{ font-family:'Anton',sans-serif; font-size:19px; color:var(--ink); }
+  .visit-row .row-meta{ font-size:13.5px; color:var(--ink-soft); font-weight:600; margin-top:4px; }
+  .remove-btn{
+    margin-left:auto; width:46px; height:46px; border-radius:50%; border:none;
+    background:var(--orange-tint); color:var(--orange-deep); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; transition: all .18s ease;
+  }
+  .remove-btn:hover{ background:#FFD9C4; }
+  .empty-state{
+    border:2px dashed var(--line); border-radius:20px; padding:50px 30px; text-align:center; color:var(--ink-soft);
+  }
+  .empty-state svg{ color:var(--orange-tint2); margin-bottom:14px; }
+  .empty-state b{ display:block; color:var(--ink); font-size:18px; margin-bottom:6px; font-family:'Anton',sans-serif; letter-spacing:0.3px;}
+
+  .suggest-row{
+    display:flex; align-items:center; gap:16px; background:#fff; border:2px solid var(--line);
+    border-radius:16px; padding:16px 18px; margin-bottom:14px;
+  }
+  .suggest-row .exhibit-icon{ width:52px; height:52px; min-width:52px; border-radius:12px; }
+  .suggest-row .row-name{ font-family:'Anton',sans-serif; font-size:17px; color:var(--ink); }
+  .suggest-row .row-meta{ font-size:13px; color:var(--ink-soft); font-weight:600; margin-top:3px; }
+  .mini-add{
+    margin-left:auto; width:44px; height:44px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--orange); color:#fff; display:flex; align-items:center; justify-content:center;
+  }
+
+  /* ---------- REVIEW SCREEN ---------- */
+  .review-summary{
+    display:flex; gap:22px; max-width:1740px; margin-bottom:36px;
+  }
+  .summary-card{
+    flex:1; background:var(--orange-tint); border-radius:20px; padding:26px 30px;
+  }
+  .summary-card .num{ font-family:'Anton',sans-serif; font-size:44px; color:var(--orange-deep); }
+  .summary-card .lbl{ font-size:15px; font-weight:700; color:var(--ink-soft); letter-spacing:0.4px; margin-top:4px; }
+  .review-list{ display:flex; flex-direction:column; gap:18px; max-width:1740px; }
+  .review-row{
+    display:flex; align-items:center; gap:22px; background:#fff; border:2px solid var(--line);
+    border-radius:20px; padding:22px 26px;
+  }
+  .review-index{
+    width:44px; height:44px; border-radius:50%; background:var(--orange); color:#fff; font-weight:800;
+    display:flex; align-items:center; justify-content:center; font-size:18px; min-width:44px;
+  }
+
+  /* ---------- QR SCREEN ---------- */
+  #screen-qr .app-body{ display:flex; align-items:center; justify-content:center; }
+  .qr-wrap{ display:flex; gap:70px; align-items:center; max-width:1500px; }
+  .qr-card{
+    background:#fff; border-radius:28px; padding:36px; box-shadow: var(--shadow);
+    border:2px solid var(--line);
+  }
+  .qr-text h2{ font-family:'Anton',sans-serif; font-size:46px; color:var(--ink); margin-bottom:18px; letter-spacing:0.3px; }
+  .qr-text p{ font-size:19px; color:var(--ink-soft); font-weight:500; line-height:1.6; max-width:620px; margin-bottom:14px; }
+  .qr-list{ margin:20px 0 30px; display:flex; flex-direction:column; gap:14px; }
+  .qr-list li{ list-style:none; display:flex; align-items:center; gap:14px; font-size:17px; font-weight:600; color:var(--ink); }
+  .qr-open-link{ display:inline-block; margin-bottom:20px; font-size:15px; font-weight:600; color:var(--orange); text-decoration:none; border-bottom:1px solid currentColor; padding-bottom:1px; word-break:break-all; }
+  .qr-list .num{ width:34px; height:34px; border-radius:50%; background:var(--orange); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; min-width:34px; }
+
+  .toast{
+    position:absolute; left:50%; bottom:200px; transform:translateX(-50%) translateY(20px);
+    background:var(--ink); color:#fff; padding:18px 30px; border-radius:16px; font-weight:600; font-size:16px;
+    opacity:0; transition: all .3s ease; pointer-events:none; z-index:100; box-shadow:0 10px 30px rgba(0,0,0,0.3);
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  /* ---------- GLOBAL ORANGE THEME ---------- */
+  .kiosk,
+  .screen,
+  .app-body{
+    background:#fe4e04;
+  }
+
+  .app-header,
+  .action-bar{
+    background:#fe4e04;
+    border-color:rgba(255,255,255,0.28);
+  }
+
+  .header-title .eyebrow,
+  .header-title h1,
+  .section-lede h2,
+  .section-lede p,
+  .builder-col h3,
+  .action-info .count-text,
+  .action-info .count-sub,
+  .progress .label,
+  .header-lang{
+    color:#ffffff;
+  }
+
+  .back-btn,
+  .header-lang{
+    background:rgba(255,255,255,0.16);
+    border-color:rgba(255,255,255,0.42);
+    color:#ffffff;
+  }
+
+  .back-btn:hover,
+  .header-lang:hover{
+    background:rgba(255,255,255,0.26);
+  }
+
+  .progress .dot{
+    background:rgba(255,255,255,0.30);
+    color:#ffffff;
+  }
+
+  .progress .dot.done,
+  .progress .dot.current{
+    background:#ffffff;
+    color:#fe4e04;
+    box-shadow:none;
+  }
+
+  .progress-track .seg{
+    background:rgba(255,255,255,0.30);
+  }
+
+  .progress-track .seg.done{
+    background:#ffffff;
+  }
+
+  .action-info .count-badge{
+    background:#ffffff;
+    color:#fe4e04;
+  }
+
+  .btn-primary{
+    background:#ffffff;
+    color:#fe4e04;
+  }
+
+  .btn-primary:hover{
+    background:#fff1ea;
+  }
+
+  .btn-primary:disabled{
+    background:rgba(255,255,255,0.30);
+    color:rgba(255,255,255,0.70);
+  }
+
+  .app-body::-webkit-scrollbar-thumb{
+    background:rgba(255,255,255,0.48);
+  }
+
+  /* Keep cards light for readability against the orange background */
+  .cat-card,
+  .exhibit-card,
+  .visit-row,
+  .suggest-row,
+  .review-row,
+  .qr-card,
+  .summary-card,
+  .empty-state{
+    background:#ffffff;
+  }
+
+  .cat-card.selected,
+  .exhibit-card.added{
+    background:#fff1ea;
+  }
+
+  .summary-card{
+    border:2px solid rgba(255,255,255,0.55);
+  }
+
+  .qr-text h2,
+  .qr-text p,
+  .qr-list li{
+    color:#ffffff;
+  }
+
+  .btn-ghost{
+    background:#ffffff;
+    color:#fe4e04;
+  }
+
+  .btn-ghost:hover{
+    background:#fff1ea;
+  }
+
+
+  /* ---------- LANGUAGE MENU (shared) ---------- */
+  .kiosk-lang-menu{
+    position:absolute; top:calc(100% + 10px); right:0; min-width:210px;
+    background:#fff; border-radius:16px; padding:8px; z-index:60;
+    box-shadow:0 18px 44px rgba(0,0,0,0.24);
+    opacity:0; transform:translateY(-8px); pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;
+  }
+  .kiosk-lang-menu.open{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .kiosk-lang-menu button{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    width:100%; background:none; border:none; cursor:pointer; text-align:left;
+    font-family:'Inter',sans-serif; font-size:17px; font-weight:700;
+    color:var(--ink,#2A140A); padding:12px 14px; border-radius:11px;
+  }
+  .kiosk-lang-menu button:hover{ background:var(--orange-tint,#FFF1EA); }
+  .kiosk-lang-menu button span{ color:var(--orange,#FE4E04); font-size:18px; }
+  body.lang-rtl .display,
+  body.lang-rtl h1, body.lang-rtl h2, body.lang-rtl h3, body.lang-rtl p,
+  body.lang-rtl .result-name, body.lang-rtl .result-sub, body.lang-rtl .result-meta,
+  body.lang-rtl .count-text, body.lang-rtl .count-sub, body.lang-rtl .fmw-instruct,
+  body.lang-rtl .nav-card, body.lang-rtl .pill{ direction:rtl; unicode-bidi:plaintext; }
+
+</style>
+</head>
+<body>
+
+<div class="stage-wrap">
+  <div class="kiosk" id="kiosk">
+
+    <!-- ============ HOME SCREEN ============ -->
+    <section class="screen active" id="screen-home">
+      <div class="home-topbar">
+        <div class="topbar-logo">
+          <img src="images/griffin-msi-logo.png" alt="Griffin Museum of Science and Industry" class="brand-logo"
+               onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+          <div class="brand-fallback" aria-hidden="true"><b>Griffin</b><span>Museum of Science + Industry</span></div>
+        </div>
+        <div style="position:relative;">
+          <div class="lang-select" id="langToggleHome">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9Z"/></svg>
+            LANGUAGE
+          </div>
+
+        </div>
+      </div>
+
+      <h1 class="home-headline display">How can we help you today?</h1>
+
+      <div class="home-cards">
+        <button class="home-card plan" id="btnPlanVisit">
+          <div class="art art-plan">
+            <svg class="art-svg" viewBox="0 0 400 420" preserveAspectRatio="xMidYMid slice">
+              <circle cx="330" cy="70" r="120" fill="rgba(255,255,255,0.05)"/>
+              <circle cx="60" cy="360" r="160" fill="rgba(255,255,255,0.04)"/>
+              <g stroke="rgba(255,255,255,0.35)" stroke-width="3" fill="none">
+                <rect x="90" y="140" width="220" height="150" rx="14"/>
+                <path d="M90 185 h220"/>
+                <path d="M130 140 v-18 M270 140 v-18"/>
+              </g>
+              <path d="M120 300 L200 250 L320 210" stroke="rgba(255,255,255,0.5)" stroke-width="4" fill="none" stroke-linecap="round" stroke-dasharray="2 14"/>
+              <circle cx="120" cy="300" r="8" fill="#fff" opacity="0.8"/>
+              <circle cx="320" cy="210" r="8" fill="#fff" opacity="0.8"/>
+            </svg>
+          </div>
+          <div class="pill display">Plan My Visit</div>
+        </button>
+
+        <button class="home-card find" id="btnFindWay">
+          <div class="art art-find">
+            <svg class="art-svg" viewBox="0 0 400 420" preserveAspectRatio="xMidYMid slice">
+              <g stroke="rgba(255,255,255,0.25)" stroke-width="3">
+                <line x1="40" y1="0" x2="40" y2="420"/>
+                <line x1="130" y1="0" x2="130" y2="420"/>
+                <line x1="220" y1="0" x2="220" y2="420"/>
+                <line x1="310" y1="0" x2="310" y2="420"/>
+              </g>
+              <circle cx="200" cy="230" r="46" fill="none" stroke="#fff" stroke-width="4" opacity="0.85"/>
+              <path d="M200 200 v-30 M200 40 v20 M182 55 l18-18 18 18" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"/>
+            </svg>
+          </div>
+          <div class="pill display">Find My Way</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============ CATEGORY SELECTION ============ -->
+    <section class="screen" id="screen-categories">
+      <header class="app-header">
+        <div class="header-left">
+          <button class="back-btn" data-back="home" type="button" aria-label="Go back"></button>
+          <div class="header-title">
+          </div>
+        </div>
+        <div class="progress" id="progress-categories"></div>
+        <div class="header-lang">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+          LANGUAGE
+        </div>
+      </header>
+      <div class="app-body">
+        <div class="section-lede">
+          <h2 class="display">What are you interested in today?</h2>
+          <p>Select one or more </p>
+        </div>
+        <div class="cat-grid" id="catGrid"></div>
+      </div>
+      <div class="action-bar">
+        <div class="action-info">
+          <div class="count-badge" id="catCount">0</div>
+          <div>
+            <div class="count-text">Categories selected</div>
+            <div class="count-sub">Choose at least one to continue</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btnToRecommended" disabled>Show me exhibits →</button>
+      </div>
+    </section>
+
+    <!-- ============ RECOMMENDED EXHIBITS ============ -->
+    <section class="screen" id="screen-recommended">
+      <header class="app-header">
+        <div class="header-left">
+          <button class="back-btn" data-back="categories" type="button" aria-label="Go back"></button>
+          <div class="header-title">
+          </div>
+        </div>
+        <div class="progress" id="progress-recommended"></div>
+        <div class="header-lang">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+          LANGUAGE
+        </div>
+      </header>
+      <div class="app-body">
+        <div class="section-lede">
+          <h2 class="display">Your visit is ready</h2>
+          <p>We built this itinerary based on your interests. Remove anything you are not interested in, or add a few extra exhibits below if you would like.</p>
+        </div>
+        <div class="exhibit-grid" id="recGrid"></div>
+      </div>
+      <div class="action-bar">
+        <div class="action-info">
+          <div class="count-badge" id="recCount">0</div>
+          <div>
+            <div class="count-text" id="recCountText">Exhibits added</div>
+            <div class="count-sub">Remove or add exhibits before reviewing</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btnToBuilder">Review my route →</button>
+      </div>
+    </section>
+
+    <!-- ============ REVIEW ============ -->
+    <section class="screen" id="screen-review">
+      <header class="app-header">
+        <div class="header-left">
+          <button class="back-btn" data-back="recommended" type="button" aria-label="Go back"></button>
+          <div class="header-title">
+          </div>
+        </div>
+        <div class="progress" id="progress-review"></div>
+        <div class="header-lang">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+          LANGUAGE
+        </div>
+      </header>
+      <div class="app-body">
+        <div class="section-lede">
+          <h2 class="display">Here's your personalized route for the day</h2>
+          <p>Double check your list below. You can still remove anything before we generate your plan.</p>
+        </div>
+        <div class="review-summary" id="reviewSummary"></div>
+        <div class="review-list" id="reviewList"></div>
+      </div>
+      <div class="action-bar">
+        <div class="action-info">
+          <div>
+            <div class="count-text">Ready when you are</div>
+            <div class="count-sub">We'll generate a QR code to send this to your phone</div>
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btnToQr">Generate my plan →</button>
+      </div>
+    </section>
+
+    <!-- ============ QR HANDOFF ============ -->
+    <section class="screen" id="screen-qr">
+      <header class="app-header">
+        <div class="header-left">
+          <button class="back-btn" data-back="review" type="button" aria-label="Go back"></button>
+          <div class="header-title">
+          </div>
+        </div>
+        <div class="progress" id="progress-qr"></div>
+        <div class="header-lang">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18"/></svg>
+          LANGUAGE
+        </div>
+      </header>
+      <div class="app-body">
+        <div class="qr-wrap">
+          <div class="qr-card">
+            <canvas id="qrCanvas" width="300" height="300" style="width:300px;height:300px;image-rendering:pixelated;border-radius:12px;"></canvas>
+          </div>
+          <div class="qr-text">
+            <h2 class="display">Scan to get your plan</h2>
+            <p>Point your phone's camera at the code to save your personalized route, with turn-by-turn directions to every exhibit.</p>
+            <a id="qrOpenLink" class="qr-open-link" href="#" target="_blank" rel="noopener" hidden>Open mobile version</a>
+            <ul class="qr-list">
+              <li><span class="num">1</span> Open your camera app</li>
+              <li><span class="num">2</span> Point it at the code</li>
+              <li><span class="num">3</span> Tap the link that appears</li>
+            </ul>
+            <button class="btn btn-ghost" id="btnStartOver">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 3 21 9 15 9"/></svg>
+              Start over
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="toast" id="toast"></div>
+  </div>
+</div>
+
+<!-- Self-contained QR encoder + kiosk→phone transfer URL builder (shared with find-my-way.html). -->
+<script src="qr-transfer.js"></script>
+<script>
+/* ================= ICONS ================= */
+const ICONS = {
+  family: `<circle cx="8" cy="8" r="3.2"/><circle cx="16" cy="8" r="3.2"/><path d="M3 20c0-3.5 2.5-6 5-6s5 2.5 5 6M11 20c0-3.5 2.5-6 5-6s5 2.5 5 6"/>`,
+  human: `<circle cx="12" cy="6" r="3"/><polyline points="3 15 8 15 10 11 14 19 16 15 21 15"/>`,
+  rocket: `<path d="M12 2c3 2 5 6 5 10 0 2-1 4-2 5l-6 0c-1-1-2-3-2-5 0-4 2-8 5-10Z"/><circle cx="12" cy="9" r="1.6"/><path d="M9 17l-3 4M15 17l3 4M10 21h4"/>`,
+  leaf: `<path d="M20 4C10 4 4 10 4 18c0 1 0 2 .3 2.7C5 21 6 21 6 21c8 0 14-6 14-16 0-.3 0-.7-.1-1Z"/><path d="M6 20C10 16 13 12 18 6"/>`,
+  gear: `<path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8Z"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>`,
+  star: `<polygon points="12,2.5 15,9 22,9 16.5,13.5 18.5,21 12,17 5.5,21 7.5,13.5 2,9 9,9"/>`,
+  clock: `<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/>`,
+  plus: `<path d="M12 5v14M5 12h14"/>`,
+  check: `<polyline points="4 12 9 17 20 6"/>`,
+  x: `<path d="M6 6l12 12M18 6L6 18"/>`,
+  arrowleft: `<path d="M19 12H5M11 5l-7 7 7 7"/>`,
+  route: `<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 7.2 15.8 16.8"/>`
+};
+function icon(name, size, stroke){
+  stroke = stroke===undefined?2:stroke;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${stroke}" stroke-linecap="round" stroke-linejoin="round">${ICONS[name]}</svg>`;
+}
+
+/* ================= DATA ================= */
+const CATEGORIES = [
+  { id:'family', name:'Family Favorites', desc:'Crowd-pleasers for every age.', icon:'family' },
+  { id:'human', name:'The Human Experience', desc:'Stories of people, past and present.', icon:'human' },
+  { id:'space', name:'Space', desc:'Rockets, invention, and big ideas.', icon:'rocket' },
+  { id:'earth', name:'Earth & Environment', desc:'Our planet, up close.', icon:'leaf' },
+  { id:'transport', name:'Transportation & Engineering', desc:'Machines that move the world.', icon:'gear' },
+  { id:'must', name:'Must-Sees', desc:'The exhibits nobody skips.', icon:'star' },
+];
+
+const EXHIBITS = [
+  { id:'spiderman', paid:true, name:"Marvel’s Spider-Man: Beyond Amazing — The Exhibition", cats:['family','human','must'], time:'—', icon:'star', desc:'Step into the exciting world of the beloved superhero.', floor:2, floorLabel:'Main Level 2', zone:'east', routeOrder:280 },
+  { id:'annefrank', paid:true, name:'Anne Frank The Exhibition', cats:['human','must'], time:'—', icon:'human', desc:'Experience the life and legacy of Anne Frank in a powerful new way.', floor:2, floorLabel:'Main Level 2', zone:'center', routeOrder:250 },
+  { id:'poweringfuture', name:'Powering the Future', cats:['human','earth','transport'], time:'—', icon:'gear', desc:'Explore how energy shapes our daily lives today and tomorrow.', floor:3, floorLabel:'Balcony Level 3', zone:'west', routeOrder:330 },
+  { id:'paultazewell', name:'Crafting Character: The Costumes of Paul Tazewell', cats:['human'], time:'—', icon:'star', desc:'Step into the innovative and imaginative world of award-winning fashion and costume designer Paul Tazewell.', floor:2, floorLabel:'Main Level 2', zone:'special exhibition', routeOrder:270 },
+  { id:'spacecenter', name:'Henry Crown Space Center', cats:['family','space','transport','must'], time:'—', icon:'rocket', desc:'Discover the history and future of space exploration, from the Space Race to SpaceX.', floor:1, floorLabel:'Lower Level 1', zone:'west', routeOrder:410 },
+  { id:'sciencestorms', name:'Science Storms', cats:['family','earth','must'], time:'—', icon:'leaf', desc:'Step into a tornado and explore the science behind powerful natural phenomena.', floor:2, floorLabel:'Main Level 2', zone:'center', routeOrder:240 },
+  { id:'u505', name:'U-505 Submarine', cats:['family','human','transport','must'], time:'—', icon:'gear', desc:'Experience the only German submarine in the U.S. in this dramatic exhibit and national war memorial.', floor:1, floorLabel:'Lower Level 1', zone:'west', routeOrder:400 },
+  { id:'bicycle', name:'Art of the Bicycle', cats:['transport'], time:'—', icon:'gear', desc:'See rare historic bicycles alongside new high-tech bikes.', floor:2, floorLabel:'Main Level 2', zone:'east', routeOrder:300 },
+  { id:'fairycastle', name:"Colleen Moore's Fairy Castle", cats:['family','human'], time:'—', icon:'star', desc:'Explore a beloved miniature home filled with intricate details and tiny lights.', floor:1, floorLabel:'Lower Level 1', zone:'center', routeOrder:450 },
+  { id:'earthrevealed', name:'Earth Revealed', cats:['family','earth'], time:'—', icon:'leaf', desc:'See a breathtaking view of the planet on a dynamic video sphere.', floor:2, floorLabel:'Main Level 2', zone:'east', routeOrder:290 },
+  { id:'extremeice', name:'Extreme Ice', cats:['earth'], time:'—', icon:'leaf', desc:'See dramatic images and time-lapse video showing the pace of glacier melt and climate change.', floor:2, floorLabel:'Main Level 2', zone:'east', routeOrder:285 },
+  { id:'farmtech', name:'Farm Tech', cats:['earth','transport'], time:'—', icon:'leaf', desc:'Discover the science and technology helping raise the world’s food supply.', floor:1, floorLabel:'Lower Level 1', zone:'center', routeOrder:440 },
+  { id:'simulators', paid:true, name:'Flight and Motion Simulators', cats:['family','space','transport'], time:'—', icon:'gear', desc:'Experience and control flights inspired by aircraft from throughout history.', floor:3, floorLabel:'Balcony Level 3', zone:'west', routeOrder:310 },
+  { id:'numbers', name:'Numbers in Nature: A Mirror Maze', cats:['family','earth','must'], time:'—', icon:'leaf', desc:'Discover the patterns that surround us in nature and reveal how the world works.', floor:1, floorLabel:'Lower Level 1', zone:'center', routeOrder:430 },
+  { id:'zephyr', name:'Pioneer Zephyr', cats:['transport','must'], time:'—', icon:'gear', desc:'Climb aboard the historic Pioneer Zephyr.', floor:0, floorLabel:'Entry Hall', zone:'center', routeOrder:500 },
+  { id:'ships', name:'Ships Gallery', cats:['human','transport'], time:'—', icon:'gear', desc:'Journey across millennia of seafaring through authentic ship models.', floor:1, floorLabel:'Lower Level 1', zone:'east', routeOrder:480 },
+  { id:'steelmakers', name:'Steelmakers', cats:['human','transport'], time:'—', icon:'gear', desc:'Explore the science and stories behind one of the world’s most essential materials.', floor:1, floorLabel:'Lower Level 1', zone:'east', routeOrder:470 },
+  { id:'jollyball', name:'Swiss Jollyball', cats:['family'], time:'—', icon:'star', desc:'See the giant kinetic machine once declared the world’s largest flipper machine.', floor:1, floorLabel:'Lower Level 1', zone:'center', routeOrder:460 },
+  { id:'takeflight', name:'Take Flight', cats:['space','transport'], time:'—', icon:'gear', desc:'Explore a Boeing 727 and the science of modern aviation.', floor:3, floorLabel:'Balcony Level 3', zone:'west', routeOrder:320 },
+  { id:'blueparadox', name:'The Blue Paradox', cats:['family','earth','must'], time:'—', icon:'leaf', desc:'Explore plastic pollution and the steps we can take to address it.', floor:2, floorLabel:'Main Level 2', zone:'west', routeOrder:200 },
+  { id:'trainstory', name:'The Great Train Story', cats:['family','transport','must'], time:'—', icon:'gear', desc:'Follow a model railroad journey across the country.', floor:2, floorLabel:'Main Level 2', zone:'west', routeOrder:210 },
+  { id:'ideafactory', name:'The Idea Factory', cats:['family'], time:'—', icon:'rocket', desc:'Young visitors can conduct their own play-filled scientific investigations.', floor:1, floorLabel:'Lower Level 1', zone:'center', routeOrder:420 },
+  { id:'transportgallery', name:'Transportation Gallery', cats:['transport'], time:'—', icon:'gear', desc:'See historic vehicles that have flown, chugged, and sped into the record books.', floor:2, floorLabel:'Main Level 2', zone:'west', routeOrder:220 },
+  { id:'vrtransporter', paid:true, name:'VR Transporter', cats:['space','transport'], time:'—', icon:'rocket', desc:'Travel into space or beneath the sea with motion-based virtual reality.', floor:3, floorLabel:'Balcony Level 3', zone:'west', routeOrder:315 },
+  { id:'whispering', name:'Whispering Gallery', cats:['family'], time:'—', icon:'human', desc:'Experience acoustic design that carries a whisper clearly across the room.', floor:2, floorLabel:'Main Level 2', zone:'east', routeOrder:295 },
+  { id:'you', name:'YOU! The Experience', cats:['family','human'], time:'—', icon:'human', desc:'Explore how experiences, choices, personality, and environment shape who you are.', floor:3, floorLabel:'Balcony Level 3', zone:'east', routeOrder:340 },
+  { id:'mainstreet', name:"Yesterday’s Main Street", cats:['human','must'], time:'—', icon:'human', desc:'Stroll the cobblestone streets of turn-of-the-20th-century Chicago.', floor:2, floorLabel:'Main Level 2', zone:'west', routeOrder:230 }
+];
+
+const RECOMMENDATION_ORDER = {
+  must: [
+    'u505','sciencestorms','spacecenter','zephyr','blueparadox',
+    'mainstreet','annefrank','spiderman','numbers','trainstory'
+  ],
+  family: [
+    'sciencestorms','numbers','ideafactory','u505','spacecenter',
+    'trainstory','fairycastle','blueparadox','earthrevealed',
+    'simulators','jollyball','whispering','you','spiderman'
+  ],
+  human: [
+    'annefrank','mainstreet','you','paultazewell','fairycastle',
+    'spiderman','ships','steelmakers','u505','poweringfuture'
+  ],
+  space: [
+    'spacecenter','simulators','takeflight','vrtransporter'
+  ],
+  earth: [
+    'blueparadox','sciencestorms','earthrevealed','extremeice',
+    'farmtech','poweringfuture','numbers'
+  ],
+  transport: [
+    'u505','zephyr','transportgallery','trainstory','takeflight',
+    'simulators','bicycle','ships','steelmakers','farmtech',
+    'poweringfuture','spacecenter','vrtransporter'
+  ]
+};
+
+const CAT_BY_ID = Object.fromEntries(CATEGORIES.map(c=>[c.id,c]));
+const EXH_BY_ID = Object.fromEntries(EXHIBITS.map(e=>[e.id,e]));
+
+/* If a graph.json (exported from the Map Editor) sits beside this file, sync each
+   exhibit's floor from it — matched by name. Non-destructive: categories,
+   descriptions, icons, and recommendation logic are untouched, and anything the
+   graph doesn't cover (or if graph.json is absent) stays exactly as defined above. */
+(function(){
+  try{
+    fetch("graph.json", { cache: "no-store" })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(g){
+        if(!g || !Array.isArray(g.nodes)) return;
+        // The physical kiosk's start node (set per-kiosk in the Map Editor). Used as
+        // the plan's origin so routes begin here; validated against the graph, and
+        // left null if unset (the mobile app then falls back to its documented default).
+        var kioskId = g.activeKioskId ? String(g.activeKioskId) : "";
+        var hasKiosk = kioskId && g.nodes.some(function(n){ return String(n.id) === kioskId; });
+        window.__activeKioskId = hasKiosk ? kioskId : null;
+        var floors = {};
+        (g.floors || []).forEach(function(f){ floors[f.id] = { level: (f.level || 0), name: String(f.name || "") }; });
+        var byName = {}, done = {};
+        EXHIBITS.forEach(function(e){ byName[String(e.name).toLowerCase().trim()] = e; });
+        g.nodes.forEach(function(n){
+          if(!/exhibit/.test(String(n.type || ""))) return;
+          var key = String(n.name || "").toLowerCase().trim();
+          var e = byName[key];
+          if(!e || done[key]) return;                     // exact name match only; first match wins
+          var f = floors[n.floorId];
+          if(!f) return;
+          done[key] = 1;
+          e.nodeId = n.id;                                // stable graph id for QR transfer
+          e.floor = f.level;
+          e.floorLabel = f.name + (f.level > 0 ? (" " + f.level) : "");
+        });
+        if(typeof window.__onExhibitsUpdated === "function"){ try{ window.__onExhibitsUpdated(); }catch(e){} }
+      })
+      .catch(function(){});
+  }catch(e){}
+})();
+
+/* Sort a finished visit by a practical museum route:
+   Main Level 2 → Balcony Level 3 → Lower Level 1 → Entry Hall */
+function sortByMuseumRoute(exhibits){
+
+  const floorOrder = {
+    0: 0,   // Entry Hall
+    1: 1,   // Lower Level
+    2: 2,   // Main Level
+    3: 3    // Balcony Level
+  };
+
+  return [...exhibits].sort((a,b)=>{
+
+    const floorDiff = floorOrder[a.floor] - floorOrder[b.floor];
+    if(floorDiff !== 0) return floorDiff;
+
+    return a.routeOrder - b.routeOrder;
+  });
+
+}
+/* ================= STATE ================= */
+const state = {
+  categories: new Set(),
+  myVisit: new Set(),
+};
+
+const FLOW = ['home','categories','recommended','review','qr'];
+const STEP_LABELS = { categories:'Interests', recommended:'Recommendations', review:'Review', qr:'Get your plan' };
+const STEP_SCREENS = ['categories','recommended','review','qr'];
+let current = 'home';
+
+function goTo(screenId){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+screenId).classList.add('active');
+  current = screenId;
+  renderScreen(screenId);
+}
+
+document.querySelectorAll('[data-back]').forEach(btn=>{
+  btn.innerHTML = `${icon('arrowleft', 26, 2.4)}<span>Back</span>`;
+  btn.addEventListener('click', ()=> goTo(btn.getAttribute('data-back')));
+});
+
+/* ================= TOAST ================= */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+/* ================= LANGUAGE STUB ================= */
+document.querySelectorAll('.header-lang').forEach(el=>{
+  el.addEventListener('click', ()=> showToast('English is currently selected.'));
+});
+
+/* ================= HOME ================= */
+document.getElementById('btnPlanVisit').addEventListener('click', ()=> goTo('categories'));
+document.getElementById("btnFindWay").addEventListener("click", () => {
+    window.location.href = "find-my-way.html";
+});
+
+/* ================= PROGRESS BAR ================= */
+function renderProgress(containerId, activeStep){
+  const el = document.getElementById(containerId);
+  if(!el) return;
+  const idx = STEP_SCREENS.indexOf(activeStep);
+  let html = '';
+  STEP_SCREENS.forEach((s,i)=>{
+    let cls = 'dot';
+    if(i < idx) cls += ' done';
+    if(i === idx) cls += ' current';
+    html += `<div class="dot ${cls.replace('dot ','')}">${ i<idx ? icon('check',16,3) : (i+1) }</div>`;
+    if(i < STEP_SCREENS.length-1){
+      html += `<div class="progress-track"><div class="seg ${i<idx?'done':''}"></div></div>`;
+    }
+  });
+  el.innerHTML = `<div class="label">${STEP_LABELS[activeStep]}</div>${html}`;
+}
+
+/* ================= CATEGORY SCREEN ================= */
+function renderCategories(){
+  const grid = document.getElementById('catGrid');
+  grid.innerHTML = CATEGORIES.map(c=>`
+    <div class="cat-card ${state.categories.has(c.id)?'selected':''}" data-cat="${c.id}">
+      <div class="cat-check">${icon('check',18,3)}</div>
+      <div class="cat-icon-wrap">${icon(c.icon,32,2)}</div>
+      <div>
+        <div class="cat-name display">${c.name}</div>
+        <div class="cat-desc">${c.desc}</div>
+      </div>
+    </div>
+  `).join('');
+  grid.querySelectorAll('.cat-card').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      const id = card.getAttribute('data-cat');
+      state.categories.has(id) ? state.categories.delete(id) : state.categories.add(id);
+      renderCategories();
+      updateCategoryBar();
+    });
+  });
+}
+function updateCategoryBar(){
+  const n = state.categories.size;
+  document.getElementById('catCount').textContent = n;
+  document.getElementById('btnToRecommended').disabled = n===0;
+}
+document.getElementById('btnToRecommended').addEventListener('click', ()=>{
+  if(state.categories.size===0) return;
+
+  state.myVisit.clear();
+
+  getRecommended().slice(0,8).forEach(ex=>state.myVisit.add(ex.id));
+
+  goTo('recommended');
+});
+
+/* ================= RECOMMENDED SCREEN ================= */
+function getRecommended(){
+  const selected = Array.from(state.categories);
+
+  return EXHIBITS
+    .filter(e => e.cats.some(c => state.categories.has(c)))
+    .sort((a,b)=>{
+      const aMatches = a.cats.filter(c => state.categories.has(c)).length;
+      const bMatches = b.cats.filter(c => state.categories.has(c)).length;
+
+      if(bMatches !== aMatches) return bMatches - aMatches;
+
+      const rankFor = (exhibit, category) => {
+        const list = RECOMMENDATION_ORDER[category] || [];
+        const rank = list.indexOf(exhibit.id);
+        return rank === -1 ? 999 : rank;
+      };
+
+      const aRank = selected.reduce((sum, category)=>sum + rankFor(a, category), 0);
+      const bRank = selected.reduce((sum, category)=>sum + rankFor(b, category), 0);
+
+      return aRank - bRank || a.name.localeCompare(b.name);
+    });
+}
+function exhibitCardHTML(e){
+  const added = state.myVisit.has(e.id);
+  return `
+  <div class="exhibit-card ${added?'added':''}" data-ex="${e.id}">
+    <div class="exhibit-icon">${icon(e.icon,32,2)}</div>
+    <div class="exhibit-body">
+      ${e.paid ? '<div class="ticket-badge">Additional Ticket Required</div>' : ''}
+      <div class="exhibit-name display">${e.name}</div>
+      <div class="exhibit-desc">${e.desc}</div>
+    </div>
+    <div class="exhibit-actions">
+      <button class="add-btn ${added?'added':''}" data-add="${e.id}">
+        ${added ? icon('check',18,3)+' Added' : icon('plus',18,3)+' Add'}
+      </button>
+    </div>
+  </div>`;
+}
+function renderRecommended(){
+  const matches = getRecommended();
+  const included = matches.filter(e => state.myVisit.has(e.id));
+  const extras = matches.filter(e => !state.myVisit.has(e.id));
+
+  const includedHTML = included.length
+    ? included.map(exhibitCardHTML).join('')
+    : `<div class="empty-state">Your visit is empty. Add an exhibit below.</div>`;
+
+  const extrasHTML = extras.length
+    ? `
+      <div class="recommendation-divider">
+        <h3 class="display">Want to add more?</h3>
+        <p>These also match your interests but were not included in your itinerary.</p>
+      </div>
+      ${extras.map(exhibitCardHTML).join('')}
+    `
+    : '';
+
+  document.getElementById('recGrid').innerHTML =
+    includedHTML + extrasHTML;
+
+  bindAddButtons('recGrid');
+  updateRecommendedBar();
+}
+function bindAddButtons(containerId){
+  document.getElementById(containerId).querySelectorAll('[data-add]').forEach(btn=>{
+    btn.addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      const id = btn.getAttribute('data-add');
+      state.myVisit.has(id) ? state.myVisit.delete(id) : state.myVisit.add(id);
+      renderRecommended();
+    });
+  });
+}
+function updateRecommendedBar(){
+  document.getElementById('recCount').textContent = state.myVisit.size;
+  document.getElementById('recCountText').textContent =
+    state.myVisit.size===1 ? 'Exhibit on your route' : 'Exhibits on your route';
+}
+document.getElementById('btnToBuilder').addEventListener('click', ()=> { if(state.myVisit.size===0){showToast('Add at least one exhibit.');return;} goTo('review');});
+
+/* ================= REVIEW SCREEN ================= */
+function parseMinutes(t){ const n = parseInt(t); return Number.isFinite(n) ? n : 0; }
+function renderReview(){
+  const visitEx = sortByMuseumRoute(
+    Array.from(state.myVisit).map(id => EXH_BY_ID[id])
+  );
+
+  document.getElementById('reviewSummary').innerHTML = `
+    <div class="summary-card">
+      <div class="num display">${visitEx.length}</div>
+      <div class="lbl">EXHIBITS ON YOUR ROUTE</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="num display">—</div>
+      <div class="lbl">ESTIMATED TOTAL TIME</div>
+    </div>
+  `;
+
+  let previousLevel = '';
+
+  const listHTML = visitEx.map((e, i) => {
+    const level =
+      e.floor === 0
+        ? 'ENTRY HALL'
+        : e.floor === 1
+        ? 'LOWER LEVEL'
+        : e.floor === 2
+        ? 'MAIN LEVEL'
+        : 'BALCONY LEVEL';
+
+    const heading = level !== previousLevel
+      ? `
+        <div style="
+          font-family:'Anton', sans-serif;
+          font-size:28px;
+          color:white;
+          margin:24px 0 4px;
+          letter-spacing:0.5px;
+        ">
+          ${level}
+        </div>
+      `
+      : '';
+
+    previousLevel = level;
+
+    return `
+      ${heading}
+
+      <div class="review-row" data-ex="${e.id}">
+        <div class="review-index">${i + 1}</div>
+
+        <div class="exhibit-icon">
+          ${icon(e.icon, 28, 2)}
+        </div>
+
+        <div style="flex:1;">
+          <div class="row-name display" style="font-size:20px;">
+            ${e.name}
+          </div>
+
+          ${e.paid
+            ? '<div class="row-meta">Additional ticket required</div>'
+            : ''
+          }
+        </div>
+
+        <button class="remove-btn" data-remove="${e.id}">
+          ${icon('x', 18, 2.6)}
+        </button>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('reviewList').innerHTML =
+    listHTML || `<div class="empty-state">No exhibits selected yet.</div>`;
+
+  document
+    .getElementById('reviewList')
+    .querySelectorAll('[data-remove]')
+    .forEach(btn => {
+      btn.addEventListener('click', () => {
+        state.myVisit.delete(btn.getAttribute('data-remove'));
+        renderReview();
+      });
+    });
+}
+document.getElementById('btnToQr').addEventListener('click', ()=>{
+  if(state.myVisit.size===0){ showToast('Add at least one exhibit before generating your plan.'); return; }
+  goTo('qr');
+});
+
+/* ================= QR SCREEN (real, scannable plan transfer) ================= */
+/* Builds a genuine QR encoding a mobile URL. Stops are the visitor's chosen
+   exhibits resolved to STABLE graph node ids (captured by the graph.json sync
+   above, by exact name match). Order follows the reviewed museum route; the
+   mobile app re-optimises nearest-first from the start. No display names,
+   objects, or graph data are placed in the URL under normal conditions. */
+function planStopIds(){
+  var ordered = sortByMuseumRoute(Array.from(state.myVisit).map(function(id){ return EXH_BY_ID[id]; }));
+  var ids = [], usedNames = false;
+  ordered.forEach(function(e){
+    if(!e) return;
+    if(e.nodeId){ ids.push(e.nodeId); }
+    else { usedNames = true; }        // graph didn't resolve this exhibit to a node
+  });
+  // Normal path: every routable exhibit has a node id. Only if NOTHING resolved
+  // (e.g. the kiosk's own graph.json fetch failed) do we fall back to names, which
+  // the mobile app can still match against its own copy of the graph.
+  if(!ids.length && ordered.length){
+    return { stops: ordered.filter(Boolean).map(function(e){ return e.name; }), fallbackNames:true };
+  }
+  return { stops: ids, fallbackNames:usedNames && ids.length===0 };
+}
+
+function drawQr(){
+  var canvas = document.getElementById('qrCanvas');
+  var link = document.getElementById('qrOpenLink');
+  var res = planStopIds();
+  var stops = res.stops;
+  var haveLib = (typeof window.MuseumTransfer !== 'undefined');
+
+  if(!haveLib || !stops.length){
+    // Transfer library missing or no resolvable stops: keep the card clean rather
+    // than showing a non-scannable placeholder.
+    try{ var c0 = canvas.getContext('2d'); c0.fillStyle = '#fff'; c0.fillRect(0,0,canvas.width,canvas.height); }catch(e){}
+    if(link){ link.hidden = true; }
+    return;
+  }
+
+  var startId = window.__activeKioskId || null;   // omit if this kiosk's start isn't set → mobile uses its default
+  try{
+    var url = window.MuseumTransfer.renderPlanQR(canvas, stops, startId, false, { dark:'#2A140A', light:'#ffffff' });
+    if(link && url){ link.href = url; link.hidden = false; }
+  }catch(e){
+    try{ var c1 = canvas.getContext('2d'); c1.fillStyle = '#fff'; c1.fillRect(0,0,canvas.width,canvas.height); }catch(_){}
+    if(link){ link.hidden = true; }
+  }
+}
+document.getElementById('btnStartOver').addEventListener('click', ()=>{
+  state.categories.clear();
+  state.myVisit.clear();
+  goTo('home');
+});
+
+/* ================= SCREEN RENDER DISPATCH ================= */
+function renderScreen(id){
+  if(id==='categories'){ renderCategories(); updateCategoryBar(); renderProgress('progress-categories','categories'); }
+  if(id==='recommended'){ renderRecommended(); renderProgress('progress-recommended','recommended'); }
+    if(id==='review'){ renderReview(); renderProgress('progress-review','review'); }
+  if(id==='qr'){ drawQr(); renderProgress('progress-qr','qr'); }
+}
+
+/* ================= SCALE TO FIT VIEWPORT ================= */
+function scaleKiosk(){
+  const kiosk = document.getElementById('kiosk');
+  const sx = window.innerWidth/1920;
+  const sy = window.innerHeight/1080;
+  const s = Math.min(sx, sy);
+  kiosk.style.transform = `translate(-50%, -50%) scale(${s})`;
+  const wrap = document.querySelector('.stage-wrap');
+  wrap.style.overflow = 'hidden';
+}
+window.addEventListener('resize', scaleKiosk);
+scaleKiosk();
+</script>
+
+<script>
+/* =====================================================================
+   KIOSK TRANSLATIONS
+   Five languages chosen for Chicago: English, Spanish, Polish, Arabic,
+   French. Spanish is the city's second language by a wide margin and
+   Polish is the largest European-language community here.
+
+   Only interface wording is translated. Exhibit and destination names
+   (Science Storms, Stan's Donut, U-505 Submarine ...) are proper names
+   and are deliberately left in English, as museums normally do on
+   signage. Developer Mode is not translated.
+   ===================================================================== */
+(function () {
+  "use strict";
+
+  var STORE = "kiosk_lang";
+  var LANGS = [
+    { code: "en", label: "English",  native: "English" },
+    { code: "es", label: "Español",  native: "Español" },
+    { code: "pl", label: "Polski",   native: "Polski" },
+    { code: "ar", label: "العربية",   native: "العربية" },
+    { code: "fr", label: "Français", native: "Français" }
+  ];
+
+  var T = {
+    es: {
+      "Family Favorites": "Favoritos en familia",
+      "Crowd-pleasers for every age.": "Éxitos para todas las edades.",
+      "The Human Experience": "La experiencia humana",
+      "Stories of people, past and present.": "Historias de personas, de ayer y de hoy.",
+      "Space": "Espacio",
+      "Rockets, invention, and big ideas.": "Cohetes, inventos y grandes ideas.",
+      "Earth & Environment": "Tierra y medio ambiente",
+      "Our planet, up close.": "Nuestro planeta, de cerca.",
+      "Transportation & Engineering": "Transporte e ingeniería",
+      "Machines that move the world.": "Máquinas que mueven el mundo.",
+      "Must-Sees": "Imprescindibles",
+      "The exhibits nobody skips.": "Las exhibiciones que nadie se pierde.",
+      "Step into the exciting world of the beloved superhero.": "Entre en el emocionante mundo del querido superhéroe.",
+      "Experience the life and legacy of Anne Frank in a powerful new way.": "Descubra la vida y el legado de Anne Frank de una forma conmovedora.",
+      "Explore how energy shapes our daily lives today and tomorrow.": "Explore cómo la energía moldea nuestra vida hoy y mañana.",
+      "Discover the history and future of space exploration, from the Space Race to SpaceX.": "Descubra la historia y el futuro de la exploración espacial, de la carrera espacial a SpaceX.",
+      "Step into a tornado and explore the science behind powerful natural phenomena.": "Entre en un tornado y explore la ciencia de los fenómenos naturales.",
+      "See rare historic bicycles alongside new high-tech bikes.": "Vea bicicletas históricas junto a modelos de alta tecnología.",
+      "Explore a beloved miniature home filled with intricate details and tiny lights.": "Explore una casa en miniatura llena de detalles y luces diminutas.",
+      "See a breathtaking view of the planet on a dynamic video sphere.": "Vea el planeta en una impresionante esfera de video.",
+      "Discover the science and technology helping raise the world’s food supply.": "Descubra la ciencia y la tecnología que producen los alimentos del mundo.",
+      "Experience and control flights inspired by aircraft from throughout history.": "Controle vuelos inspirados en aeronaves históricas.",
+      "Discover the patterns that surround us in nature and reveal how the world works.": "Descubra los patrones de la naturaleza y cómo funciona el mundo.",
+      "Climb aboard the historic Pioneer Zephyr.": "Suba a bordo del histórico Pioneer Zephyr.",
+      "Journey across millennia of seafaring through authentic ship models.": "Recorra milenios de navegación con modelos auténticos.",
+      "Explore the science and stories behind one of the world’s most essential materials.": "Explore la ciencia detrás de uno de los materiales más esenciales.",
+      "See the giant kinetic machine once declared the world’s largest flipper machine.": "Vea la máquina cinética gigante, en su día la mayor del mundo.",
+      "Explore a Boeing 727 and the science of modern aviation.": "Explore un Boeing 727 y la ciencia de la aviación moderna.",
+      "Explore plastic pollution and the steps we can take to address it.": "Explore la contaminación por plástico y cómo afrontarla.",
+      "Follow a model railroad journey across the country.": "Siga un viaje ferroviario en miniatura por el país.",
+      "Young visitors can conduct their own play-filled scientific investigations.": "Los más pequeños hacen sus propios experimentos jugando.",
+      "See historic vehicles that have flown, chugged, and sped into the record books.": "Vea vehículos históricos que hicieron historia.",
+      "Travel into space or beneath the sea with motion-based virtual reality.": "Viaje al espacio o al fondo del mar con realidad virtual.",
+      "Experience acoustic design that carries a whisper clearly across the room.": "Descubra una acústica que lleva un susurro de lado a lado.",
+      "Explore how experiences, choices, personality, and environment shape who you are.": "Explore cómo las experiencias y el entorno moldean quién es usted.",
+      "Stroll the cobblestone streets of turn-of-the-20th-century Chicago.": "Pasee por el Chicago empedrado de principios del siglo XX.",
+      "One Small Snack": "Un pequeño refrigerio",
+      "Outdoor Seating": "Zona al aire libre",
+      "Outside Seating": "Zona al aire libre",
+      "Museum Kitchen": "Cocina del museo",
+      "Museum Store": "Tienda del museo",
+      "Stan's Donut": "Stan’s Donut",
+      "Stan's Donuts": "Stan’s Donuts",
+      "Group Center": "Centro de grupos",
+      "Group Center Lunch Room": "Comedor del centro de grupos",
+      "Ticket Counter and Membership Services": "Taquilla y membresías",
+      "Coal Mine Exit": "Salida de Coal Mine",
+      "Parking A, B, C": "Estacionamiento A, B, C",
+      "Parking D, E, F": "Estacionamiento D, E, F",
+      "Parking Garage": "Garaje de estacionamiento",
+      "Yellow Stairs": "Escaleras amarillas",
+      "Green stairs": "Escaleras verdes",
+      "Green Stairs": "Escaleras verdes",
+      "Red Stairs": "Escaleras rojas",
+      "Blue Stairs": "Escaleras azules",
+      "Orange Stairs": "Escaleras naranjas",
+      "Purple Stairs": "Escaleras moradas",
+      "Elevator": "Ascensor",
+      "Elevators": "Ascensores",
+      "Escalator": "Escalera mecánica",
+      "Entry Hall Elevator": "Ascensor del vestíbulo",
+      "Elevator in Red Stairs": "Ascensor de las escaleras rojas",
+      "Restroom": "Baño",
+      "Family Restroom": "Baño familiar",
+      "Guest Services": "Servicios al visitante",
+      "The Blue Paradox Entrance": "Entrada a The Blue Paradox",
+      "Science Storms Escalator": "Escalera mecánica de Science Storms",
+      "Main Escalator": "Escalera mecánica principal",
+      "Stairs": "Escaleras",
+      "Silver Elevator": "Ascensor plateado",
+      "U-505 Stairs": "Escaleras de U-505",
+      "Exit to Parking (A, B, C)": "Salida al estacionamiento (A, B, C)",
+      "Exit to Parking (D, E, F)": "Salida al estacionamiento (D, E, F)",
+      "Exit through Elevator": "Salida por el ascensor",
+      "Here's your personalized route for the day": "Esta es su ruta personalizada del día",
+      "Double check your list below. You can still remove anything before we generate your plan.": "Revise su lista. Aún puede quitar lo que quiera antes de generar el plan.",
+      "Exhibits on your route": "Exhibiciones en su ruta",
+      "Estimated total time": "Tiempo total estimado",
+      "We built this itinerary based on your interests. Remove anything you are not interested in, or add a few extra exhibits below if you would like.": "Creamos este itinerario según sus intereses. Quite lo que no le interese o agregue más exhibiciones abajo.",
+      "Point your phone's camera at the code to save your personalized route, with turn-by-turn directions to every exhibit.": "Apunte la cámara del teléfono al código para guardar su ruta con indicaciones paso a paso.",
+      "Additional Ticket Required": "Se requiere boleto adicional",
+      "Additional ticket required": "Se requiere boleto adicional",
+      "No exhibits selected yet.": "Aún no ha seleccionado exhibiciones.",
+      "Your visit is empty. Add an exhibit below.": "Su visita está vacía. Agregue una exhibición abajo.",
+      "Want to add more?": "¿Desea agregar más?",
+      "These also match your interests but were not included in your itinerary.": "Estas también coinciden con sus intereses, pero no se incluyeron.",
+      "Interests": "Intereses",
+      "Recommendations": "Recomendaciones",
+      "Review": "Revisar",
+      "Get your plan": "Obtenga su plan",
+      "Entry Hall": "Vestíbulo de entrada",
+      "Lower Level 1": "Nivel inferior 1",
+      "Main Level 2": "Nivel principal 2",
+      "Balcony Level 3": "Nivel del balcón 3",
+      "Experience the only German submarine in the U.S. in this dramatic exhibit and national war memorial.": "Descubra el único submarino alemán en EE. UU. en esta impresionante exhibición y monumento nacional.",
+      "See dramatic images and time-lapse video showing the pace of glacier melt and climate change.": "Vea imágenes y videos que muestran el deshielo de los glaciares y el cambio climático.",
+      "Step into the innovative and imaginative world of award-winning fashion and costume designer Paul Tazewell.": "Entre en el mundo creativo del premiado diseñador de vestuario Paul Tazewell.",
+      "Search exhibits, amenities, parking": "Buscar exhibiciones, servicios, estacionamiento",
+      "Search exhibits, amenities, parking...": "Buscar exhibiciones, servicios, estacionamiento...",
+      "Search exhibits": "Buscar exhibiciones",
+      "Search exhibits by name...": "Buscar exhibiciones por nombre...",
+      "Find Your Parking Level": "Encuentre su nivel de estacionamiento",
+      "Choose the garage level where you parked.": "Elija el nivel del garaje donde estacionó.",
+      "Let's Find Your Level": "Encontremos su nivel",
+      "Answer one question and we will point you the right way.": "Responda una pregunta y le indicaremos el camino.",
+      "Follow the numbered directions below, or take them with you using the code.": "Siga las indicaciones numeradas o llévelas consigo con el código.",
+      "Step-by-step directions": "Indicaciones paso a paso",
+      "Directions": "Indicaciones",
+      "Map image not available for this floor": "No hay imagen del mapa para este piso",
+      "QR code placeholder": "Marcador del código QR",
+      "Scanning to carry directions on your phone is coming soon.": "Pronto podrá escanear para llevar las indicaciones en su teléfono.",
+      "Try a different name, or tap Back to browse popular exhibits.": "Pruebe otro nombre o toque Atrás para ver exhibiciones populares.",
+      "You have arrived at your destination.": "Ha llegado a su destino.",
+      "That destination no longer exists.": "Ese destino ya no existe.",
+      "That destination isn’t available right now.": "Ese destino no está disponible ahora.",
+      "This kiosk hasn’t been set up yet. Please ask a staff member for directions.": "Este quiosco aún no está configurado. Pida indicaciones al personal.",
+      "We couldn’t find a step-free route to that destination. Please ask a staff member for assistance.": "No encontramos una ruta sin escaleras a ese destino. Pida ayuda al personal.",
+      "We couldn’t find a walking route to that destination right now. Please ask a staff member for assistance.": "No encontramos una ruta a pie a ese destino. Pida ayuda al personal.",
+      "You’re already here — this kiosk is at that destination.": "Ya está aquí: este quiosco está en ese destino.",
+      "We couldn’t map that route. Please ask a staff member for assistance.": "No pudimos trazar esa ruta. Pida ayuda al personal.",
+      "Please ask a staff member for assistance.": "Pida ayuda al personal.",
+      "Back to Find My Way home": "Volver al inicio de Cómo llegar",
+      "Back to parking levels": "Volver a los niveles de estacionamiento",
+      "Back to route options": "Volver a las opciones de ruta",
+      "Go back to home": "Volver al inicio",
+      "Information Desk": "Mostrador de información",
+      "Coat Check": "Guardarropa",
+      "Water Fountain": "Fuente de agua",
+      "Accessible Restrooms": "Baños accesibles",
+      "Main Museum Exit": "Salida principal del museo",
+      "Parking Garage Entrance": "Entrada al garaje",
+      "LANGUAGE": "IDIOMA",
+      "How can we help you today?": "¿Cómo podemos ayudarle hoy?",
+      "Plan My Visit": "Planear mi visita",
+      "Find My Way": "Cómo llegar",
+      "What are you interested in today?": "¿Qué le interesa hoy?",
+      "Select one or more": "Seleccione una o más",
+      "Categories selected": "Categorías seleccionadas",
+      "Choose at least one to continue": "Elija al menos una para continuar",
+      "Show me exhibits →": "Ver exhibiciones →",
+      "Your visit is ready": "Su visita está lista",
+      "Exhibits added": "Exhibiciones agregadas",
+      "Remove or add exhibits before reviewing": "Quite o agregue exhibiciones antes de revisar",
+      "Review my route →": "Revisar mi ruta →",
+      "Ready when you are": "Listo cuando usted quiera",
+      "We'll generate a QR code to send this to your phone": "Generaremos un código QR para enviarlo a su teléfono",
+      "Generate my plan →": "Generar mi plan →",
+      "Scan to get your plan": "Escanee para obtener su plan",
+      "Open your camera app": "Abra la aplicación de la cámara",
+      "Point it at the code": "Apúntela al código",
+      "Tap the link that appears": "Toque el enlace que aparece",
+      "Start over": "Empezar de nuevo",
+      "Back": "Atrás",
+      "Go back": "Volver",
+      "Where would you like to go?": "¿A dónde desea ir?",
+      "Search for a destination, or choose a category to begin.": "Busque un destino o elija una categoría para comenzar.",
+      "Exhibits": "Exhibiciones",
+      "Galleries and featured shows.": "Galerías y espectáculos destacados.",
+      "Amenities": "Servicios",
+      "Restrooms, food, and services.": "Baños, comida y servicios.",
+      "Parking": "Estacionamiento",
+      "Garage and lot directions.": "Cómo llegar al garaje y al estacionamiento.",
+      "Exit": "Salida",
+      "Nearest way out.": "La salida más cercana.",
+      "Find an Exhibit": "Buscar una exhibición",
+      "Start typing to search, or pick from the popular exhibits below.": "Escriba para buscar o elija una de las exhibiciones populares.",
+      "Popular Exhibits": "Exhibiciones populares",
+      "Find an Amenity": "Buscar un servicio",
+      "Choose what you need.": "Elija lo que necesita.",
+      "Find Your Parking": "Encuentre su estacionamiento",
+      "Choose where you parked.": "Elija dónde estacionó.",
+      "Find an Exit": "Buscar una salida",
+      "Choose an exit.": "Elija una salida.",
+      "Choose a destination.": "Elija un destino.",
+      "Food": "Comida",
+      "Gift Shop": "Tienda de regalos",
+      "Restrooms": "Baños",
+      "Family Restrooms": "Baños familiares",
+      "Vending": "Máquinas expendedoras",
+      "Tickets": "Boletos",
+      "Guest Services": "Servicios al visitante",
+      "Plan Your Route": "Planifique su ruta",
+      "Review your destination, then choose how you would like to get there.": "Revise su destino y elija cómo desea llegar.",
+      "Would you like a step-free route?": "¿Desea una ruta sin escaleras?",
+      "A step-free route avoids stairs, using elevators and ramps instead.": "Una ruta sin escaleras usa ascensores y rampas.",
+      "Yes, step-free route": "Sí, ruta sin escaleras",
+      "Avoids stairs — elevators and ramps only.": "Evita las escaleras: solo ascensores y rampas.",
+      "No preference": "Sin preferencia",
+      "Show me the most direct route.": "Muéstreme la ruta más directa.",
+      "Ready to go?": "¿Listo para ir?",
+      "We will build your step-by-step route.": "Crearemos su ruta paso a paso.",
+      "Show my route →": "Mostrar mi ruta →",
+      "Your Route": "Su ruta",
+      "Your Route on the Map": "Su ruta en el mapa",
+      "Continue these directions on your phone": "Continúe estas indicaciones en su teléfono",
+      "Point your camera at the code to keep your route with you as you walk.": "Apunte la cámara al código para llevar su ruta consigo.",
+      "Enjoy your visit": "Disfrute su visita",
+      "Need another destination? Start over any time.": "¿Necesita otro destino? Empiece de nuevo cuando quiera.",
+      "Previous floor": "Piso anterior",
+      "Replay": "Repetir",
+      "Continue to next floor": "Continuar al siguiente piso",
+      "You Are Here": "Usted está aquí",
+      "Continue Here": "Continúe aquí",
+      "Destination": "Destino",
+      "You have arrived.": "Ha llegado.",
+      "Nothing here yet": "Nada por ahora",
+      "These destinations aren’t available right now.": "Estos destinos no están disponibles en este momento.",
+      "No exhibits found": "No se encontraron exhibiciones",
+      "Try a different name, or tap Back to browse all exhibits.": "Pruebe otro nombre o toque Atrás para ver todas las exhibiciones.",
+      "Route unavailable": "Ruta no disponible",
+      "Send to Phone": "Enviar al teléfono",
+      "Close": "Cerrar",
+      "Entry Hall": "Vestíbulo de entrada",
+      "Lower Level": "Nivel inferior",
+      "Main Level": "Nivel principal",
+      "Balcony Level": "Nivel del balcón",
+      "Take the": "Tome",
+      "up to": "subiendo hasta",
+      "down to": "bajando hasta",
+      "is on": "está en",
+      "walk": "a pie",
+      "min": "min",
+      "Floor": "Piso",
+      "of": "de",
+      "location": "ubicación",
+      "locations": "ubicaciones"
+    },
+
+    pl: {
+      "Family Favorites": "Ulubione rodzinne",
+      "Crowd-pleasers for every age.": "Atrakcje dla każdego wieku.",
+      "The Human Experience": "Ludzkie doświadczenie",
+      "Stories of people, past and present.": "Historie ludzi dawniej i dziś.",
+      "Space": "Kosmos",
+      "Rockets, invention, and big ideas.": "Rakiety, wynalazki i wielkie idee.",
+      "Earth & Environment": "Ziemia i środowisko",
+      "Our planet, up close.": "Nasza planeta z bliska.",
+      "Transportation & Engineering": "Transport i inżynieria",
+      "Machines that move the world.": "Maszyny, które poruszają świat.",
+      "Must-Sees": "Obowiązkowe",
+      "The exhibits nobody skips.": "Wystawy, których nikt nie pomija.",
+      "Step into the exciting world of the beloved superhero.": "Wejdź w ekscytujący świat uwielbianego superbohatera.",
+      "Experience the life and legacy of Anne Frank in a powerful new way.": "Poznaj życie i dziedzictwo Anne Frank w poruszający sposób.",
+      "Explore how energy shapes our daily lives today and tomorrow.": "Odkryj, jak energia kształtuje nasze życie dziś i jutro.",
+      "Discover the history and future of space exploration, from the Space Race to SpaceX.": "Poznaj historię i przyszłość eksploracji kosmosu, od wyścigu kosmicznego po SpaceX.",
+      "Step into a tornado and explore the science behind powerful natural phenomena.": "Wejdź w tornado i poznaj naukę o potężnych zjawiskach natury.",
+      "See rare historic bicycles alongside new high-tech bikes.": "Zobacz zabytkowe rowery obok nowoczesnych konstrukcji.",
+      "Explore a beloved miniature home filled with intricate details and tiny lights.": "Odkryj miniaturowy domek pełen detali i maleńkich świateł.",
+      "See a breathtaking view of the planet on a dynamic video sphere.": "Zobacz planetę na zapierającej dech kuli wideo.",
+      "Discover the science and technology helping raise the world’s food supply.": "Poznaj naukę i technologię, które wytwarzają żywność świata.",
+      "Experience and control flights inspired by aircraft from throughout history.": "Steruj lotami inspirowanymi samolotami z historii.",
+      "Discover the patterns that surround us in nature and reveal how the world works.": "Odkryj wzory natury i zrozum, jak działa świat.",
+      "Climb aboard the historic Pioneer Zephyr.": "Wejdź na pokład zabytkowego Pioneer Zephyr.",
+      "Journey across millennia of seafaring through authentic ship models.": "Przemierz tysiąclecia żeglugi dzięki modelom statków.",
+      "Explore the science and stories behind one of the world’s most essential materials.": "Poznaj naukę i historie jednego z najważniejszych materiałów.",
+      "See the giant kinetic machine once declared the world’s largest flipper machine.": "Zobacz gigantyczną maszynę kinetyczną, niegdyś największą na świecie.",
+      "Explore a Boeing 727 and the science of modern aviation.": "Zwiedź Boeinga 727 i poznaj naukę o lotnictwie.",
+      "Explore plastic pollution and the steps we can take to address it.": "Poznaj problem plastiku i sposoby walki z nim.",
+      "Follow a model railroad journey across the country.": "Śledź podróż makiety kolejowej przez kraj.",
+      "Young visitors can conduct their own play-filled scientific investigations.": "Najmłodsi prowadzą własne eksperymenty przez zabawę.",
+      "See historic vehicles that have flown, chugged, and sped into the record books.": "Zobacz historyczne pojazdy, które przeszły do historii.",
+      "Travel into space or beneath the sea with motion-based virtual reality.": "Podróżuj w kosmos lub pod wodę dzięki VR.",
+      "Experience acoustic design that carries a whisper clearly across the room.": "Poznaj akustykę, która niesie szept przez całą salę.",
+      "Explore how experiences, choices, personality, and environment shape who you are.": "Odkryj, jak doświadczenia i otoczenie kształtują to, kim jesteś.",
+      "Stroll the cobblestone streets of turn-of-the-20th-century Chicago.": "Przejdź się brukowanymi ulicami Chicago z początku XX wieku.",
+      "One Small Snack": "Mała przekąska",
+      "Outdoor Seating": "Miejsca na zewnątrz",
+      "Outside Seating": "Miejsca na zewnątrz",
+      "Museum Kitchen": "Kuchnia muzeum",
+      "Museum Store": "Sklep muzealny",
+      "Stan's Donut": "Stan’s Donut",
+      "Stan's Donuts": "Stan’s Donuts",
+      "Group Center": "Centrum grup",
+      "Group Center Lunch Room": "Jadalnia centrum grup",
+      "Ticket Counter and Membership Services": "Kasa i członkostwo",
+      "Coal Mine Exit": "Wyjście z Coal Mine",
+      "Parking A, B, C": "Parking A, B, C",
+      "Parking D, E, F": "Parking D, E, F",
+      "Parking Garage": "Garaż parkingowy",
+      "Yellow Stairs": "Żółte schody",
+      "Green stairs": "Zielone schody",
+      "Green Stairs": "Zielone schody",
+      "Red Stairs": "Czerwone schody",
+      "Blue Stairs": "Niebieskie schody",
+      "Orange Stairs": "Pomarańczowe schody",
+      "Purple Stairs": "Fioletowe schody",
+      "Elevator": "Winda",
+      "Elevators": "Windy",
+      "Escalator": "Schody ruchome",
+      "Entry Hall Elevator": "Winda w holu wejściowym",
+      "Elevator in Red Stairs": "Winda przy czerwonych schodach",
+      "Restroom": "Toaleta",
+      "Family Restroom": "Toaleta rodzinna",
+      "Guest Services": "Obsługa gości",
+      "The Blue Paradox Entrance": "Wejście do The Blue Paradox",
+      "Science Storms Escalator": "Schody ruchome przy Science Storms",
+      "Main Escalator": "Główne schody ruchome",
+      "Stairs": "Schody",
+      "Silver Elevator": "Srebrna winda",
+      "U-505 Stairs": "Schody przy U-505",
+      "Exit to Parking (A, B, C)": "Wyjście na parking (A, B, C)",
+      "Exit to Parking (D, E, F)": "Wyjście na parking (D, E, F)",
+      "Exit through Elevator": "Wyjście przez windę",
+      "Here's your personalized route for the day": "Oto Twoja spersonalizowana trasa na dziś",
+      "Double check your list below. You can still remove anything before we generate your plan.": "Sprawdź listę poniżej. Nadal możesz coś usunąć przed wygenerowaniem planu.",
+      "Exhibits on your route": "Wystawy na Twojej trasie",
+      "Estimated total time": "Szacowany całkowity czas",
+      "We built this itinerary based on your interests. Remove anything you are not interested in, or add a few extra exhibits below if you would like.": "Ten plan powstał na podstawie Twoich zainteresowań. Usuń, co Cię nie interesuje, lub dodaj kolejne wystawy.",
+      "Point your phone's camera at the code to save your personalized route, with turn-by-turn directions to every exhibit.": "Skieruj aparat telefonu na kod, aby zapisać trasę ze wskazówkami krok po kroku.",
+      "Additional Ticket Required": "Wymagany dodatkowy bilet",
+      "Additional ticket required": "Wymagany dodatkowy bilet",
+      "No exhibits selected yet.": "Nie wybrano jeszcze żadnych wystaw.",
+      "Your visit is empty. Add an exhibit below.": "Twoja wizyta jest pusta. Dodaj wystawę poniżej.",
+      "Want to add more?": "Chcesz dodać więcej?",
+      "These also match your interests but were not included in your itinerary.": "Te również pasują do Twoich zainteresowań, ale nie znalazły się w planie.",
+      "Interests": "Zainteresowania",
+      "Recommendations": "Rekomendacje",
+      "Review": "Podsumowanie",
+      "Get your plan": "Odbierz plan",
+      "Entry Hall": "Hol wejściowy",
+      "Lower Level 1": "Niższy poziom 1",
+      "Main Level 2": "Poziom główny 2",
+      "Balcony Level 3": "Poziom balkonu 3",
+      "Experience the only German submarine in the U.S. in this dramatic exhibit and national war memorial.": "Zobacz jedyny niemiecki okręt podwodny w USA — poruszająca wystawa i pomnik narodowy.",
+      "See dramatic images and time-lapse video showing the pace of glacier melt and climate change.": "Zobacz zdjęcia i filmy poklatkowe ukazujące topnienie lodowców i zmiany klimatu.",
+      "Step into the innovative and imaginative world of award-winning fashion and costume designer Paul Tazewell.": "Wejdź w świat nagradzanego projektanta kostiumów Paula Tazewella.",
+      "Search exhibits, amenities, parking": "Szukaj wystaw, udogodnień, parkingu",
+      "Search exhibits, amenities, parking...": "Szukaj wystaw, udogodnień, parkingu...",
+      "Search exhibits": "Szukaj wystaw",
+      "Search exhibits by name...": "Szukaj wystaw po nazwie...",
+      "Find Your Parking Level": "Znajdź swój poziom parkingu",
+      "Choose the garage level where you parked.": "Wybierz poziom garażu, na którym zaparkowałeś.",
+      "Let's Find Your Level": "Znajdźmy Twój poziom",
+      "Answer one question and we will point you the right way.": "Odpowiedz na jedno pytanie, a wskażemy Ci drogę.",
+      "Follow the numbered directions below, or take them with you using the code.": "Postępuj według ponumerowanych wskazówek lub zabierz je ze sobą, skanując kod.",
+      "Step-by-step directions": "Wskazówki krok po kroku",
+      "Directions": "Wskazówki",
+      "Map image not available for this floor": "Brak obrazu mapy dla tego piętra",
+      "QR code placeholder": "Miejsce na kod QR",
+      "Scanning to carry directions on your phone is coming soon.": "Wkrótce będzie można zeskanować kod i zabrać wskazówki ze sobą.",
+      "Try a different name, or tap Back to browse popular exhibits.": "Spróbuj innej nazwy lub dotknij Wstecz, aby zobaczyć popularne wystawy.",
+      "You have arrived at your destination.": "Dotarłeś do celu.",
+      "That destination no longer exists.": "Ten cel już nie istnieje.",
+      "That destination isn’t available right now.": "Ten cel jest obecnie niedostępny.",
+      "This kiosk hasn’t been set up yet. Please ask a staff member for directions.": "Ten kiosk nie został jeszcze skonfigurowany. Poproś obsługę o wskazówki.",
+      "We couldn’t find a step-free route to that destination. Please ask a staff member for assistance.": "Nie znaleźliśmy trasy bez schodów do tego celu. Poproś obsługę o pomoc.",
+      "We couldn’t find a walking route to that destination right now. Please ask a staff member for assistance.": "Nie znaleźliśmy trasy pieszej do tego celu. Poproś obsługę o pomoc.",
+      "You’re already here — this kiosk is at that destination.": "Już tu jesteś — ten kiosk znajduje się w tym miejscu.",
+      "We couldn’t map that route. Please ask a staff member for assistance.": "Nie udało się wyznaczyć tej trasy. Poproś obsługę o pomoc.",
+      "Please ask a staff member for assistance.": "Poproś obsługę o pomoc.",
+      "Back to Find My Way home": "Powrót do strony głównej Znajdź drogę",
+      "Back to parking levels": "Powrót do poziomów parkingu",
+      "Back to route options": "Powrót do opcji trasy",
+      "Go back to home": "Powrót do strony głównej",
+      "Information Desk": "Punkt informacyjny",
+      "Coat Check": "Szatnia",
+      "Water Fountain": "Poidełko",
+      "Accessible Restrooms": "Toalety dla niepełnosprawnych",
+      "Main Museum Exit": "Główne wyjście z muzeum",
+      "Parking Garage Entrance": "Wjazd do garażu",
+      "LANGUAGE": "JĘZYK",
+      "How can we help you today?": "Jak możemy dziś pomóc?",
+      "Plan My Visit": "Zaplanuj wizytę",
+      "Find My Way": "Znajdź drogę",
+      "What are you interested in today?": "Co Cię dziś interesuje?",
+      "Select one or more": "Wybierz jedną lub więcej",
+      "Categories selected": "Wybrane kategorie",
+      "Choose at least one to continue": "Wybierz co najmniej jedną, aby kontynuować",
+      "Show me exhibits →": "Pokaż wystawy →",
+      "Your visit is ready": "Twoja wizyta jest gotowa",
+      "Exhibits added": "Dodane wystawy",
+      "Remove or add exhibits before reviewing": "Usuń lub dodaj wystawy przed przeglądem",
+      "Review my route →": "Sprawdź moją trasę →",
+      "Ready when you are": "Gotowe, gdy zechcesz",
+      "We'll generate a QR code to send this to your phone": "Wygenerujemy kod QR, aby wysłać to na Twój telefon",
+      "Generate my plan →": "Wygeneruj mój plan →",
+      "Scan to get your plan": "Zeskanuj, aby pobrać plan",
+      "Open your camera app": "Otwórz aplikację aparatu",
+      "Point it at the code": "Skieruj ją na kod",
+      "Tap the link that appears": "Dotknij wyświetlonego linku",
+      "Start over": "Zacznij od nowa",
+      "Back": "Wstecz",
+      "Go back": "Wróć",
+      "Where would you like to go?": "Dokąd chcesz pójść?",
+      "Search for a destination, or choose a category to begin.": "Wyszukaj cel lub wybierz kategorię, aby zacząć.",
+      "Exhibits": "Wystawy",
+      "Galleries and featured shows.": "Galerie i pokazy specjalne.",
+      "Amenities": "Udogodnienia",
+      "Restrooms, food, and services.": "Toalety, jedzenie i usługi.",
+      "Parking": "Parking",
+      "Garage and lot directions.": "Drogа do garażu i parkingu.",
+      "Exit": "Wyjście",
+      "Nearest way out.": "Najbliższe wyjście.",
+      "Find an Exhibit": "Znajdź wystawę",
+      "Start typing to search, or pick from the popular exhibits below.": "Zacznij pisać, aby wyszukać, lub wybierz z popularnych wystaw.",
+      "Popular Exhibits": "Popularne wystawy",
+      "Find an Amenity": "Znajdź udogodnienie",
+      "Choose what you need.": "Wybierz, czego potrzebujesz.",
+      "Find Your Parking": "Znajdź swój parking",
+      "Choose where you parked.": "Wybierz miejsce parkowania.",
+      "Find an Exit": "Znajdź wyjście",
+      "Choose an exit.": "Wybierz wyjście.",
+      "Choose a destination.": "Wybierz cel.",
+      "Food": "Jedzenie",
+      "Gift Shop": "Sklep z pamiątkami",
+      "Restrooms": "Toalety",
+      "Family Restrooms": "Toalety rodzinne",
+      "Vending": "Automaty",
+      "Tickets": "Bilety",
+      "Guest Services": "Obsługa gości",
+      "Plan Your Route": "Zaplanuj trasę",
+      "Review your destination, then choose how you would like to get there.": "Sprawdź cel, a następnie wybierz sposób dotarcia.",
+      "Would you like a step-free route?": "Czy chcesz trasę bez schodów?",
+      "A step-free route avoids stairs, using elevators and ramps instead.": "Trasa bez schodów korzysta z wind i podjazdów.",
+      "Yes, step-free route": "Tak, trasa bez schodów",
+      "Avoids stairs — elevators and ramps only.": "Bez schodów — tylko windy i podjazdy.",
+      "No preference": "Bez preferencji",
+      "Show me the most direct route.": "Pokaż najkrótszą trasę.",
+      "Ready to go?": "Gotowy do drogi?",
+      "We will build your step-by-step route.": "Przygotujemy trasę krok po kroku.",
+      "Show my route →": "Pokaż moją trasę →",
+      "Your Route": "Twoja trasa",
+      "Your Route on the Map": "Twoja trasa na mapie",
+      "Continue these directions on your phone": "Kontynuuj wskazówki na telefonie",
+      "Point your camera at the code to keep your route with you as you walk.": "Skieruj aparat na kod, aby mieć trasę przy sobie.",
+      "Enjoy your visit": "Miłej wizyty",
+      "Need another destination? Start over any time.": "Potrzebujesz innego celu? Zacznij od nowa w każdej chwili.",
+      "Previous floor": "Poprzednie piętro",
+      "Replay": "Powtórz",
+      "Continue to next floor": "Przejdź na następne piętro",
+      "You Are Here": "Jesteś tutaj",
+      "Continue Here": "Kontynuuj tutaj",
+      "Destination": "Cel",
+      "You have arrived.": "Dotarłeś na miejsce.",
+      "Nothing here yet": "Jeszcze nic tu nie ma",
+      "These destinations aren’t available right now.": "Te cele są obecnie niedostępne.",
+      "No exhibits found": "Nie znaleziono wystaw",
+      "Try a different name, or tap Back to browse all exhibits.": "Spróbuj innej nazwy lub dotknij Wstecz, aby zobaczyć wszystkie wystawy.",
+      "Route unavailable": "Trasa niedostępna",
+      "Send to Phone": "Wyślij na telefon",
+      "Close": "Zamknij",
+      "Entry Hall": "Hol wejściowy",
+      "Lower Level": "Niższy poziom",
+      "Main Level": "Poziom główny",
+      "Balcony Level": "Poziom balkonu",
+      "Take the": "Skorzystaj z:",
+      "up to": "w górę na",
+      "down to": "w dół na",
+      "is on": "znajduje się na",
+      "walk": "spaceru",
+      "min": "min",
+      "Floor": "Piętro",
+      "of": "z",
+      "location": "lokalizacja",
+      "locations": "lokalizacje"
+    },
+
+    ar: {
+      "Family Favorites": "المفضلة للعائلة",
+      "Crowd-pleasers for every age.": "تجارب محبوبة لجميع الأعمار.",
+      "The Human Experience": "التجربة الإنسانية",
+      "Stories of people, past and present.": "قصص عن الناس في الماضي والحاضر.",
+      "Space": "الفضاء",
+      "Rockets, invention, and big ideas.": "الصواريخ والاختراعات والأفكار الكبرى.",
+      "Earth & Environment": "الأرض والبيئة",
+      "Our planet, up close.": "كوكبنا عن قرب.",
+      "Transportation & Engineering": "النقل والهندسة",
+      "Machines that move the world.": "آلات تحرّك العالم.",
+      "Must-Sees": "لا تفوّتها",
+      "The exhibits nobody skips.": "المعروضات التي لا يفوّتها أحد.",
+      "Step into the exciting world of the beloved superhero.": "ادخل عالم البطل الخارق المحبوب.",
+      "Experience the life and legacy of Anne Frank in a powerful new way.": "اكتشف حياة آنّي فرانك وإرثها بطريقة مؤثرة.",
+      "Explore how energy shapes our daily lives today and tomorrow.": "اكتشف كيف تشكّل الطاقة حياتنا اليوم وغداً.",
+      "Discover the history and future of space exploration, from the Space Race to SpaceX.": "اكتشف تاريخ استكشاف الفضاء ومستقبله، من سباق الفضاء إلى SpaceX.",
+      "Step into a tornado and explore the science behind powerful natural phenomena.": "ادخل إعصاراً واستكشف علم الظواهر الطبيعية.",
+      "See rare historic bicycles alongside new high-tech bikes.": "شاهد دراجات تاريخية نادرة إلى جانب دراجات حديثة.",
+      "Explore a beloved miniature home filled with intricate details and tiny lights.": "استكشف بيتاً مصغّراً مليئاً بالتفاصيل والأضواء الصغيرة.",
+      "See a breathtaking view of the planet on a dynamic video sphere.": "شاهد الكوكب على كرة فيديو مذهلة.",
+      "Discover the science and technology helping raise the world’s food supply.": "اكتشف العلم والتقنية وراء إنتاج غذاء العالم.",
+      "Experience and control flights inspired by aircraft from throughout history.": "تحكّم برحلات مستوحاة من طائرات عبر التاريخ.",
+      "Discover the patterns that surround us in nature and reveal how the world works.": "اكتشف الأنماط في الطبيعة وكيف يعمل العالم.",
+      "Climb aboard the historic Pioneer Zephyr.": "اصعد على متن قطار Pioneer Zephyr التاريخي.",
+      "Journey across millennia of seafaring through authentic ship models.": "اعبر آلاف السنين من الملاحة عبر نماذج سفن أصلية.",
+      "Explore the science and stories behind one of the world’s most essential materials.": "استكشف علم أحد أهم المواد في العالم وقصصه.",
+      "See the giant kinetic machine once declared the world’s largest flipper machine.": "شاهد الآلة الحركية العملاقة التي كانت الأكبر في العالم.",
+      "Explore a Boeing 727 and the science of modern aviation.": "استكشف طائرة Boeing 727 وعلم الطيران الحديث.",
+      "Explore plastic pollution and the steps we can take to address it.": "استكشف تلوث البلاستيك وسبل مواجهته.",
+      "Follow a model railroad journey across the country.": "تابع رحلة قطار مصغّر عبر البلاد.",
+      "Young visitors can conduct their own play-filled scientific investigations.": "يجري الصغار تجاربهم العلمية باللعب.",
+      "See historic vehicles that have flown, chugged, and sped into the record books.": "شاهد مركبات تاريخية دخلت كتب الأرقام القياسية.",
+      "Travel into space or beneath the sea with motion-based virtual reality.": "سافر إلى الفضاء أو أعماق البحر بالواقع الافتراضي.",
+      "Experience acoustic design that carries a whisper clearly across the room.": "اختبر تصميماً صوتياً ينقل الهمس عبر الغرفة.",
+      "Explore how experiences, choices, personality, and environment shape who you are.": "اكتشف كيف تشكّل التجارب والبيئة شخصيتك.",
+      "Stroll the cobblestone streets of turn-of-the-20th-century Chicago.": "تجوّل في شوارع شيكاغو المرصوفة مطلع القرن العشرين.",
+      "One Small Snack": "وجبة خفيفة صغيرة",
+      "Outdoor Seating": "جلسات خارجية",
+      "Outside Seating": "جلسات خارجية",
+      "Museum Kitchen": "مطعم المتحف",
+      "Museum Store": "متجر المتحف",
+      "Stan's Donut": "Stan’s Donut",
+      "Stan's Donuts": "Stan’s Donuts",
+      "Group Center": "مركز المجموعات",
+      "Group Center Lunch Room": "قاعة طعام المجموعات",
+      "Ticket Counter and Membership Services": "شباك التذاكر والعضوية",
+      "Coal Mine Exit": "مخرج Coal Mine",
+      "Parking A, B, C": "مواقف A، B، C",
+      "Parking D, E, F": "مواقف D، E، F",
+      "Parking Garage": "مرآب السيارات",
+      "Yellow Stairs": "الدرج الأصفر",
+      "Green stairs": "الدرج الأخضر",
+      "Green Stairs": "الدرج الأخضر",
+      "Red Stairs": "الدرج الأحمر",
+      "Blue Stairs": "الدرج الأزرق",
+      "Orange Stairs": "الدرج البرتقالي",
+      "Purple Stairs": "الدرج البنفسجي",
+      "Elevator": "المصعد",
+      "Elevators": "المصاعد",
+      "Escalator": "السلم الكهربائي",
+      "Entry Hall Elevator": "مصعد بهو الدخول",
+      "Elevator in Red Stairs": "مصعد الدرج الأحمر",
+      "Restroom": "دورة المياه",
+      "Family Restroom": "دورة مياه العائلات",
+      "Guest Services": "خدمة الزوار",
+      "The Blue Paradox Entrance": "مدخل The Blue Paradox",
+      "Science Storms Escalator": "السلم الكهربائي عند Science Storms",
+      "Main Escalator": "السلم الكهربائي الرئيسي",
+      "Stairs": "الدرج",
+      "Silver Elevator": "المصعد الفضي",
+      "U-505 Stairs": "درج U-505",
+      "Exit to Parking (A, B, C)": "المخرج إلى المواقف (A، B، C)",
+      "Exit to Parking (D, E, F)": "المخرج إلى المواقف (D، E، F)",
+      "Exit through Elevator": "المخرج عبر المصعد",
+      "Here's your personalized route for the day": "إليك مسارك المخصص لهذا اليوم",
+      "Double check your list below. You can still remove anything before we generate your plan.": "راجع قائمتك أدناه. لا يزال بإمكانك حذف أي عنصر قبل إنشاء الخطة.",
+      "Exhibits on your route": "المعروضات على مسارك",
+      "Estimated total time": "الوقت الإجمالي المقدّر",
+      "We built this itinerary based on your interests. Remove anything you are not interested in, or add a few extra exhibits below if you would like.": "أنشأنا هذا البرنامج بناءً على اهتماماتك. احذف ما لا يهمك أو أضف معروضات أخرى أدناه.",
+      "Point your phone's camera at the code to save your personalized route, with turn-by-turn directions to every exhibit.": "وجّه كاميرا هاتفك نحو الرمز لحفظ مسارك مع إرشادات خطوة بخطوة.",
+      "Additional Ticket Required": "تذكرة إضافية مطلوبة",
+      "Additional ticket required": "تذكرة إضافية مطلوبة",
+      "No exhibits selected yet.": "لم يتم اختيار أي معروضات بعد.",
+      "Your visit is empty. Add an exhibit below.": "زيارتك فارغة. أضف معروضة أدناه.",
+      "Want to add more?": "هل تريد إضافة المزيد؟",
+      "These also match your interests but were not included in your itinerary.": "هذه أيضاً تناسب اهتماماتك لكنها لم تُدرج في برنامجك.",
+      "Interests": "الاهتمامات",
+      "Recommendations": "التوصيات",
+      "Review": "المراجعة",
+      "Get your plan": "احصل على خطتك",
+      "Entry Hall": "بهو الدخول",
+      "Lower Level 1": "الطابق السفلي 1",
+      "Main Level 2": "الطابق الرئيسي 2",
+      "Balcony Level 3": "طابق الشرفة 3",
+      "Experience the only German submarine in the U.S. in this dramatic exhibit and national war memorial.": "اكتشف الغواصة الألمانية الوحيدة في الولايات المتحدة في هذا المعرض والنصب التذكاري الوطني.",
+      "See dramatic images and time-lapse video showing the pace of glacier melt and climate change.": "شاهد صوراً وفيديوهات تُظهر ذوبان الأنهار الجليدية وتغيّر المناخ.",
+      "Step into the innovative and imaginative world of award-winning fashion and costume designer Paul Tazewell.": "ادخل عالم مصمم الأزياء الحائز على جوائز بول تازويل.",
+      "Search exhibits, amenities, parking": "ابحث عن معروضات وخدمات ومواقف",
+      "Search exhibits, amenities, parking...": "ابحث عن معروضات وخدمات ومواقف...",
+      "Search exhibits": "ابحث عن المعروضات",
+      "Search exhibits by name...": "ابحث عن المعروضات بالاسم...",
+      "Find Your Parking Level": "اعثر على طابق موقفك",
+      "Choose the garage level where you parked.": "اختر طابق المرآب الذي أوقفت فيه سيارتك.",
+      "Let's Find Your Level": "لنجد طابقك",
+      "Answer one question and we will point you the right way.": "أجب عن سؤال واحد وسنرشدك إلى الطريق.",
+      "Follow the numbered directions below, or take them with you using the code.": "اتبع الإرشادات المرقّمة أدناه أو خذها معك عبر الرمز.",
+      "Step-by-step directions": "إرشادات خطوة بخطوة",
+      "Directions": "الإرشادات",
+      "Map image not available for this floor": "صورة الخريطة غير متوفرة لهذا الطابق",
+      "QR code placeholder": "مكان رمز QR",
+      "Scanning to carry directions on your phone is coming soon.": "قريباً ستتمكن من مسح الرمز لأخذ الإرشادات معك.",
+      "Try a different name, or tap Back to browse popular exhibits.": "جرّب اسماً آخر أو اضغط رجوع لتصفح المعروضات الشائعة.",
+      "You have arrived at your destination.": "لقد وصلت إلى وجهتك.",
+      "That destination no longer exists.": "لم تعد هذه الوجهة موجودة.",
+      "That destination isn’t available right now.": "هذه الوجهة غير متاحة حالياً.",
+      "This kiosk hasn’t been set up yet. Please ask a staff member for directions.": "لم يتم إعداد هذا الكشك بعد. يرجى سؤال أحد الموظفين.",
+      "We couldn’t find a step-free route to that destination. Please ask a staff member for assistance.": "لم نتمكن من إيجاد مسار بدون درج إلى هذه الوجهة. يرجى طلب المساعدة من الموظفين.",
+      "We couldn’t find a walking route to that destination right now. Please ask a staff member for assistance.": "لم نتمكن من إيجاد مسار مشي إلى هذه الوجهة. يرجى طلب المساعدة من الموظفين.",
+      "You’re already here — this kiosk is at that destination.": "أنت هنا بالفعل — هذا الكشك في تلك الوجهة.",
+      "We couldn’t map that route. Please ask a staff member for assistance.": "تعذّر رسم هذا المسار. يرجى طلب المساعدة من الموظفين.",
+      "Please ask a staff member for assistance.": "يرجى طلب المساعدة من أحد الموظفين.",
+      "Back to Find My Way home": "العودة إلى صفحة دلّني على الطريق",
+      "Back to parking levels": "العودة إلى طوابق المواقف",
+      "Back to route options": "العودة إلى خيارات المسار",
+      "Go back to home": "العودة إلى الصفحة الرئيسية",
+      "Information Desk": "مكتب الاستعلامات",
+      "Coat Check": "حفظ المعاطف",
+      "Water Fountain": "نافورة مياه",
+      "Accessible Restrooms": "دورات مياه لذوي الاحتياجات",
+      "Main Museum Exit": "المخرج الرئيسي للمتحف",
+      "Parking Garage Entrance": "مدخل مرآب السيارات",
+      "LANGUAGE": "اللغة",
+      "How can we help you today?": "كيف يمكننا مساعدتك اليوم؟",
+      "Plan My Visit": "خطّط لزيارتي",
+      "Find My Way": "دلّني على الطريق",
+      "What are you interested in today?": "ما الذي يهمك اليوم؟",
+      "Select one or more": "اختر واحداً أو أكثر",
+      "Categories selected": "الفئات المختارة",
+      "Choose at least one to continue": "اختر واحدة على الأقل للمتابعة",
+      "Show me exhibits →": "أرني المعروضات →",
+      "Your visit is ready": "زيارتك جاهزة",
+      "Exhibits added": "المعروضات المضافة",
+      "Remove or add exhibits before reviewing": "أضف أو احذف المعروضات قبل المراجعة",
+      "Review my route →": "مراجعة مساري →",
+      "Ready when you are": "جاهز عندما تكون مستعداً",
+      "We'll generate a QR code to send this to your phone": "سننشئ رمز QR لإرساله إلى هاتفك",
+      "Generate my plan →": "أنشئ خطتي →",
+      "Scan to get your plan": "امسح الرمز للحصول على خطتك",
+      "Open your camera app": "افتح تطبيق الكاميرا",
+      "Point it at the code": "وجّهها نحو الرمز",
+      "Tap the link that appears": "اضغط على الرابط الذي يظهر",
+      "Start over": "ابدأ من جديد",
+      "Back": "رجوع",
+      "Go back": "العودة",
+      "Where would you like to go?": "إلى أين تريد الذهاب؟",
+      "Search for a destination, or choose a category to begin.": "ابحث عن وجهة أو اختر فئة للبدء.",
+      "Exhibits": "المعروضات",
+      "Galleries and featured shows.": "القاعات والعروض المميزة.",
+      "Amenities": "الخدمات",
+      "Restrooms, food, and services.": "دورات المياه والطعام والخدمات.",
+      "Parking": "مواقف السيارات",
+      "Garage and lot directions.": "الاتجاهات إلى المرآب والموقف.",
+      "Exit": "المخرج",
+      "Nearest way out.": "أقرب مخرج.",
+      "Find an Exhibit": "ابحث عن معروضة",
+      "Start typing to search, or pick from the popular exhibits below.": "اكتب للبحث أو اختر من المعروضات الشائعة أدناه.",
+      "Popular Exhibits": "المعروضات الشائعة",
+      "Find an Amenity": "ابحث عن خدمة",
+      "Choose what you need.": "اختر ما تحتاجه.",
+      "Find Your Parking": "ابحث عن موقف سيارتك",
+      "Choose where you parked.": "اختر مكان وقوف سيارتك.",
+      "Find an Exit": "ابحث عن مخرج",
+      "Choose an exit.": "اختر مخرجاً.",
+      "Choose a destination.": "اختر وجهة.",
+      "Food": "الطعام",
+      "Gift Shop": "متجر الهدايا",
+      "Restrooms": "دورات المياه",
+      "Family Restrooms": "دورات مياه العائلات",
+      "Vending": "آلات البيع",
+      "Tickets": "التذاكر",
+      "Guest Services": "خدمة الزوار",
+      "Plan Your Route": "خطّط مسارك",
+      "Review your destination, then choose how you would like to get there.": "راجع وجهتك ثم اختر طريقة الوصول.",
+      "Would you like a step-free route?": "هل تريد مساراً بدون درج؟",
+      "A step-free route avoids stairs, using elevators and ramps instead.": "المسار بدون درج يستخدم المصاعد والمنحدرات.",
+      "Yes, step-free route": "نعم، مسار بدون درج",
+      "Avoids stairs — elevators and ramps only.": "بدون درج — مصاعد ومنحدرات فقط.",
+      "No preference": "لا تفضيل",
+      "Show me the most direct route.": "أرني المسار الأقصر.",
+      "Ready to go?": "هل أنت مستعد؟",
+      "We will build your step-by-step route.": "سننشئ مسارك خطوة بخطوة.",
+      "Show my route →": "أظهر مساري →",
+      "Your Route": "مسارك",
+      "Your Route on the Map": "مسارك على الخريطة",
+      "Continue these directions on your phone": "تابع هذه الإرشادات على هاتفك",
+      "Point your camera at the code to keep your route with you as you walk.": "وجّه الكاميرا نحو الرمز لتبقى معك إرشادات المسار.",
+      "Enjoy your visit": "نتمنى لك زيارة ممتعة",
+      "Need another destination? Start over any time.": "تحتاج وجهة أخرى؟ ابدأ من جديد في أي وقت.",
+      "Previous floor": "الطابق السابق",
+      "Replay": "إعادة",
+      "Continue to next floor": "المتابعة إلى الطابق التالي",
+      "You Are Here": "أنت هنا",
+      "Continue Here": "تابع من هنا",
+      "Destination": "الوجهة",
+      "You have arrived.": "لقد وصلت.",
+      "Nothing here yet": "لا يوجد شيء هنا بعد",
+      "These destinations aren’t available right now.": "هذه الوجهات غير متاحة حالياً.",
+      "No exhibits found": "لم يتم العثور على معروضات",
+      "Try a different name, or tap Back to browse all exhibits.": "جرّب اسماً آخر أو اضغط رجوع لتصفح جميع المعروضات.",
+      "Route unavailable": "المسار غير متاح",
+      "Send to Phone": "إرسال إلى الهاتف",
+      "Close": "إغلاق",
+      "Entry Hall": "بهو الدخول",
+      "Lower Level": "الطابق السفلي",
+      "Main Level": "الطابق الرئيسي",
+      "Balcony Level": "طابق الشرفة",
+      "Take the": "استخدم",
+      "up to": "صعوداً إلى",
+      "down to": "نزولاً إلى",
+      "is on": "يقع في",
+      "walk": "سيراً",
+      "min": "دقيقة",
+      "Floor": "الطابق",
+      "of": "من",
+      "location": "موقع",
+      "locations": "مواقع"
+    },
+
+    fr: {
+      "Family Favorites": "Coups de cœur en famille",
+      "Crowd-pleasers for every age.": "Des incontournables pour tous les âges.",
+      "The Human Experience": "L’expérience humaine",
+      "Stories of people, past and present.": "Des histoires d’hommes et de femmes, d’hier et d’aujourd’hui.",
+      "Space": "Espace",
+      "Rockets, invention, and big ideas.": "Fusées, inventions et grandes idées.",
+      "Earth & Environment": "Terre et environnement",
+      "Our planet, up close.": "Notre planète, de près.",
+      "Transportation & Engineering": "Transport et ingénierie",
+      "Machines that move the world.": "Des machines qui font bouger le monde.",
+      "Must-Sees": "À ne pas manquer",
+      "The exhibits nobody skips.": "Les expositions que personne ne manque.",
+      "Step into the exciting world of the beloved superhero.": "Entrez dans l’univers du célèbre super-héros.",
+      "Experience the life and legacy of Anne Frank in a powerful new way.": "Découvrez la vie et l’héritage d’Anne Frank d’une manière saisissante.",
+      "Explore how energy shapes our daily lives today and tomorrow.": "Découvrez comment l’énergie façonne notre quotidien, aujourd’hui et demain.",
+      "Discover the history and future of space exploration, from the Space Race to SpaceX.": "Découvrez l’histoire et l’avenir de l’exploration spatiale, de la course à l’espace à SpaceX.",
+      "Step into a tornado and explore the science behind powerful natural phenomena.": "Entrez dans une tornade et explorez la science des phénomènes naturels.",
+      "See rare historic bicycles alongside new high-tech bikes.": "Découvrez des bicyclettes historiques et des vélos high-tech.",
+      "Explore a beloved miniature home filled with intricate details and tiny lights.": "Explorez une maison miniature pleine de détails et de petites lumières.",
+      "See a breathtaking view of the planet on a dynamic video sphere.": "Admirez la planète sur une sphère vidéo spectaculaire.",
+      "Discover the science and technology helping raise the world’s food supply.": "Découvrez la science et la technologie qui nourrissent le monde.",
+      "Experience and control flights inspired by aircraft from throughout history.": "Pilotez des vols inspirés d’avions historiques.",
+      "Discover the patterns that surround us in nature and reveal how the world works.": "Découvrez les motifs de la nature et le fonctionnement du monde.",
+      "Climb aboard the historic Pioneer Zephyr.": "Montez à bord du célèbre Pioneer Zephyr.",
+      "Journey across millennia of seafaring through authentic ship models.": "Traversez des millénaires de navigation à travers des maquettes.",
+      "Explore the science and stories behind one of the world’s most essential materials.": "Explorez la science de l’un des matériaux les plus essentiels.",
+      "See the giant kinetic machine once declared the world’s largest flipper machine.": "Découvrez la machine cinétique géante, jadis la plus grande au monde.",
+      "Explore a Boeing 727 and the science of modern aviation.": "Explorez un Boeing 727 et la science de l’aviation moderne.",
+      "Explore plastic pollution and the steps we can take to address it.": "Explorez la pollution plastique et les solutions possibles.",
+      "Follow a model railroad journey across the country.": "Suivez un voyage ferroviaire miniature à travers le pays.",
+      "Young visitors can conduct their own play-filled scientific investigations.": "Les plus jeunes mènent leurs propres expériences en jouant.",
+      "See historic vehicles that have flown, chugged, and sped into the record books.": "Découvrez des véhicules historiques entrés dans la légende.",
+      "Travel into space or beneath the sea with motion-based virtual reality.": "Voyagez dans l’espace ou sous la mer en réalité virtuelle.",
+      "Experience acoustic design that carries a whisper clearly across the room.": "Découvrez une acoustique qui porte un murmure d’un bout à l’autre.",
+      "Explore how experiences, choices, personality, and environment shape who you are.": "Découvrez comment vos expériences et votre environnement vous façonnent.",
+      "Stroll the cobblestone streets of turn-of-the-20th-century Chicago.": "Flânez dans le Chicago pavé du début du XXᵉ siècle.",
+      "One Small Snack": "Petite collation",
+      "Outdoor Seating": "Terrasse extérieure",
+      "Outside Seating": "Terrasse extérieure",
+      "Museum Kitchen": "Cuisine du musée",
+      "Museum Store": "Boutique du musée",
+      "Stan's Donut": "Stan’s Donut",
+      "Stan's Donuts": "Stan’s Donuts",
+      "Group Center": "Espace groupes",
+      "Group Center Lunch Room": "Salle à manger des groupes",
+      "Ticket Counter and Membership Services": "Billetterie et adhésions",
+      "Coal Mine Exit": "Sortie de Coal Mine",
+      "Parking A, B, C": "Stationnement A, B, C",
+      "Parking D, E, F": "Stationnement D, E, F",
+      "Parking Garage": "Parking couvert",
+      "Yellow Stairs": "Escalier jaune",
+      "Green stairs": "Escalier vert",
+      "Green Stairs": "Escalier vert",
+      "Red Stairs": "Escalier rouge",
+      "Blue Stairs": "Escalier bleu",
+      "Orange Stairs": "Escalier orange",
+      "Purple Stairs": "Escalier violet",
+      "Elevator": "Ascenseur",
+      "Elevators": "Ascenseurs",
+      "Escalator": "Escalier mécanique",
+      "Entry Hall Elevator": "Ascenseur du hall d’entrée",
+      "Elevator in Red Stairs": "Ascenseur de l’escalier rouge",
+      "Restroom": "Toilettes",
+      "Family Restroom": "Toilettes familiales",
+      "Guest Services": "Accueil des visiteurs",
+      "The Blue Paradox Entrance": "Entrée de The Blue Paradox",
+      "Science Storms Escalator": "Escalier mécanique de Science Storms",
+      "Main Escalator": "Escalier mécanique principal",
+      "Stairs": "Escalier",
+      "Silver Elevator": "Ascenseur argenté",
+      "U-505 Stairs": "Escalier du U-505",
+      "Exit to Parking (A, B, C)": "Sortie vers le stationnement (A, B, C)",
+      "Exit to Parking (D, E, F)": "Sortie vers le stationnement (D, E, F)",
+      "Exit through Elevator": "Sortie par l’ascenseur",
+      "Here's your personalized route for the day": "Voici votre itinéraire personnalisé du jour",
+      "Double check your list below. You can still remove anything before we generate your plan.": "Vérifiez votre liste. Vous pouvez encore retirer des éléments avant de générer le plan.",
+      "Exhibits on your route": "Expositions sur votre itinéraire",
+      "Estimated total time": "Durée totale estimée",
+      "We built this itinerary based on your interests. Remove anything you are not interested in, or add a few extra exhibits below if you would like.": "Nous avons créé cet itinéraire selon vos centres d’intérêt. Retirez ce qui ne vous intéresse pas ou ajoutez d’autres expositions.",
+      "Point your phone's camera at the code to save your personalized route, with turn-by-turn directions to every exhibit.": "Dirigez l’appareil photo vers le code pour enregistrer votre itinéraire avec les indications détaillées.",
+      "Additional Ticket Required": "Billet supplémentaire requis",
+      "Additional ticket required": "Billet supplémentaire requis",
+      "No exhibits selected yet.": "Aucune exposition sélectionnée pour l’instant.",
+      "Your visit is empty. Add an exhibit below.": "Votre visite est vide. Ajoutez une exposition ci-dessous.",
+      "Want to add more?": "Envie d’en ajouter d’autres ?",
+      "These also match your interests but were not included in your itinerary.": "Celles-ci correspondent aussi à vos intérêts mais n’ont pas été incluses.",
+      "Interests": "Centres d’intérêt",
+      "Recommendations": "Recommandations",
+      "Review": "Vérification",
+      "Get your plan": "Obtenez votre plan",
+      "Entry Hall": "Hall d’entrée",
+      "Lower Level 1": "Niveau inférieur 1",
+      "Main Level 2": "Niveau principal 2",
+      "Balcony Level 3": "Niveau balcon 3",
+      "Experience the only German submarine in the U.S. in this dramatic exhibit and national war memorial.": "Découvrez le seul sous-marin allemand des États-Unis, dans cette exposition et mémorial national.",
+      "See dramatic images and time-lapse video showing the pace of glacier melt and climate change.": "Découvrez images et time-lapses montrant la fonte des glaciers et le changement climatique.",
+      "Step into the innovative and imaginative world of award-winning fashion and costume designer Paul Tazewell.": "Entrez dans l’univers du costumier primé Paul Tazewell.",
+      "Search exhibits, amenities, parking": "Rechercher expositions, services, stationnement",
+      "Search exhibits, amenities, parking...": "Rechercher expositions, services, stationnement...",
+      "Search exhibits": "Rechercher des expositions",
+      "Search exhibits by name...": "Rechercher une exposition par nom...",
+      "Find Your Parking Level": "Trouvez votre niveau de stationnement",
+      "Choose the garage level where you parked.": "Choisissez le niveau du garage où vous êtes garé.",
+      "Let's Find Your Level": "Trouvons votre niveau",
+      "Answer one question and we will point you the right way.": "Répondez à une question et nous vous indiquerons le chemin.",
+      "Follow the numbered directions below, or take them with you using the code.": "Suivez les indications numérotées ou emportez-les grâce au code.",
+      "Step-by-step directions": "Indications étape par étape",
+      "Directions": "Indications",
+      "Map image not available for this floor": "Plan indisponible pour cet étage",
+      "QR code placeholder": "Emplacement du code QR",
+      "Scanning to carry directions on your phone is coming soon.": "Bientôt, vous pourrez scanner pour emporter les indications.",
+      "Try a different name, or tap Back to browse popular exhibits.": "Essayez un autre nom ou touchez Retour pour voir les expositions populaires.",
+      "You have arrived at your destination.": "Vous êtes arrivé à destination.",
+      "That destination no longer exists.": "Cette destination n’existe plus.",
+      "That destination isn’t available right now.": "Cette destination n’est pas disponible actuellement.",
+      "This kiosk hasn’t been set up yet. Please ask a staff member for directions.": "Cette borne n’est pas encore configurée. Demandez au personnel.",
+      "We couldn’t find a step-free route to that destination. Please ask a staff member for assistance.": "Aucun itinéraire sans marches n’a été trouvé. Demandez de l’aide au personnel.",
+      "We couldn’t find a walking route to that destination right now. Please ask a staff member for assistance.": "Aucun itinéraire piéton n’a été trouvé. Demandez de l’aide au personnel.",
+      "You’re already here — this kiosk is at that destination.": "Vous y êtes déjà — cette borne est à cette destination.",
+      "We couldn’t map that route. Please ask a staff member for assistance.": "Impossible de tracer cet itinéraire. Demandez de l’aide au personnel.",
+      "Please ask a staff member for assistance.": "Demandez de l’aide au personnel.",
+      "Back to Find My Way home": "Retour à l’accueil Trouver mon chemin",
+      "Back to parking levels": "Retour aux niveaux de stationnement",
+      "Back to route options": "Retour aux options d’itinéraire",
+      "Go back to home": "Retour à l’accueil",
+      "Information Desk": "Point d’information",
+      "Coat Check": "Vestiaire",
+      "Water Fountain": "Fontaine à eau",
+      "Accessible Restrooms": "Toilettes accessibles",
+      "Main Museum Exit": "Sortie principale du musée",
+      "Parking Garage Entrance": "Entrée du parking",
+      "LANGUAGE": "LANGUE",
+      "How can we help you today?": "Comment pouvons-nous vous aider aujourd’hui ?",
+      "Plan My Visit": "Planifier ma visite",
+      "Find My Way": "Trouver mon chemin",
+      "What are you interested in today?": "Qu’est-ce qui vous intéresse aujourd’hui ?",
+      "Select one or more": "Sélectionnez-en une ou plusieurs",
+      "Categories selected": "Catégories sélectionnées",
+      "Choose at least one to continue": "Choisissez-en au moins une pour continuer",
+      "Show me exhibits →": "Voir les expositions →",
+      "Your visit is ready": "Votre visite est prête",
+      "Exhibits added": "Expositions ajoutées",
+      "Remove or add exhibits before reviewing": "Retirez ou ajoutez des expositions avant de vérifier",
+      "Review my route →": "Vérifier mon itinéraire →",
+      "Ready when you are": "Prêt quand vous voulez",
+      "We'll generate a QR code to send this to your phone": "Nous créerons un code QR pour l’envoyer à votre téléphone",
+      "Generate my plan →": "Générer mon plan →",
+      "Scan to get your plan": "Scannez pour obtenir votre plan",
+      "Open your camera app": "Ouvrez votre appareil photo",
+      "Point it at the code": "Dirigez-le vers le code",
+      "Tap the link that appears": "Touchez le lien qui apparaît",
+      "Start over": "Recommencer",
+      "Back": "Retour",
+      "Go back": "Revenir",
+      "Where would you like to go?": "Où souhaitez-vous aller ?",
+      "Search for a destination, or choose a category to begin.": "Recherchez une destination ou choisissez une catégorie pour commencer.",
+      "Exhibits": "Expositions",
+      "Galleries and featured shows.": "Galeries et spectacles phares.",
+      "Amenities": "Services",
+      "Restrooms, food, and services.": "Toilettes, restauration et services.",
+      "Parking": "Stationnement",
+      "Garage and lot directions.": "Accès au garage et au parking.",
+      "Exit": "Sortie",
+      "Nearest way out.": "La sortie la plus proche.",
+      "Find an Exhibit": "Trouver une exposition",
+      "Start typing to search, or pick from the popular exhibits below.": "Tapez pour rechercher ou choisissez parmi les expositions populaires.",
+      "Popular Exhibits": "Expositions populaires",
+      "Find an Amenity": "Trouver un service",
+      "Choose what you need.": "Choisissez ce dont vous avez besoin.",
+      "Find Your Parking": "Trouver votre stationnement",
+      "Choose where you parked.": "Choisissez où vous êtes garé.",
+      "Find an Exit": "Trouver une sortie",
+      "Choose an exit.": "Choisissez une sortie.",
+      "Choose a destination.": "Choisissez une destination.",
+      "Food": "Restauration",
+      "Gift Shop": "Boutique",
+      "Restrooms": "Toilettes",
+      "Family Restrooms": "Toilettes familiales",
+      "Vending": "Distributeurs",
+      "Tickets": "Billets",
+      "Guest Services": "Accueil des visiteurs",
+      "Plan Your Route": "Planifiez votre itinéraire",
+      "Review your destination, then choose how you would like to get there.": "Vérifiez votre destination, puis choisissez comment vous y rendre.",
+      "Would you like a step-free route?": "Souhaitez-vous un itinéraire sans marches ?",
+      "A step-free route avoids stairs, using elevators and ramps instead.": "Un itinéraire sans marches utilise les ascenseurs et les rampes.",
+      "Yes, step-free route": "Oui, itinéraire sans marches",
+      "Avoids stairs — elevators and ramps only.": "Sans escaliers — ascenseurs et rampes uniquement.",
+      "No preference": "Aucune préférence",
+      "Show me the most direct route.": "Montrez-moi l’itinéraire le plus direct.",
+      "Ready to go?": "Prêt à partir ?",
+      "We will build your step-by-step route.": "Nous créerons votre itinéraire étape par étape.",
+      "Show my route →": "Afficher mon itinéraire →",
+      "Your Route": "Votre itinéraire",
+      "Your Route on the Map": "Votre itinéraire sur le plan",
+      "Continue these directions on your phone": "Continuez ces indications sur votre téléphone",
+      "Point your camera at the code to keep your route with you as you walk.": "Dirigez votre appareil photo vers le code pour garder votre itinéraire avec vous.",
+      "Enjoy your visit": "Bonne visite",
+      "Need another destination? Start over any time.": "Une autre destination ? Recommencez quand vous voulez.",
+      "Previous floor": "Étage précédent",
+      "Replay": "Rejouer",
+      "Continue to next floor": "Continuer à l’étage suivant",
+      "You Are Here": "Vous êtes ici",
+      "Continue Here": "Continuez ici",
+      "Destination": "Destination",
+      "You have arrived.": "Vous êtes arrivé.",
+      "Nothing here yet": "Rien pour le moment",
+      "These destinations aren’t available right now.": "Ces destinations ne sont pas disponibles actuellement.",
+      "No exhibits found": "Aucune exposition trouvée",
+      "Try a different name, or tap Back to browse all exhibits.": "Essayez un autre nom ou touchez Retour pour voir toutes les expositions.",
+      "Route unavailable": "Itinéraire indisponible",
+      "Send to Phone": "Envoyer au téléphone",
+      "Close": "Fermer",
+      "Entry Hall": "Hall d’entrée",
+      "Lower Level": "Niveau inférieur",
+      "Main Level": "Niveau principal",
+      "Balcony Level": "Niveau balcon",
+      "Take the": "Empruntez",
+      "up to": "en montant vers",
+      "down to": "en descendant vers",
+      "is on": "se trouve au",
+      "walk": "de marche",
+      "min": "min",
+      "Floor": "Étage",
+      "of": "sur",
+      "location": "emplacement",
+      "locations": "emplacements"
+    }
+  };
+
+  var lang = "en";
+  try { lang = localStorage.getItem(STORE) || "en"; } catch (e) {}
+  if (!T[lang] && lang !== "en") lang = "en";
+
+  function dict() { return T[lang] || null; }
+
+  /* ---- phrase lookup, incl. a few generated patterns ---- */
+  function lookup(text) {
+    var d = dict();
+    if (!d) return undefined;
+    if (Object.prototype.hasOwnProperty.call(d, text)) return d[text];
+
+    var m;
+    // "Floor 1 of 2"
+    m = /^Floor\s+(\d+)\s+of\s+(\d+)$/.exec(text);
+    if (m) return d["Floor"] + " " + m[1] + " " + d["of"] + " " + m[2];
+    // "3 min walk"
+    m = /^(\d+)\s*min\s+walk$/.exec(text);
+    if (m) return m[1] + " " + d["min"] + " " + d["walk"];
+    // "3 min"
+    m = /^(\d+)\s*min$/.exec(text);
+    if (m) return m[1] + " " + d["min"];
+    // "2 locations"
+    m = /^(\d+)\s+locations?$/.exec(text);
+    if (m) return m[1] + " " + d[+m[1] === 1 ? "location" : "locations"];
+
+    // Case-insensitive fallback so ALL-CAPS labels ("ENTRY HALL") still match,
+    // keeping the original capitalisation style.
+    var ci = ciIndex();
+    var hit = ci[text.toLowerCase()];
+    if (hit !== undefined) {
+      if (text === text.toUpperCase() && /[A-Za-z]/.test(text)) return hit.toUpperCase();
+      return hit;
+    }
+    return undefined;
+  }
+
+  var CI = {};
+  function ciIndex() {
+    if (CI[lang]) return CI[lang];
+    var d = dict(), out = {};
+    if (d) for (var k in d) if (Object.prototype.hasOwnProperty.call(d, k)) out[k.toLowerCase()] = d[k];
+    CI[lang] = out;
+    return out;
+  }
+
+  /* ---- DOM translation, remembering the English original ---- */
+  var ORIG = new WeakMap();
+  var SKIP = { SCRIPT: 1, STYLE: 1, NOSCRIPT: 1, CANVAS: 1 };
+
+  function inEditor(node) {
+    var el = node.nodeType === 1 ? node : node.parentNode;
+    return !!(el && el.closest && el.closest("#nodeEditor, #devPassModal"));
+  }
+
+  function walk(root) {
+    if (!root) return;
+    var it = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: function (n) {
+        var p = n.parentNode;
+        if (!p || SKIP[p.nodeName]) return NodeFilter.FILTER_REJECT;
+        if (!n.nodeValue || !n.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+        if (inEditor(n)) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    var n, list = [];
+    while ((n = it.nextNode())) list.push(n);
+    list.forEach(applyText);
+
+    // translatable attributes
+    var els = root.querySelectorAll ? root.querySelectorAll("[placeholder],[aria-label],[title]") : [];
+    Array.prototype.forEach.call(els, function (el) {
+      if (inEditor(el)) return;
+      ["placeholder", "aria-label", "title"].forEach(function (a) {
+        if (!el.hasAttribute(a)) return;
+        var key = "__en_" + a;
+        if (el[key] === undefined) el[key] = el.getAttribute(a);
+        var src = el[key], out = lookup(src.trim());
+        el.setAttribute(a, out === undefined ? src : out);
+      });
+    });
+  }
+
+  function applyText(node) {
+    if (!ORIG.has(node)) ORIG.set(node, node.nodeValue);
+    var src = ORIG.get(node);
+    var key = src.trim();
+    if (!key) return;
+    var out = lookup(key);
+    if (out === undefined) { if (node.nodeValue !== src) node.nodeValue = src; return; }
+    var lead = src.match(/^\s*/)[0], trail = src.match(/\s*$/)[0];
+    node.nodeValue = lead + out + trail;
+  }
+
+  /* ---- language menu, built for every LANGUAGE button ---- */
+  function buildMenus() {
+    Array.prototype.forEach.call(document.querySelectorAll(".lang-select"), function (btn) {
+      if (btn.__langWired) return;
+      btn.__langWired = true;
+
+      var host = btn.parentNode;
+      if (host && getComputedStyle(host).position === "static") host.style.position = "relative";
+
+      var menu = document.createElement("div");
+      menu.className = "lang-menu kiosk-lang-menu";
+      menu.innerHTML = LANGS.map(function (l) {
+        return '<button type="button" data-lang="' + l.code + '">' + l.native +
+               ' <span>' + (l.code === lang ? "✓" : "") + "</span></button>";
+      }).join("");
+      (host || btn).appendChild(menu);
+
+      btn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        var open = menu.classList.contains("open");
+        document.querySelectorAll(".lang-menu.open").forEach(function (m) { m.classList.remove("open"); });
+        if (!open) menu.classList.add("open");
+      });
+      menu.addEventListener("click", function (e) {
+        var b = e.target.closest("button[data-lang]");
+        if (!b) return;
+        e.stopPropagation();
+        setLang(b.getAttribute("data-lang"));
+        menu.classList.remove("open");
+      });
+    });
+    document.addEventListener("click", function () {
+      document.querySelectorAll(".lang-menu.open").forEach(function (m) { m.classList.remove("open"); });
+    });
+  }
+
+  function refreshChecks() {
+    document.querySelectorAll(".kiosk-lang-menu button[data-lang]").forEach(function (b) {
+      var s = b.querySelector("span");
+      if (s) s.textContent = b.getAttribute("data-lang") === lang ? "✓" : "";
+    });
+  }
+
+  function setLang(code) {
+    lang = T[code] || code === "en" ? code : "en";
+    CI = {};
+    try { localStorage.setItem(STORE, lang); } catch (e) {}
+    document.documentElement.setAttribute("lang", lang);
+    document.body.classList.toggle("lang-rtl", lang === "ar");
+    walk(document.body);
+    refreshChecks();
+  }
+
+  /* ---- keep dynamically rendered content translated ---- */
+
+  function start() {
+    buildMenus();
+    setLang(lang);
+    // Translate new content synchronously, inside the observer callback, so it
+    // is rendered in the chosen language before the browser paints (no flicker).
+    var obs = new MutationObserver(function (muts) {
+      if (lang === "en") return;
+      for (var i = 0; i < muts.length; i++) {
+        var m = muts[i];
+        if (m.type !== "childList" || !m.addedNodes.length) continue;
+        if (inEditor(m.target)) continue;
+        for (var j = 0; j < m.addedNodes.length; j++) {
+          var n = m.addedNodes[j];
+          if (n.nodeType === 3) applyText(n);
+          else if (n.nodeType === 1) walk(n);
+        }
+      }
+    });
+    obs.observe(document.body, { childList: true, subtree: true });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start);
+  else start();
+
+  window.KioskI18n = { set: setLang, get: function () { return lang; }, languages: LANGS };
+})();
+
+</script>
+</body>
+</html>
