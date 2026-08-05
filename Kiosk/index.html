@@ -264,7 +264,75 @@
     opacity:0; transform:scale(0.6); transition: all .2s ease;
   }
   .cat-card.selected .cat-check{ opacity:1; transform:scale(1); }
+/* ---------- SUBTLE CATEGORY CARD ANIMATION ---------- */
 
+.cat-card{
+  position:relative;
+  overflow:hidden;
+  transition:
+    transform .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease;
+}
+
+/* Very light orange shine */
+.cat-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(254,79,2,.07) 50%,
+    transparent 65%
+  );
+  transform:translateX(-120%);
+  transition:transform .55s ease;
+  pointer-events:none;
+}
+
+.cat-card > *{
+  position:relative;
+  z-index:1;
+}
+
+.cat-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(254,79,2,.55);
+  box-shadow:0 10px 22px rgba(72,28,10,.10);
+}
+
+.cat-card:hover::before{
+  transform:translateX(120%);
+}
+
+/* Small icon movement—no dramatic rotation */
+.cat-icon-wrap{
+  transition:
+    transform .22s ease,
+    box-shadow .22s ease;
+}
+
+.cat-card:hover .cat-icon-wrap{
+  transform:translateY(-2px) scale(1.04);
+  box-shadow:0 6px 12px rgba(201,56,0,.12);
+}
+
+/* Subtle selected-check reaction */
+.cat-check{
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.cat-card.selected:hover .cat-check{
+  transform:scale(1.06);
+  box-shadow:0 5px 10px rgba(201,56,0,.14);
+}
+
+.cat-card:active{
+  transform:translateY(-1px) scale(.992);
+}
 
   .ticket-badge{
     display:inline-flex;
@@ -305,7 +373,173 @@
     font-weight:800; font-size:16px; cursor:pointer; white-space:nowrap;
     background:var(--orange); color:#fff; transition: all .18s ease;
   }
+    /* Calm inline removal feedback */
+  .exhibit-card{
+    transition:
+      opacity .3s ease,
+      transform .3s ease,
+      border-color .3s ease;
+  }
+
+  .exhibit-card.is-removing{
+    opacity:0;
+    transform:translateY(-6px) scale(.985);
+    pointer-events:none;
+  }
+
+  .exhibit-card.is-removing .add-btn{
+    background:var(--orange-tint2);
+    border-color:var(--orange-tint2);
+    color:var(--orange-deep);
+    box-shadow:none;
+  }
   .add-btn.added{ background:#fff; color:var(--orange-deep); border:2px solid var(--orange); }
+.add-btn.added{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+  min-width:120px;
+  justify-content:center;
+
+  background:#fff;
+  color:var(--orange-deep);
+  border:2px solid var(--orange);
+
+  transition:
+    color .25s ease,
+    border-color .35s ease,
+    transform .25s ease,
+    box-shadow .25s ease;
+}
+
+/* Animated black layer */
+.add-btn.added::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  background:var(--ink);
+
+  transform:scaleY(0);
+  transform-origin:center;
+  opacity:0;
+
+  transition:
+    transform .4s cubic-bezier(.22, 1, .36, 1),
+    opacity .25s ease;
+
+  z-index:-1;
+}
+
+/* New Remove label */
+.add-btn.added::after{
+  content:"Remove";
+  position:absolute;
+  inset:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#fff;
+  font-weight:800;
+  font-size:16px;
+
+  opacity:0;
+  transform:translateY(10px);
+
+  transition:
+    opacity .2s ease .08s,
+    transform .35s cubic-bezier(.22, 1, .36, 1);
+}
+
+.add-btn.added svg{
+  transition:
+    opacity .2s ease,
+    transform .3s ease;
+}
+
+/* Hover animation */
+.add-btn.added:hover{
+  color:transparent;
+  border-color:var(--ink);
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px rgba(38, 20, 13, .18);
+}
+
+.add-btn.added:hover::before{
+  transform:scaleY(1);
+  opacity:1;
+}
+
+.add-btn.added:hover::after{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.add-btn.added:hover svg{
+  opacity:0;
+  transform:translateY(-8px) scale(.8);
+}
+
+/* Click feedback */
+.add-btn.added:active{
+  transform:translateY(0) scale(.97);
+}
+/* ADD button animation */
+.add-btn:not(.added){
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+
+  transition:
+    color .25s ease,
+    border-color .35s ease,
+    transform .25s ease,
+    box-shadow .25s ease;
+}
+
+/* Black layer expands through the button */
+.add-btn:not(.added)::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  background:var(--ink);
+
+  transform:scaleY(0);
+  transform-origin:center;
+  opacity:0;
+
+  transition:
+    transform .4s cubic-bezier(.22, 1, .36, 1),
+    opacity .25s ease;
+
+  z-index:-1;
+}
+
+/* Animate the plus icon */
+.add-btn:not(.added) svg{
+  transition:transform .35s cubic-bezier(.22, 1, .36, 1);
+}
+
+.add-btn:not(.added):hover{
+  color:#fff;
+  border-color:var(--ink);
+  transform:translateY(-2px);
+  box-shadow:0 8px 18px rgba(38, 20, 13, .18);
+}
+
+.add-btn:not(.added):hover::before{
+  transform:scaleY(1);
+  opacity:1;
+}
+
+.add-btn:not(.added):hover svg{
+  transform:rotate(90deg) scale(1.12);
+}
+
+.add-btn:not(.added):active{
+  transform:translateY(0) scale(.97);
+}
   .add-btn:active{ transform:scale(0.95); }
 
   .recommendation-divider{
@@ -544,7 +778,71 @@
   body.lang-rtl .result-name, body.lang-rtl .result-sub, body.lang-rtl .result-meta,
   body.lang-rtl .count-text, body.lang-rtl .count-sub, body.lang-rtl .fmw-instruct,
   body.lang-rtl .nav-card, body.lang-rtl .pill{ direction:rtl; unicode-bidi:plaintext; }
+    /* ---------- SUBTLE HEADER + ACTION BUTTON MOTION ---------- */
 
+  /* Remove the white separator under the top header */
+  .app-header{
+    border-bottom:none !important;
+  }
+
+  /* Remove the white outline around Back */
+  .back-btn{
+    border:none !important;
+  }
+
+  /* Shared smooth motion */
+  .back-btn,
+  .btn-primary:not(:disabled){
+    background-size:260% 100%;
+    background-position:100% 0;
+
+    transition:
+      transform .22s ease,
+      box-shadow .22s ease,
+      background-position .55s ease,
+      background-color .22s ease;
+  }
+
+  /* Back button: soft translucent-white shimmer */
+  .back-btn{
+    background-image:linear-gradient(
+      110deg,
+      rgba(255,255,255,.14) 0%,
+      rgba(255,255,255,.14) 38%,
+      rgba(255,255,255,.34) 50%,
+      rgba(255,255,255,.14) 62%,
+      rgba(255,255,255,.14) 100%
+    );
+  }
+
+  /* Bottom-right white button: subtle orange shimmer */
+  .btn-primary:not(:disabled){
+    background-image:linear-gradient(
+      110deg,
+      #ffffff 0%,
+      #ffffff 38%,
+      #ffe3d4 50%,
+      #ffffff 62%,
+      #ffffff 100%
+    );
+  }
+
+  /* Hover movement */
+  .back-btn:hover,
+  .btn-primary:not(:disabled):hover{
+    transform:translateY(-3px);
+    background-position:0 0;
+    box-shadow:
+      0 10px 22px rgba(110,35,0,.16),
+      0 0 0 3px rgba(255,255,255,.08);
+  }
+
+  /* Gentle press feedback */
+  .back-btn:active,
+  .btn-primary:not(:disabled):active{
+    transform:translateY(-1px) scale(.985);
+    box-shadow:0 5px 12px rgba(110,35,0,.12);
+  }
 </style>
 </head>
 <body>
@@ -633,7 +931,6 @@
           <div class="count-badge" id="catCount">0</div>
           <div>
             <div class="count-text">Categories selected</div>
-            <div class="count-sub">Choose at least one to continue</div>
           </div>
         </div>
         <button class="btn btn-primary" id="btnToRecommended" disabled>Show me exhibits →</button>
@@ -657,7 +954,7 @@
       <div class="app-body">
         <div class="section-lede">
           <h2 class="display">Your visit is ready</h2>
-          <p>We built this itinerary based on your interests. Remove anything you are not interested in, or add a few extra exhibits below if you would like.</p>
+          <p>We built this itinerary based on your interests. Remove or add a few extra exhibits if you would like.</p>
         </div>
         <div class="exhibit-grid" id="recGrid"></div>
       </div>
@@ -666,43 +963,9 @@
           <div class="count-badge" id="recCount">0</div>
           <div>
             <div class="count-text" id="recCountText">Exhibits added</div>
-            <div class="count-sub">Remove or add exhibits before reviewing</div>
           </div>
         </div>
-        <button class="btn btn-primary" id="btnToBuilder">Review my route →</button>
-      </div>
-    </section>
-
-    <!-- ============ REVIEW ============ -->
-    <section class="screen" id="screen-review">
-      <header class="app-header">
-        <div class="header-left">
-          <button class="back-btn" data-back="recommended" type="button" aria-label="Go back"></button>
-          <div class="header-title">
-          </div>
-        </div>
-        <div class="progress" id="progress-review"></div>
-        <div class="header-lang">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9Z"/></svg>
-          LANGUAGE
-        </div>
-      </header>
-      <div class="app-body">
-        <div class="section-lede">
-          <h2 class="display">Here's your personalized route for the day</h2>
-          <p>Double check your list below. You can still remove anything before we generate your plan.</p>
-        </div>
-        <div class="review-summary" id="reviewSummary"></div>
-        <div class="review-list" id="reviewList"></div>
-      </div>
-      <div class="action-bar">
-        <div class="action-info">
-          <div>
-            <div class="count-text">Ready when you are</div>
-            <div class="count-sub">We'll generate a QR code to send this to your phone</div>
-          </div>
-        </div>
-        <button class="btn btn-primary" id="btnToQr">Generate my plan →</button>
+        <button class="btn btn-primary" id="btnToBuilder">Generate my plan →</button>
       </div>
     </section>
 
@@ -710,7 +973,7 @@
     <section class="screen" id="screen-qr">
       <header class="app-header">
         <div class="header-left">
-          <button class="back-btn" data-back="review" type="button" aria-label="Go back"></button>
+          <button class="back-btn" data-back="recommended" type="button" aria-label="Go back"></button>
           <div class="header-title">
           </div>
         </div>
@@ -910,9 +1173,15 @@ const state = {
   myVisit: new Set(),
 };
 
-const FLOW = ['home','categories','recommended','review','qr'];
-const STEP_LABELS = { categories:'Interests', recommended:'Recommendations', review:'Review', qr:'Get your plan' };
-const STEP_SCREENS = ['categories','recommended','review','qr'];
+const FLOW = ['home','categories','recommended','qr'];
+
+const STEP_LABELS = {
+  categories: 'Interests',
+  recommended: 'Recommendations',
+  qr: 'Get your plan'
+};
+
+const STEP_SCREENS = ['categories','recommended','qr'];
 let current = 'home';
 
 function goTo(screenId){
@@ -1064,13 +1333,32 @@ function renderRecommended(){
   bindAddButtons('recGrid');
   updateRecommendedBar();
 }
-function bindAddButtons(containerId){
-  document.getElementById(containerId).querySelectorAll('[data-add]').forEach(btn=>{
-    btn.addEventListener('click', (ev)=>{
+function bindAddButtons(containerId) {
+  const container = document.getElementById(containerId);
+
+  container.querySelectorAll('[data-add]').forEach(btn => {
+    btn.addEventListener('click', ev => {
       ev.stopPropagation();
+
       const id = btn.getAttribute('data-add');
-      state.myVisit.has(id) ? state.myVisit.delete(id) : state.myVisit.add(id);
-      renderRecommended();
+      const card = btn.closest('.exhibit-card');
+      const wasAdded = state.myVisit.has(id);
+
+      if (!wasAdded) {
+        state.myVisit.add(id);
+        renderRecommended();
+        return;
+      }
+
+      /* Clear inline confirmation before removing */
+      btn.innerHTML = `${icon('check', 18, 3)} Removed`;
+      btn.disabled = true;
+      card.classList.add('is-removing');
+
+      window.setTimeout(() => {
+        state.myVisit.delete(id);
+        renderRecommended();
+      }, 450);
     });
   });
 }
@@ -1079,98 +1367,12 @@ function updateRecommendedBar(){
   document.getElementById('recCountText').textContent =
     state.myVisit.size===1 ? 'Exhibit on your route' : 'Exhibits on your route';
 }
-document.getElementById('btnToBuilder').addEventListener('click', ()=> { if(state.myVisit.size===0){showToast('Add at least one exhibit.');return;} goTo('review');});
+document.getElementById('btnToBuilder').addEventListener('click', () => {
+  if (state.myVisit.size === 0) {
+    showToast('Add at least one exhibit before generating your plan.');
+    return;
+  }
 
-/* ================= REVIEW SCREEN ================= */
-function parseMinutes(t){ const n = parseInt(t); return Number.isFinite(n) ? n : 0; }
-function renderReview(){
-  const visitEx = sortByMuseumRoute(
-    Array.from(state.myVisit).map(id => EXH_BY_ID[id])
-  );
-
-  document.getElementById('reviewSummary').innerHTML = `
-    <div class="summary-card">
-      <div class="num display">${visitEx.length}</div>
-      <div class="lbl">EXHIBITS ON YOUR ROUTE</div>
-    </div>
-
-    <div class="summary-card">
-      <div class="num display">—</div>
-      <div class="lbl">ESTIMATED TOTAL TIME</div>
-    </div>
-  `;
-
-  let previousLevel = '';
-
-  const listHTML = visitEx.map((e, i) => {
-    const level =
-      e.floor === 0
-        ? 'ENTRY HALL'
-        : e.floor === 1
-        ? 'LOWER LEVEL'
-        : e.floor === 2
-        ? 'MAIN LEVEL'
-        : 'BALCONY LEVEL';
-
-    const heading = level !== previousLevel
-      ? `
-        <div style="
-          font-family:'Anton', sans-serif;
-          font-size:28px;
-          color:white;
-          margin:24px 0 4px;
-          letter-spacing:0.5px;
-        ">
-          ${level}
-        </div>
-      `
-      : '';
-
-    previousLevel = level;
-
-    return `
-      ${heading}
-
-      <div class="review-row" data-ex="${e.id}">
-        <div class="review-index">${i + 1}</div>
-
-        <div class="exhibit-icon">
-          ${icon(e.icon, 28, 2)}
-        </div>
-
-        <div style="flex:1;">
-          <div class="row-name display" style="font-size:20px;">
-            ${e.name}
-          </div>
-
-          ${e.paid
-            ? '<div class="row-meta">Additional ticket required</div>'
-            : ''
-          }
-        </div>
-
-        <button class="remove-btn" data-remove="${e.id}">
-          ${icon('x', 18, 2.6)}
-        </button>
-      </div>
-    `;
-  }).join('');
-
-  document.getElementById('reviewList').innerHTML =
-    listHTML || `<div class="empty-state">No exhibits selected yet.</div>`;
-
-  document
-    .getElementById('reviewList')
-    .querySelectorAll('[data-remove]')
-    .forEach(btn => {
-      btn.addEventListener('click', () => {
-        state.myVisit.delete(btn.getAttribute('data-remove'));
-        renderReview();
-      });
-    });
-}
-document.getElementById('btnToQr').addEventListener('click', ()=>{
-  if(state.myVisit.size===0){ showToast('Add at least one exhibit before generating your plan.'); return; }
   goTo('qr');
 });
 
@@ -1231,7 +1433,6 @@ document.getElementById('btnStartOver').addEventListener('click', ()=>{
 function renderScreen(id){
   if(id==='categories'){ renderCategories(); updateCategoryBar(); renderProgress('progress-categories','categories'); }
   if(id==='recommended'){ renderRecommended(); renderProgress('progress-recommended','recommended'); }
-    if(id==='review'){ renderReview(); renderProgress('progress-review','review'); }
   if(id==='qr'){ drawQr(); renderProgress('progress-qr','qr'); }
 }
 
