@@ -919,6 +919,153 @@
   transform:translateY(-1px) scale(.985);
   box-shadow:0 5px 12px rgba(110,35,0,.12);
 }
+/* Large, focused route preference screen */
+#routePreferenceScreen .screen-body.with-bar{
+  display:flex;
+  align-items:center;
+  padding:40px 120px;
+}
+
+#routePreferenceScreen .body-inner{
+  max-width:1500px;
+}
+
+#routePreferenceScreen .route-choice-lede{
+  text-align:center;
+  margin-bottom:42px;
+}
+
+#routePreferenceScreen .route-choice-lede h2{
+  font-size:54px;
+  line-height:1.08;
+}
+
+#routePreferenceScreen .route-choice-lede p{
+  font-size:22px;
+  margin-top:14px;
+}
+
+#routePreferenceScreen .choice-grid{
+  gap:40px;
+}
+
+#routePreferenceScreen .choice-card{
+  min-height:370px;
+  padding:48px;
+  flex-direction:column;
+  justify-content:center;
+  text-align:center;
+  gap:28px;
+  border-radius:30px;
+
+  transition:
+    transform .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease,
+    background .22s ease;
+}
+
+#routePreferenceScreen .choice-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(254,79,2,.55);
+  box-shadow:0 14px 28px rgba(72,28,10,.12);
+}
+
+#routePreferenceScreen .choice-icon{
+  width:150px;
+  height:150px;
+  min-width:150px;
+  border-radius:34px;
+}
+
+#routePreferenceScreen .choice-icon svg{
+  width:78px;
+  height:78px;
+}
+
+#routePreferenceScreen .choice-text b{
+  font-size:38px;
+}
+
+#routePreferenceScreen .choice-text span{
+  font-size:20px;
+  margin-top:12px;
+}
+
+#routePreferenceScreen .choice-check{
+  top:28px;
+  right:28px;
+  width:48px;
+  height:48px;
+}
+
+#routePreferenceScreen .choice-card:active{
+  transform:translateY(-1px) scale(.99);
+}
+/* ---------- PARKING COLOR IDENTIFIERS ---------- */
+
+.parking-card-heading{
+  display:flex;
+  align-items:center;
+  gap:26px;
+  flex-wrap:wrap;
+}
+
+.parking-badges{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.parking-letter{
+  width:52px;
+  height:52px;
+  border-radius:50%;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#fff;
+  font-family:'Inter',sans-serif;
+  font-size:24px;
+  font-weight:800;
+
+  border:3px solid rgba(255,255,255,.9);
+  box-shadow:0 4px 10px rgba(42,20,10,.16);
+
+  transition:
+    transform .22s ease,
+    box-shadow .22s ease;
+}
+
+/* Entry Hall parking colors */
+.parking-a{ background:#f58220; } /* Orange */
+.parking-b{ background:#71369a; } /* Purple */
+.parking-c{ background:#79bd43; } /* Green */
+
+/* Other garage-side colors */
+.parking-d{ background:#1ea7d7; } /* Blue */
+.parking-e{
+  background:#f2d522;             /* Yellow */
+  color:#2a140a;
+}
+.parking-f{ background:#8b5a35; } /* Brown */
+
+.parking-choice-card:hover .parking-letter{
+  transform:translateY(-2px) scale(1.06);
+  box-shadow:0 7px 14px rgba(42,20,10,.20);
+}
+
+/* Give the help option its own row */
+#parkingScreen .parking-help-card{
+  grid-column:1 / -1;
+  max-width:100%;
+}
+/* Remove floor and walking-time details from all destination cards */
+.result-meta{
+  display:none !important;
+}
 </style>
 </head>
 <body>
@@ -1175,27 +1322,22 @@
 
       <div class="screen-body with-bar">
         <div class="body-inner">
-          <div class="section-lede">
-            <h2 class="display">Plan Your Route</h2>
-            <p>Review your destination, then choose how you would like to get there.</p>
+          <div class="section-lede route-choice-lede">
+            <h2 class="display">Would you like An accessible route?</h2>
+            <p>An accessible route avoids stairs, using elevators and ramps instead.</p>
           </div>
-
-          <div class="selected-card" id="prefSelected"></div>
-
-          <div class="choice-question display">Would you like An accessible route?</div>
-          <p class="choice-help">An accessible route avoids stairs, using elevators and ramps instead.</p>
 
           <div class="choice-grid">
             <button class="choice-card" id="choiceStepFree" type="button" onclick="setPreference(true)" aria-label="Yes, accessible route">
               <div class="choice-check" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg></div>
               <div class="choice-icon" aria-hidden="true"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="1.9"/><path d="M9.4 7.5v4.6H15l2.1 4.7"/><circle cx="10.4" cy="16" r="4.7"/></svg></div>
-              <div class="choice-text"><b>Yes, accessible route</b><span>Avoids stairs — elevators and ramps only.</span></div>
+              <div class="choice-text"><b>Yes, accessible route</b>
             </button>
 
             <button class="choice-card" id="choiceNoPref" type="button" onclick="setPreference(false)" aria-label="No preference">
               <div class="choice-check" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg></div>
               <div class="choice-icon" aria-hidden="true"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="18" r="2.4"/><circle cx="18" cy="6" r="2.4"/><path d="M8 16.5c6-1.2 8.3-3.5 8.5-8.5" stroke-dasharray="0.5 3.6"/></svg></div>
-              <div class="choice-text"><b>No preference</b><span>Show me the most direct route.</span></div>
+              <div class="choice-text"><b>No preference</b></div>
             </button>
           </div>
         </div>
@@ -1529,26 +1671,15 @@ function renderParkingHelp(){
 
 /* ================= ROUTE PREFERENCE ================= */
 function renderPreference(){
-  const d = state.selectedDestination;
-  if(!d) return;
+  if(!state.selectedDestination) return;
 
-  const typeLabel = TYPE_LABEL[d.type] || 'Destination';
-  const floorLabel = d.type === 'parking' ? 'Garage Level' : 'Floor';
+  document
+    .getElementById('choiceStepFree')
+    .classList.toggle('selected', state.stepFreeRoute === true);
 
-  document.getElementById('prefSelected').innerHTML = `
-    <div class="selected-icon" aria-hidden="true">${icon(d.icon || 'pin', 46, 2)}</div>
-    <div class="selected-body">
-      ${d.paid ? '<div class="ticket-badge">Additional Ticket Required</div>' : ''}
-      <div class="selected-name display">${d.name}</div>
-      <div class="selected-meta">
-        <span class="meta-chip type-chip">${typeLabel}</span>
-        <span class="meta-chip">${icon('layers', 18, 2)} ${floorLabel}: ${d.floor}</span>
-        <span class="meta-chip">${icon('clock', 18, 2)} ${d.walkingTime} walk</span>
-      </div>
-    </div>`;
-
-  document.getElementById('choiceStepFree').classList.toggle('selected', state.stepFreeRoute === true);
-  document.getElementById('choiceNoPref').classList.toggle('selected', state.stepFreeRoute === false);
+  document
+    .getElementById('choiceNoPref')
+    .classList.toggle('selected', state.stepFreeRoute === false);
 }
 function setPreference(val){
   state.stepFreeRoute = val;
@@ -3176,6 +3307,51 @@ scaleKiosk();
       + '<div class="result-go" aria-hidden="true">'+ic("chevron",22,2.6)+'</div>'
       + '</button>';
   }
+  function parkingBadge(letter, className){
+  return '<span class="parking-letter ' + className + '">' + letter + '</span>';
+}
+
+function cardParking(item, i){
+
+  /* “I don't remember” option */
+  if(item.__parkingHelp){
+    return '<button class="result-card parking-help-card" type="button" data-fmw="'+i+'" aria-label="I don’t remember">'
+      + '<div class="result-icon" aria-hidden="true">'+ic("question",40,2)+'</div>'
+      + '<div class="result-body">'
+      +   '<div class="result-name display">I DON’T REMEMBER</div>'
+      +   '<div class="result-sub">Take me to Guest Services for help.</div>'
+      + '</div>'
+      + '<div class="result-go" aria-hidden="true">'+ic("chevron",22,2.6)+'</div>'
+      + '</button>';
+  }
+
+  var badges = '';
+
+  if(item.name === "Parking A, B, C"){
+    badges =
+      parkingBadge("A", "parking-a") +
+      parkingBadge("B", "parking-b") +
+      parkingBadge("C", "parking-c");
+  }
+
+  if(item.name === "Parking D, E, F"){
+    badges =
+      parkingBadge("D", "parking-d") +
+      parkingBadge("E", "parking-e") +
+      parkingBadge("F", "parking-f");
+  }
+
+  return '<button class="result-card parking-choice-card" type="button" data-fmw="'+i+'" aria-label="'+esc(item.name)+'">'
+    + '<div class="result-icon" aria-hidden="true">'+ic("car",40,2)+'</div>'
+    + '<div class="result-body">'
+    +   '<div class="parking-card-heading">'
+    +     '<div class="result-name display">PARKING</div>'
+    +     '<div class="parking-badges">'+badges+'</div>'
+    +   '</div>'
+    + '</div>'
+    + '<div class="result-go" aria-hidden="true">'+ic("chevron",22,2.6)+'</div>'
+    + '</button>';
+}
   function paintGrid(elId, items, cardFn, onPick){
     var el = document.getElementById(elId); if(!el) return;
     if(!items.length){
@@ -3510,14 +3686,50 @@ function paintAmenities(){
     );
   }
 }
-  function paintParking(){
-    setLede("parkingScreen", "Find Your Parking", "Choose where you parked.");
-    paintGrid("parkingGrid", itemsFor("parking"), cardPick, function(it){ pickDestination(it, "parkingScreen"); });
+function paintParking(){
+  setLede(
+    "parkingScreen",
+    "Find Your Parking",
+    "Choose the color and letter you remember."
+  );
+
+  var items = itemsFor("parking");
+
+  /* Route visitors who do not remember to Guest Services */
+  var helpItem = packItem(
+    {
+      label:"I don’t remember",
+      names:["Guest Services"],
+      icon:"question"
+    },
+    "amenities"
+  );
+
+  if(helpItem){
+    helpItem.__parkingHelp = true;
+    items.push(helpItem);
   }
+
+  paintGrid(
+    "parkingGrid",
+    items,
+    cardParking,
+    function(it){
+      pickDestination(it, "parkingScreen");
+    }
+  );
+}
   /* ---------- Universal destination search (name + keyword + fuzzy) ---------- */
   var _searchCatalog = null;
   function _sNorm(x){ return String(x||"").toLowerCase().replace(/[^a-z0-9\s]/g," ").replace(/\s+/g," ").trim(); }
   function _sTokens(x){ var n=_sNorm(x); return n?n.split(" "):[]; }
+  function _sCompact(x){
+  return String(x || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+  }
   function _sLev(a,b){ var m=a.length,n=b.length; if(!m)return n; if(!n)return m; var prev=[],cur=[],i,j; for(j=0;j<=n;j++)prev[j]=j; for(i=1;i<=m;i++){ cur[0]=i; for(j=1;j<=n;j++){ var c=a.charAt(i-1)===b.charAt(j-1)?0:1; cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+c); } for(j=0;j<=n;j++)prev[j]=cur[j]; } return prev[n]; }
   var _SUB_SYN = {
     "Food": ["food","eat","eating","hungry","lunch","dinner","breakfast","meal","snack","dining","cafe","cafeteria","restaurant","kitchen","coffee"],
@@ -3537,24 +3749,94 @@ function paintAmenities(){
     try{ (MENU.amenitySubs||[]).forEach(function(sub){ var syn=(_SUB_SYN[sub.label]||[]).concat(_sTokens(sub.label)); add(amenitySubItems(sub.label), syn); }); }catch(e){}
     return out;
   }
-  function searchCatalog(q){
-    var qn=_sNorm(q), qtok=_sTokens(q); if(!qtok.length) return [];
-    if(!_searchCatalog) _searchCatalog = buildSearchCatalog();
-    var scored=[];
-    _searchCatalog.forEach(function(e){
-      var nameN=_sNorm(e.name), score=0;
-      if(qn && nameN.indexOf(qn)!==-1) score+=100;
-      qtok.forEach(function(qt){
-        var hit=false;
-        if(nameN.indexOf(qt)!==-1){ score+=30; hit=true; }
-        for(var i=0;i<e.kw.length;i++){ var k=e.kw[i]; if(k===qt){ score+=25; hit=true; break; } if(k.indexOf(qt)===0){ score+=14; hit=true; } else if(qt.length>=3 && k.indexOf(qt)!==-1){ score+=7; hit=true; } }
-        if(!hit && qt.length>=4){ var best=99; for(var j=0;j<e.kw.length;j++){ var k2=e.kw[j]; if(Math.abs(k2.length-qt.length)<=2){ var d=_sLev(qt,k2); if(d<best)best=d; } } if(best <= (qt.length<=5?1:2)) score+=6; }
-      });
-      if(score>0) scored.push({ item:e.item, score:score });
+function searchCatalog(q){
+  var qn = _sNorm(q);
+  var qc = _sCompact(q);
+  var qtok = _sTokens(q);
+
+  if(!qtok.length && !qc) return [];
+  if(!_searchCatalog) _searchCatalog = buildSearchCatalog();
+
+  var scored = [];
+
+  _searchCatalog.forEach(function(e){
+    var nameN = _sNorm(e.name);
+    var nameC = _sCompact(e.name);
+    var score = 0;
+
+    /* Normal phrase match */
+    if(qn && nameN.indexOf(qn) !== -1){
+      score += 100;
+    }
+
+    /* Ignore spaces, punctuation and hyphens */
+    if(qc && nameC.indexOf(qc) !== -1){
+      score += 120;
+    }
+
+    /* Existing token and typo matching */
+    qtok.forEach(function(qt){
+      var hit = false;
+
+      if(nameN.indexOf(qt) !== -1){
+        score += 30;
+        hit = true;
+      }
+
+      for(var i = 0; i < e.kw.length; i++){
+        var k = e.kw[i];
+
+        if(k === qt){
+          score += 25;
+          hit = true;
+          break;
+        }
+
+        if(k.indexOf(qt) === 0){
+          score += 14;
+          hit = true;
+        }else if(qt.length >= 3 && k.indexOf(qt) !== -1){
+          score += 7;
+          hit = true;
+        }
+      }
+
+      /* Minor spelling mistakes */
+      if(!hit && qt.length >= 4){
+        var best = 99;
+
+        for(var j = 0; j < e.kw.length; j++){
+          var k2 = e.kw[j];
+
+          if(Math.abs(k2.length - qt.length) <= 2){
+            var distance = _sLev(qt, k2);
+            if(distance < best) best = distance;
+          }
+        }
+
+        if(best <= (qt.length <= 5 ? 1 : 2)){
+          score += 6;
+        }
+      }
     });
-    scored.sort(function(a,b){ return b.score-a.score || String(a.item.name).localeCompare(String(b.item.name)); });
-    return scored.map(function(x){ return x.item; });
-  }
+
+    if(score > 0){
+      scored.push({
+        item: e.item,
+        score: score
+      });
+    }
+  });
+
+  scored.sort(function(a, b){
+    return b.score - a.score ||
+      String(a.item.name).localeCompare(String(b.item.name));
+  });
+
+  return scored.map(function(result){
+    return result.item;
+  });
+}
   function paintExhibits(){
     var q = "";
     var box = document.getElementById("exhibitSearch"); if(box) q = (box.value||"").trim().toLowerCase();
