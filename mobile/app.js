@@ -308,7 +308,7 @@ function walkMinutes(dist, transfers) { return Math.max(1, Math.round(dist / WAL
 
 /* ---------------- NAVIGATION ---------------- */
 function startNavigation(destSel) {
-  const route = buildRoute({ ids: [State.origin] }, destSel, State. accessible);
+  const route = buildRoute({ ids: [State.origin] }, destSel, State.accessible);
   if (!route) { alert('No accessible route is available there. Try turning accessible off.'); return; }
   State.navDest = destSel; State.route = route;
   State.segments = splitSegments(route.path); State.segIndex = 0;
@@ -316,7 +316,7 @@ function startNavigation(destSel) {
 }
 
 function recalcFromNewStart(startSel) {
-  const route = buildRoute(startSel, State.navDest, State. accessible);
+  const route = buildRoute(startSel, State.navDest, State.accessible);
   if (!route) { alert('No route found from there. Pick another spot.'); return; }
   State.origin = route.path[0]; State.route = route;
   State.segments = splitSegments(route.path); State.segIndex = 0;
@@ -520,7 +520,7 @@ function chooseSearch(entry) {
     openSearch('dest', 'Where do you want to go?', 'Starting from ' + entry.label);
   } else if (_searchTarget === 'dest') {
     State.navContext = 'find';
-    const route = buildRoute(_startSel, entry, State. accessible);
+    const route = buildRoute(_startSel, entry, State.accessible);
     if (!route) { alert('No route found between those two. Try accessible off, or a different pair.'); return; }
     State.origin = route.path[0]; State.navDest = entry; State.route = route;
     State.segments = splitSegments(route.path); State.segIndex = 0;
@@ -531,8 +531,8 @@ function chooseSearch(entry) {
 }
 
 /* ---------------- accessibility toggle ---------------- */
-function set accessible(on) {
-  State. accessible = on;
+function setAccessible(on) {
+  State.accessible = on;
   document.querySelectorAll('[data-access-toggle]').forEach(t => {
     t.setAttribute('aria-pressed', String(on));
     t.textContent = on ? ' accessible Route: On' : ' accessible Route: Off';
@@ -546,7 +546,7 @@ function wire() {
   if (reload) reload.onclick = () => location.reload();
   $('#go-plan').onclick = () => { renderPlan(); show('screen-plan'); };
   $('#go-find').onclick = () => show('screen-find-start');
-  document.querySelectorAll('[data-access-toggle]').forEach(t => t.onclick = () => set accessible(!State. accessible));
+  document.querySelectorAll('[data-access-toggle]').forEach(t => t.onclick = () => setAccessible(!State.accessible));
 
   $('#plan-back').onclick = () => show('screen-home');
   $('#plan-start').onclick = () => {
@@ -681,7 +681,7 @@ function readParams() {
   // --- accessibility: new avoidStairs=true|1 ; legacy access=1 ---
   const av = (p.get('avoidStairs') || '').toLowerCase();
   const wantAccess = (av === 'true' || av === '1' || p.get('access') === '1');
-  if (wantAccess) set accessible(true);
+  if (wantAccess) setAccessible(true);
 
   // --- origin/start: new start ; legacy origin ; default n84 ---
   const startRaw = p.get('start') || p.get('origin');
@@ -705,10 +705,10 @@ function readParams() {
   if (mode === 'plan' || stopTokens.length) {
     const stops = resolveStops(stopTokens);
     if (stops.length) {
-      const ordered = orderPlanNearestFirst(stops, State.origin, State. accessible);
+      const ordered = orderPlanNearestFirst(stops, State.origin, State.accessible);
       State.plan = ordered;
       list(p.get('done')).forEach(d => State.done.add(d));
-      saveImportedPlan(ordered.map(s => (s.ids && s.ids[0]) || s.label), State.origin, State. accessible);
+      saveImportedPlan(ordered.map(s => (s.ids && s.ids[0]) || s.label), State.origin, State.accessible);
       return 'plan';
     }
     State._transferError = 'That plan link didn’t contain any stops we recognise. Showing the home screen instead.';
@@ -720,7 +720,7 @@ function readParams() {
   // original demo itinerary. Either way we land on the home screen.
   const saved = loadImportedPlan();
   if (saved) {
-    if (saved.access) set accessible(true);
+    if (saved.access) setAccessible(true);
     if (saved.start && State.nodes[saved.start]) { State.origin = saved.start; State.lastNodeId = saved.start; }
     const stops = resolveStops(saved.stops);
     if (stops.length) State.plan = stops;
@@ -737,7 +737,7 @@ function readParams() {
    startNavigation(), a failed auto-route never alerts — it quietly lands the
    visitor on the home screen so they can navigate normally. */
 function startTransferDirections(destSel) {
-  const route = buildRoute({ ids: [State.origin] }, destSel, State. accessible);
+  const route = buildRoute({ ids: [State.origin] }, destSel, State.accessible);
   if (!route) return false;
   State.navContext = 'find';
   State.navDest = destSel; State.route = route;
