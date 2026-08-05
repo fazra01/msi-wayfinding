@@ -843,6 +843,115 @@
     transform:translateY(-1px) scale(.985);
     box-shadow:0 5px 12px rgba(110,35,0,.12);
   }
+    /* Keep every language button identical */
+  .lang-select,
+  .header-lang{
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+
+    min-height:52px;
+    padding:14px 22px;
+    border:none;
+    border-radius:40px;
+
+    background:rgba(255,255,255,.12);
+    color:#fff;
+
+    font-family:'Inter',sans-serif;
+    font-size:16px;
+    font-weight:700;
+    line-height:1;
+    letter-spacing:1.5px;
+
+    cursor:pointer;
+    transition:background .2s ease, transform .2s ease;
+  }
+
+  .lang-select svg,
+  .header-lang svg{
+    width:20px;
+    height:20px;
+    flex:0 0 20px;
+  }
+
+  .lang-select:hover,
+  .header-lang:hover{
+    background:rgba(255,255,255,.22);
+  }
+  /* ---------- LARGER QR HANDOFF SCREEN ---------- */
+
+#screen-qr .app-body{
+  padding:40px 90px;
+}
+
+#screen-qr .qr-wrap{
+  width:100%;
+  max-width:1650px;
+  gap:110px;
+  justify-content:center;
+  align-items:stretch;
+}
+#screen-qr .qr-text{
+  display:flex;
+  flex-direction:column;
+}
+
+#screen-qr .qr-text .btn-ghost{
+  margin-top:auto;
+  align-self:flex-start;
+}
+
+#screen-qr .qr-card{
+  padding:48px;
+  border-radius:32px;
+}
+
+#screen-qr .qr-text{
+  max-width:760px;
+}
+
+#screen-qr .qr-text h2{
+  font-size:64px;
+  line-height:1.05;
+  margin-bottom:26px;
+}
+
+#screen-qr .qr-text p{
+  max-width:760px;
+  font-size:25px;
+  line-height:1.5;
+  margin-bottom:24px;
+}
+
+#screen-qr .qr-list{
+  gap:20px;
+  margin:30px 0 36px;
+}
+
+#screen-qr .qr-list li{
+  gap:18px;
+  font-size:22px;
+}
+
+#screen-qr .qr-list .num{
+  width:44px;
+  height:44px;
+  min-width:44px;
+  font-size:19px;
+}
+
+#screen-qr .btn-ghost{
+  padding:26px 42px;
+  font-size:28px;
+}
+
+#screen-qr .btn-ghost svg{
+  width:26px;
+  height:26px;
+}
 </style>
 </head>
 <body>
@@ -985,7 +1094,9 @@
       <div class="app-body">
         <div class="qr-wrap">
           <div class="qr-card">
-            <canvas id="qrCanvas" width="300" height="300" style="width:300px;height:300px;image-rendering:pixelated;border-radius:12px;"></canvas>
+            <canvas id="qrCanvas" width="430" height="430"
+              style="width:430px;height:430px;image-rendering:pixelated;border-radius:16px;">
+            </canvas>
           </div>
           <div class="qr-text">
             <h2 class="display">Scan to get your plan</h2>
