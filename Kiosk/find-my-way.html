@@ -679,6 +679,246 @@
   body.lang-rtl .count-text, body.lang-rtl .count-sub, body.lang-rtl .fmw-instruct,
   body.lang-rtl .nav-card, body.lang-rtl .pill{ direction:rtl; unicode-bidi:plaintext; }
 
+/* =========================================
+   FIND MY WAY — HOME SCREEN POLISH
+   ========================================= */
+
+/* 1. Subtle card hover matching Plan My Visit */
+.nav-card{
+  overflow:hidden;
+  isolation:isolate;
+
+  transition:
+    transform .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease;
+}
+
+/* Soft orange shine */
+.nav-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(254,79,2,.07) 50%,
+    transparent 65%
+  );
+
+  transform:translateX(-120%);
+  transition:transform .55s ease;
+
+  pointer-events:none;
+  z-index:0;
+}
+
+.nav-card > *{
+  position:relative;
+  z-index:1;
+}
+
+.nav-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(254,79,2,.55);
+  box-shadow:0 10px 22px rgba(72,28,10,.10);
+}
+
+.nav-card:hover::before{
+  transform:translateX(120%);
+}
+
+.nav-icon{
+  transition:
+    transform .22s ease,
+    background .22s ease,
+    color .22s ease,
+    box-shadow .22s ease;
+}
+
+.nav-card:hover .nav-icon{
+  transform:translateY(-2px) scale(1.04);
+  background:var(--orange);
+  color:#fff;
+  box-shadow:0 6px 12px rgba(201,56,0,.12);
+}
+
+.nav-card:active{
+  transform:translateY(-1px) scale(.992);
+}
+
+
+/* 2. Remove the small circular arrows */
+.nav-go{
+  display:none !important;
+}
+
+
+/* 3. Match the Plan My Visit language button */
+.lang-select{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+
+  min-height:52px;
+  padding:14px 22px;
+
+  border:none !important;
+  border-radius:40px;
+
+  background:rgba(255,255,255,.12);
+  color:#fff;
+
+  font-family:'Inter',sans-serif;
+  font-size:16px;
+  font-weight:700;
+  line-height:1;
+  letter-spacing:1.5px;
+
+  cursor:pointer;
+
+  transition:
+    background .2s ease,
+    transform .2s ease;
+}
+
+.lang-select svg{
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
+}
+
+.lang-select:hover{
+  background:rgba(255,255,255,.22);
+  transform:translateY(-2px);
+}
+
+.lang-select:active{
+  transform:translateY(0) scale(.98);
+}
+/* Remove museum logo from every Find My Way screen */
+.topbar-logo{
+  display:none !important;
+}
+/* ---------- SUBTLE AMENITY CARD HOVER ---------- */
+
+#amenitiesScreen .result-card{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+
+  transition:
+    transform .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease;
+}
+
+/* Soft orange shine across the card */
+#amenitiesScreen .result-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(254,79,2,.07) 50%,
+    transparent 65%
+  );
+
+  transform:translateX(-120%);
+  transition:transform .55s ease;
+  pointer-events:none;
+  z-index:0;
+}
+
+#amenitiesScreen .result-card > *{
+  position:relative;
+  z-index:1;
+}
+
+#amenitiesScreen .result-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(254,79,2,.55);
+  box-shadow:0 10px 22px rgba(72,28,10,.10);
+}
+
+#amenitiesScreen .result-card:hover::before{
+  transform:translateX(120%);
+}
+
+/* Subtle icon movement */
+#amenitiesScreen .result-icon{
+  transition:
+    transform .22s ease,
+    background .22s ease,
+    color .22s ease,
+    box-shadow .22s ease;
+}
+
+#amenitiesScreen .result-card:hover .result-icon{
+  transform:translateY(-2px) scale(1.04);
+  background:var(--orange);
+  color:#fff;
+  box-shadow:0 6px 12px rgba(201,56,0,.12);
+}
+
+/* Gentle arrow reaction */
+#amenitiesScreen .result-go{
+  transition:
+    transform .22s ease,
+    background .22s ease,
+    color .22s ease;
+}
+
+#amenitiesScreen .result-card:hover .result-go{
+  transform:translateX(3px);
+  background:var(--orange);
+  color:#fff;
+}
+
+#amenitiesScreen .result-card:active{
+  transform:translateY(-1px) scale(.992);
+}
+/* Match Plan My Visit Back button */
+.back-btn{
+  border:none !important;
+
+  background-image:linear-gradient(
+    110deg,
+    rgba(255,255,255,.14) 0%,
+    rgba(255,255,255,.14) 38%,
+    rgba(255,255,255,.34) 50%,
+    rgba(255,255,255,.14) 62%,
+    rgba(255,255,255,.14) 100%
+  );
+
+  background-size:260% 100%;
+  background-position:100% 0;
+
+  transition:
+    transform .22s ease,
+    box-shadow .22s ease,
+    background-position .55s ease,
+    background-color .22s ease;
+}
+
+.back-btn:hover{
+  transform:translateY(-3px);
+  background-position:0 0;
+
+  box-shadow:
+    0 10px 22px rgba(110,35,0,.16),
+    0 0 0 3px rgba(255,255,255,.08);
+}
+
+.back-btn:active{
+  transform:translateY(-1px) scale(.985);
+  box-shadow:0 5px 12px rgba(110,35,0,.12);
+}
 </style>
 </head>
 <body>
@@ -720,8 +960,16 @@
               <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
             </span>
             <label class="visually-hidden" for="homeSearch">Search exhibits, amenities, parking</label>
-            <input id="homeSearch" class="search-input" type="text" readonly autocomplete="off"
-                   placeholder="Search exhibits, amenities, parking..." onclick="goToExhibits()">
+            <input
+            id="homeSearch"
+            class="search-input"
+            type="search"
+            autocomplete="off"
+            inputmode="search"
+            enterkeyhint="search"
+            placeholder="Search exhibits, food, restrooms, parking..."
+            onkeydown="if(event.key === 'Enter'){ event.preventDefault(); runHomeSearch(); }"
+            >
           </div>
 
           <div class="nav-grid">
@@ -786,8 +1034,8 @@
       <div class="screen-body">
         <div class="body-inner">
           <div class="section-lede">
-            <h2 class="display">Find an Exhibit</h2>
-            <p>Start typing to search, or pick from the popular exhibits below.</p>
+            <h2 class="display">Search the Museum</h2>
+              <p>Search exhibits, food, restrooms, parking, exits, and visitor services.</p>
           </div>
 
           <div class="search-wrap">
@@ -1165,6 +1413,20 @@ function showScreen(id){
 /* ================= HOME CARD NAVIGATION ================= */
 // TODO: Expand home search across all destination types.
 // For now the home search bar and the Exhibits card both open the exhibit search screen.
+function runHomeSearch(){
+  const homeBox = document.getElementById('homeSearch');
+  const resultsBox = document.getElementById('exhibitSearch');
+
+  const query = homeBox ? homeBox.value.trim() : '';
+
+  if(!query){
+    homeBox.focus();
+    return;
+  }
+
+  resultsBox.value = query;
+  goToExhibits();
+}
 function goToExhibits(){ showScreen('exhibitSearchScreen'); }
 function goToAmenities(){ showScreen('amenitiesScreen'); }
 function goToParking(){ showScreen('parkingScreen'); }
@@ -1506,10 +1768,6 @@ document.getElementById('parkingHelpGrid').addEventListener('click', (e) => {
   if(h.entrance) selectDestination(PARKING_ENTRANCE, 'parkingHelpScreen');
   else selectDestination(PARKING[h.levelIndex], 'parkingHelpScreen');
 });
-
-document.querySelectorAll('.lang-select').forEach(btn =>
-  btn.addEventListener('click', () => showToast('English is currently selected.'))
-);
 
 renderResults();
 
@@ -2808,9 +3066,8 @@ scaleKiosk();
       { label:"Food",           icon:"food",     items:[
           { label:"Museum Kitchen", names:["Museum Kitchen"], icon:"food" },
           { label:"Stan's Donut",   names:["Stan's Donut"],   icon:"food" },
-          { label:"Outside Seating",names:["Outside Seating"],icon:"food" }
       ]},
-      { label:"Gift Shop",      icon:"gift",     items:[
+      { label:"Museum Store",      icon:"gift",     items:[
           { label:"Museum Store",   names:["Museum Store"],   icon:"gift" }
       ]},
       { label:"Restrooms",      icon:"restroom", items:[
@@ -3175,23 +3432,84 @@ scaleKiosk();
   function pickDestination(item, backScreen){
     if(typeof window.selectDestination === "function") window.selectDestination(item, backScreen);
   }
-  function paintAmenities(){
-    if(EXIT_MODE){
-      setLede("amenitiesScreen", "Find an Exit", "Choose an exit.");
-      paintGrid("amenitiesGrid", itemsFor("exit"), cardPick, function(it){ pickDestination(it, "amenitiesScreen"); });
-      return;
-    }
-    if(AMEN_SUB === null){
-      setLede("amenitiesScreen", "Find an Amenity", "Choose what you need.");
-      var subs = MENU.amenitySubs.map(function(s){
-        return { name:s.label, icon:s.icon, desc:"", __sub:s.label };
-      }).filter(function(s){ return amenitySubItems(s.__sub).length > 0; });
-      paintGrid("amenitiesGrid", subs, cardPick, function(it){ AMEN_SUB = it.__sub; paintAmenities(); });
-    } else {
-      setLede("amenitiesScreen", AMEN_SUB, "Choose a destination.");
-      paintGrid("amenitiesGrid", amenitySubItems(AMEN_SUB), cardPick, function(it){ pickDestination(it, "amenitiesScreen"); });
-    }
+function paintAmenities(){
+
+  /* Exit flow */
+  if(EXIT_MODE){
+    setLede("amenitiesScreen", "Find an Exit", "Choose an exit.");
+
+    paintGrid(
+      "amenitiesGrid",
+      itemsFor("exit"),
+      cardPick,
+      function(it){
+        pickDestination(it, "amenitiesScreen");
+      }
+    );
+
+    return;
   }
+
+  /* Main amenity categories */
+  if(AMEN_SUB === null){
+    setLede(
+      "amenitiesScreen",
+      "Find an Amenity",
+      "Choose what you need."
+    );
+
+    var subs = MENU.amenitySubs
+      .map(function(s){
+        return {
+          name: s.label,
+          icon: s.icon,
+          desc: "",
+          __sub: s.label
+        };
+      })
+      .filter(function(s){
+        return amenitySubItems(s.__sub).length > 0;
+      });
+
+    paintGrid(
+      "amenitiesGrid",
+      subs,
+      cardPick,
+      function(it){
+
+        var destinations = amenitySubItems(it.__sub);
+
+        /* Skip the extra screen when there is only one location */
+        if(destinations.length === 1){
+          pickDestination(destinations[0], "amenitiesScreen");
+          return;
+        }
+
+        /* Show choices when multiple locations exist */
+        AMEN_SUB = it.__sub;
+        paintAmenities();
+      }
+    );
+
+  } else {
+
+    /* Multiple-location selection screen */
+    setLede(
+      "amenitiesScreen",
+      AMEN_SUB,
+      "Choose a destination."
+    );
+
+    paintGrid(
+      "amenitiesGrid",
+      amenitySubItems(AMEN_SUB),
+      cardPick,
+      function(it){
+        pickDestination(it, "amenitiesScreen");
+      }
+    );
+  }
+}
   function paintParking(){
     setLede("parkingScreen", "Find Your Parking", "Choose where you parked.");
     paintGrid("parkingGrid", itemsFor("parking"), cardPick, function(it){ pickDestination(it, "parkingScreen"); });
