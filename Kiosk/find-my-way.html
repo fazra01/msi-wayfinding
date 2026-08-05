@@ -903,7 +903,7 @@
       </div>
     </section>
 
-    <!-- ============ SCREEN 3: ACCESSIBLE ROUTE CHOICE ============ -->
+    <!-- ============ SCREEN 3:  accessible ROUTE CHOICE ============ -->
     <section class="screen" id="routePreferenceScreen">
       <header class="topbar">
         <div class="topbar-side">
@@ -934,14 +934,14 @@
 
           <div class="selected-card" id="prefSelected"></div>
 
-          <div class="choice-question display">Would you like a step-free route?</div>
-          <p class="choice-help">A step-free route avoids stairs, using elevators and ramps instead.</p>
+          <div class="choice-question display">Would you like An accessible route?</div>
+          <p class="choice-help">An accessible route avoids stairs, using elevators and ramps instead.</p>
 
           <div class="choice-grid">
-            <button class="choice-card" id="choiceStepFree" type="button" onclick="setPreference(true)" aria-label="Yes, step-free route">
+            <button class="choice-card" id="choiceStepFree" type="button" onclick="setPreference(true)" aria-label="Yes, accessible route">
               <div class="choice-check" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg></div>
               <div class="choice-icon" aria-hidden="true"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="1.9"/><path d="M9.4 7.5v4.6H15l2.1 4.7"/><circle cx="10.4" cy="16" r="4.7"/></svg></div>
-              <div class="choice-text"><b>Yes, step-free route</b><span>Avoids stairs — elevators and ramps only.</span></div>
+              <div class="choice-text"><b>Yes, accessible route</b><span>Avoids stairs — elevators and ramps only.</span></div>
             </button>
 
             <button class="choice-card" id="choiceNoPref" type="button" onclick="setPreference(false)" aria-label="No preference">
@@ -1044,7 +1044,7 @@ const ICONS = {
   elevator: `<rect x="5" y="3" width="14" height="18" rx="1.6"/><path d="M12 3v18"/><path d="M9 8l1.5-2 1.5 2"/><path d="M15 16l-1.5 2-1.5-2"/>`,
   flag: `<path d="M5 21V4"/><path d="M5 5h11l-2 3 2 3H5"/>`,
   restroom: `<circle cx="7.5" cy="5" r="2"/><path d="M7.5 8.5c-1.4 0-2.2 1-2.2 2.5v3.6H6.6V20h1.8v-5.4h.9V11c0-1.5-.8-2.5-2.2-2.5Z"/><circle cx="16.5" cy="5" r="2"/><path d="M16.5 8.5c-1.4 0-2.2 1-2.6 2.4L13 15h1.6l.4 5h3l.4-5H20l-.9-4.1c-.4-1.4-1.2-2.4-2.6-2.4Z"/>`,
-  accessible: `<circle cx="11" cy="4" r="1.9"/><path d="M9.4 7.5v4.6H15l2.1 4.7"/><circle cx="10.4" cy="16" r="4.7"/>`,
+   accessible: `<circle cx="11" cy="4" r="1.9"/><path d="M9.4 7.5v4.6H15l2.1 4.7"/><circle cx="10.4" cy="16" r="4.7"/>`,
   food: `<path d="M6 3v4.5M9 3v4.5"/><path d="M7.5 3v9"/><path d="M7.5 12v9"/><path d="M16.5 3c-1.3 0-2.2 2-2.2 4.6 0 2 .9 3.2 2.2 3.5V21"/>`,
   coat: `<path d="M12 4a2 2 0 0 0-1 3.7c.6.4 1 .8 1 1.3"/><path d="M12 9 4.4 15a1 1 0 0 0 .6 1.8h14a1 1 0 0 0 .6-1.8L12 9Z"/>`,
   info: `<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>`,
@@ -1100,11 +1100,11 @@ const POPULAR = [
 const START_LOCATION = "Main Level 2 · Rotunda Kiosk";
 
 /* ================= AMENITY DATA =================
-   Placeholder locations. Accessible Restrooms and Elevators
-   force a step-free route. */
+   Placeholder locations.  accessible Restrooms and Elevators
+   force An accessible route. */
 const AMENITIES = [
   { type:"amenity", name:"Restrooms",            desc:"Nearest public restrooms.",        floor:"Main Level 2",  floorNum:2, walkingTime:"2 min", wing:"Central Hall", icon:"restroom",   paid:false },
-  { type:"amenity", name:"Accessible Restrooms", desc:"Step-free, accessible facilities.", floor:"Main Level 2",  floorNum:2, walkingTime:"3 min", wing:"Central Hall", icon:"accessible", paid:false, forceStepFree:true },
+  { type:"amenity", name:" accessible Restrooms", desc:"Step-free,  accessible facilities.", floor:"Main Level 2",  floorNum:2, walkingTime:"3 min", wing:"Central Hall", icon:" accessible", paid:false, forceStepFree:true },
   { type:"amenity", name:"Food",                 desc:"Cafe and dining options.",         floor:"Main Level 2",  floorNum:2, walkingTime:"4 min", wing:"East Wing",    icon:"food",       paid:false },
   { type:"amenity", name:"Coat Check",           desc:"Store coats and bags.",            floor:"Entry Hall",    floorNum:0, walkingTime:"5 min", wing:"Entry Hall",   icon:"coat",       paid:false },
   { type:"amenity", name:"Information Desk",      desc:"Maps, tickets, and help.",         floor:"Main Level 2",  floorNum:2, walkingTime:"1 min", wing:"Central Hall", icon:"info",       paid:false },
@@ -1330,7 +1330,7 @@ function buildExhibitRoute(ex, stepFree){
   return steps;
 }
 
-/* Amenity directions — landmark based, respects floor + step-free. */
+/* Amenity directions — landmark based, respects floor + accessible. */
 function buildAmenityRoute(a, stepFree){
   const start = 2;
   const dest = a.floorNum;
@@ -2264,8 +2264,8 @@ scaleKiosk();
   function euclid(a, b){ var dx = a.x - b.x, dy = a.y - b.y; return Math.sqrt(dx*dx + dy*dy); }
 
   // Combined adjacency: intra-floor edges (pixel distance) + cross-floor connector links.
-  // accessible=true restricts floor changes to elevator connectors only (no stairs/escalators).
-  function buildAdj(accessible){
+  //  accessible=true restricts floor changes to elevator connectors only (no stairs/escalators).
+  function buildAdj( accessible){
     var adj = {};
     ED.nodes.forEach(function(n){ adj[n.id] = []; });
     ED.edges.forEach(function(e){
@@ -2283,7 +2283,7 @@ scaleKiosk();
       var g = groups[k];
       for(var i=0;i<g.length;i++) for(var j=i+1;j<g.length;j++){
         if(g[i].floorId === g[j].floorId) continue;
-        if(accessible && !(g[i].type === "elevator" && g[j].type === "elevator")) continue;
+        if( accessible && !(g[i].type === "elevator" && g[j].type === "elevator")) continue;
         adj[g[i].id].push({ to:g[j].id, w:CONNECTOR_WEIGHT });
         adj[g[j].id].push({ to:g[i].id, w:CONNECTOR_WEIGHT });
       }
@@ -2315,9 +2315,9 @@ scaleKiosk();
 
   // Single-source shortest paths from sId to ALL nodes (used to pick the nearest
   // node in a Visitor Destination group in one pass).
-  function dijkstraFrom(sId, accessible){
+  function dijkstraFrom(sId,  accessible){
     if(!nodeById(sId)) return null;
-    var adj = buildAdj(accessible);
+    var adj = buildAdj( accessible);
     var dist = {}, prev = {}, done = {};
     ED.nodes.forEach(function(n){ dist[n.id] = Infinity; });
     dist[sId] = 0;
@@ -2815,7 +2815,7 @@ scaleKiosk();
       ]},
       { label:"Restrooms",      icon:"restroom", items:[
           { label:"Restrooms",        vdest:["Restrooms"],        icon:"restroom" },
-          { label:"Family Restrooms", vdest:["Family Restrooms"], icon:"accessible" }
+          { label:"Family Restrooms", vdest:["Family Restrooms"], icon:" accessible" }
       ]},
       { label:"Vending",        icon:"water",    items:[
           { label:"Vending",        names:["Vending"],        icon:"water" }
@@ -2958,7 +2958,7 @@ scaleKiosk();
     });
     if(!best){
       return { error: stepFree
-        ? "We couldn\u2019t find a step-free route to that destination. Please ask a staff member for assistance."
+        ? "We couldn\u2019t find An accessible route to that destination. Please ask a staff member for assistance."
         : "We couldn\u2019t find a walking route to that destination right now. Please ask a staff member for assistance." };
     }
     if(best.id === kiosk) return { error:"You\u2019re already here \u2014 this kiosk is at that destination." };
@@ -3301,7 +3301,7 @@ scaleKiosk();
     // Build a genuinely scannable QR that hands this route to the phone.
     // Everything comes from the graph: start = the route's own origin node
     // (the physical kiosk), destination = the node the router actually chose,
-    // and the step-free preference. No display names or museum data in the URL.
+    // and the accessible preference. No display names or museum data in the URL.
     function renderTransferQR(r, sf){
       var canvas = document.getElementById("qrCanvas");
       var link = document.getElementById("qrOpenLink");
@@ -3704,7 +3704,7 @@ scaleKiosk();
       "That destination no longer exists.": "Ese destino ya no existe.",
       "That destination isn’t available right now.": "Ese destino no está disponible ahora.",
       "This kiosk hasn’t been set up yet. Please ask a staff member for directions.": "Este quiosco aún no está configurado. Pida indicaciones al personal.",
-      "We couldn’t find a step-free route to that destination. Please ask a staff member for assistance.": "No encontramos una ruta sin escaleras a ese destino. Pida ayuda al personal.",
+      "We couldn’t find An accessible route to that destination. Please ask a staff member for assistance.": "No encontramos una ruta sin escaleras a ese destino. Pida ayuda al personal.",
       "We couldn’t find a walking route to that destination right now. Please ask a staff member for assistance.": "No encontramos una ruta a pie a ese destino. Pida ayuda al personal.",
       "You’re already here — this kiosk is at that destination.": "Ya está aquí: este quiosco está en ese destino.",
       "We couldn’t map that route. Please ask a staff member for assistance.": "No pudimos trazar esa ruta. Pida ayuda al personal.",
@@ -3716,7 +3716,7 @@ scaleKiosk();
       "Information Desk": "Mostrador de información",
       "Coat Check": "Guardarropa",
       "Water Fountain": "Fuente de agua",
-      "Accessible Restrooms": "Baños accesibles",
+      " accessible Restrooms": "Baños accesibles",
       "Main Museum Exit": "Salida principal del museo",
       "Parking Garage Entrance": "Entrada al garaje",
       "LANGUAGE": "IDIOMA",
@@ -3771,9 +3771,9 @@ scaleKiosk();
       "Guest Services": "Servicios al visitante",
       "Plan Your Route": "Planifique su ruta",
       "Review your destination, then choose how you would like to get there.": "Revise su destino y elija cómo desea llegar.",
-      "Would you like a step-free route?": "¿Desea una ruta sin escaleras?",
-      "A step-free route avoids stairs, using elevators and ramps instead.": "Una ruta sin escaleras usa ascensores y rampas.",
-      "Yes, step-free route": "Sí, ruta sin escaleras",
+      "Would you like An accessible route?": "¿Desea una ruta sin escaleras?",
+      "An accessible route avoids stairs, using elevators and ramps instead.": "Una ruta sin escaleras usa ascensores y rampas.",
+      "Yes, accessible route": "Sí, ruta sin escaleras",
       "Avoids stairs — elevators and ramps only.": "Evita las escaleras: solo ascensores y rampas.",
       "No preference": "Sin preferencia",
       "Show me the most direct route.": "Muéstreme la ruta más directa.",
@@ -3933,7 +3933,7 @@ scaleKiosk();
       "That destination no longer exists.": "Ten cel już nie istnieje.",
       "That destination isn’t available right now.": "Ten cel jest obecnie niedostępny.",
       "This kiosk hasn’t been set up yet. Please ask a staff member for directions.": "Ten kiosk nie został jeszcze skonfigurowany. Poproś obsługę o wskazówki.",
-      "We couldn’t find a step-free route to that destination. Please ask a staff member for assistance.": "Nie znaleźliśmy trasy bez schodów do tego celu. Poproś obsługę o pomoc.",
+      "We couldn’t find An accessible route to that destination. Please ask a staff member for assistance.": "Nie znaleźliśmy trasy bez schodów do tego celu. Poproś obsługę o pomoc.",
       "We couldn’t find a walking route to that destination right now. Please ask a staff member for assistance.": "Nie znaleźliśmy trasy pieszej do tego celu. Poproś obsługę o pomoc.",
       "You’re already here — this kiosk is at that destination.": "Już tu jesteś — ten kiosk znajduje się w tym miejscu.",
       "We couldn’t map that route. Please ask a staff member for assistance.": "Nie udało się wyznaczyć tej trasy. Poproś obsługę o pomoc.",
@@ -3945,7 +3945,7 @@ scaleKiosk();
       "Information Desk": "Punkt informacyjny",
       "Coat Check": "Szatnia",
       "Water Fountain": "Poidełko",
-      "Accessible Restrooms": "Toalety dla niepełnosprawnych",
+      " accessible Restrooms": "Toalety dla niepełnosprawnych",
       "Main Museum Exit": "Główne wyjście z muzeum",
       "Parking Garage Entrance": "Wjazd do garażu",
       "LANGUAGE": "JĘZYK",
@@ -4000,9 +4000,9 @@ scaleKiosk();
       "Guest Services": "Obsługa gości",
       "Plan Your Route": "Zaplanuj trasę",
       "Review your destination, then choose how you would like to get there.": "Sprawdź cel, a następnie wybierz sposób dotarcia.",
-      "Would you like a step-free route?": "Czy chcesz trasę bez schodów?",
-      "A step-free route avoids stairs, using elevators and ramps instead.": "Trasa bez schodów korzysta z wind i podjazdów.",
-      "Yes, step-free route": "Tak, trasa bez schodów",
+      "Would you like An accessible route?": "Czy chcesz trasę bez schodów?",
+      "An accessible route avoids stairs, using elevators and ramps instead.": "Trasa bez schodów korzysta z wind i podjazdów.",
+      "Yes, accessible route": "Tak, trasa bez schodów",
       "Avoids stairs — elevators and ramps only.": "Bez schodów — tylko windy i podjazdy.",
       "No preference": "Bez preferencji",
       "Show me the most direct route.": "Pokaż najkrótszą trasę.",
@@ -4162,7 +4162,7 @@ scaleKiosk();
       "That destination no longer exists.": "لم تعد هذه الوجهة موجودة.",
       "That destination isn’t available right now.": "هذه الوجهة غير متاحة حالياً.",
       "This kiosk hasn’t been set up yet. Please ask a staff member for directions.": "لم يتم إعداد هذا الكشك بعد. يرجى سؤال أحد الموظفين.",
-      "We couldn’t find a step-free route to that destination. Please ask a staff member for assistance.": "لم نتمكن من إيجاد مسار بدون درج إلى هذه الوجهة. يرجى طلب المساعدة من الموظفين.",
+      "We couldn’t find An accessible route to that destination. Please ask a staff member for assistance.": "لم نتمكن من إيجاد مسار بدون درج إلى هذه الوجهة. يرجى طلب المساعدة من الموظفين.",
       "We couldn’t find a walking route to that destination right now. Please ask a staff member for assistance.": "لم نتمكن من إيجاد مسار مشي إلى هذه الوجهة. يرجى طلب المساعدة من الموظفين.",
       "You’re already here — this kiosk is at that destination.": "أنت هنا بالفعل — هذا الكشك في تلك الوجهة.",
       "We couldn’t map that route. Please ask a staff member for assistance.": "تعذّر رسم هذا المسار. يرجى طلب المساعدة من الموظفين.",
@@ -4174,7 +4174,7 @@ scaleKiosk();
       "Information Desk": "مكتب الاستعلامات",
       "Coat Check": "حفظ المعاطف",
       "Water Fountain": "نافورة مياه",
-      "Accessible Restrooms": "دورات مياه لذوي الاحتياجات",
+      " accessible Restrooms": "دورات مياه لذوي الاحتياجات",
       "Main Museum Exit": "المخرج الرئيسي للمتحف",
       "Parking Garage Entrance": "مدخل مرآب السيارات",
       "LANGUAGE": "اللغة",
@@ -4229,9 +4229,9 @@ scaleKiosk();
       "Guest Services": "خدمة الزوار",
       "Plan Your Route": "خطّط مسارك",
       "Review your destination, then choose how you would like to get there.": "راجع وجهتك ثم اختر طريقة الوصول.",
-      "Would you like a step-free route?": "هل تريد مساراً بدون درج؟",
-      "A step-free route avoids stairs, using elevators and ramps instead.": "المسار بدون درج يستخدم المصاعد والمنحدرات.",
-      "Yes, step-free route": "نعم، مسار بدون درج",
+      "Would you like An accessible route?": "هل تريد مساراً بدون درج؟",
+      "An accessible route avoids stairs, using elevators and ramps instead.": "المسار بدون درج يستخدم المصاعد والمنحدرات.",
+      "Yes, accessible route": "نعم، مسار بدون درج",
       "Avoids stairs — elevators and ramps only.": "بدون درج — مصاعد ومنحدرات فقط.",
       "No preference": "لا تفضيل",
       "Show me the most direct route.": "أرني المسار الأقصر.",
@@ -4391,7 +4391,7 @@ scaleKiosk();
       "That destination no longer exists.": "Cette destination n’existe plus.",
       "That destination isn’t available right now.": "Cette destination n’est pas disponible actuellement.",
       "This kiosk hasn’t been set up yet. Please ask a staff member for directions.": "Cette borne n’est pas encore configurée. Demandez au personnel.",
-      "We couldn’t find a step-free route to that destination. Please ask a staff member for assistance.": "Aucun itinéraire sans marches n’a été trouvé. Demandez de l’aide au personnel.",
+      "We couldn’t find An accessible route to that destination. Please ask a staff member for assistance.": "Aucun itinéraire sans marches n’a été trouvé. Demandez de l’aide au personnel.",
       "We couldn’t find a walking route to that destination right now. Please ask a staff member for assistance.": "Aucun itinéraire piéton n’a été trouvé. Demandez de l’aide au personnel.",
       "You’re already here — this kiosk is at that destination.": "Vous y êtes déjà — cette borne est à cette destination.",
       "We couldn’t map that route. Please ask a staff member for assistance.": "Impossible de tracer cet itinéraire. Demandez de l’aide au personnel.",
@@ -4403,7 +4403,7 @@ scaleKiosk();
       "Information Desk": "Point d’information",
       "Coat Check": "Vestiaire",
       "Water Fountain": "Fontaine à eau",
-      "Accessible Restrooms": "Toilettes accessibles",
+      " accessible Restrooms": "Toilettes  accessibles",
       "Main Museum Exit": "Sortie principale du musée",
       "Parking Garage Entrance": "Entrée du parking",
       "LANGUAGE": "LANGUE",
@@ -4458,9 +4458,9 @@ scaleKiosk();
       "Guest Services": "Accueil des visiteurs",
       "Plan Your Route": "Planifiez votre itinéraire",
       "Review your destination, then choose how you would like to get there.": "Vérifiez votre destination, puis choisissez comment vous y rendre.",
-      "Would you like a step-free route?": "Souhaitez-vous un itinéraire sans marches ?",
-      "A step-free route avoids stairs, using elevators and ramps instead.": "Un itinéraire sans marches utilise les ascenseurs et les rampes.",
-      "Yes, step-free route": "Oui, itinéraire sans marches",
+      "Would you like An accessible route?": "Souhaitez-vous un itinéraire sans marches ?",
+      "An accessible route avoids stairs, using elevators and ramps instead.": "Un itinéraire sans marches utilise les ascenseurs et les rampes.",
+      "Yes, accessible route": "Oui, itinéraire sans marches",
       "Avoids stairs — elevators and ramps only.": "Sans escaliers — ascenseurs et rampes uniquement.",
       "No preference": "Aucune préférence",
       "Show me the most direct route.": "Montrez-moi l’itinéraire le plus direct.",

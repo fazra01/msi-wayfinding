@@ -1479,6 +1479,14 @@
       "y": 537,
       "floorId": "balcony-level",
       "exhibitId": "vrtransporter"
+    },
+    {
+      "id": "n219",
+      "name": "",
+      "type": "intersection",
+      "x": 381,
+      "y": 626,
+      "floorId": "balcony-level"
     }
   ],
   "edges": [
@@ -2406,6 +2414,16 @@
       "id": "e221",
       "from": "n218",
       "to": "n193"
+    },
+    {
+      "id": "e222",
+      "from": "n194",
+      "to": "n219"
+    },
+    {
+      "id": "e223",
+      "from": "n219",
+      "to": "n176"
     }
   ]
 }

@@ -763,7 +763,7 @@
       </div>
     </section>
 
-    <!-- ============ SCREEN 3: ACCESSIBLE ROUTE CHOICE ============ -->
+    <!-- ============ SCREEN 3:  accessible ROUTE CHOICE ============ -->
     <section class="screen" id="routePreferenceScreen">
       <header class="topbar">
         <div class="topbar-side">
@@ -794,14 +794,14 @@
 
           <div class="selected-card" id="prefSelected"></div>
 
-          <div class="choice-question display">Would you like a step-free route?</div>
-          <p class="choice-help">A step-free route avoids stairs, using elevators and ramps instead.</p>
+          <div class="choice-question display">Would you like An accessible route?</div>
+          <p class="choice-help">An accessible route avoids stairs, using elevators and ramps instead.</p>
 
           <div class="choice-grid">
-            <button class="choice-card" id="choiceStepFree" type="button" onclick="setPreference(true)" aria-label="Yes, step-free route">
+            <button class="choice-card" id="choiceStepFree" type="button" onclick="setPreference(true)" aria-label="Yes, accessible route">
               <div class="choice-check" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 12 9 17 20 6"/></svg></div>
               <div class="choice-icon" aria-hidden="true"><svg width="46" height="46" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="4" r="1.9"/><path d="M9.4 7.5v4.6H15l2.1 4.7"/><circle cx="10.4" cy="16" r="4.7"/></svg></div>
-              <div class="choice-text"><b>Yes, step-free route</b><span>Avoids stairs — elevators and ramps only.</span></div>
+              <div class="choice-text"><b>Yes, accessible route</b><span>Avoids stairs — elevators and ramps only.</span></div>
             </button>
 
             <button class="choice-card" id="choiceNoPref" type="button" onclick="setPreference(false)" aria-label="No preference">
@@ -905,7 +905,7 @@
      load(rawGraph)                      -> normalize a parsed graph
      originId()                          -> activeKioskId (or a safe fallback)
      destinations()                      -> graph-derived destination catalog
-     route(destSel, accessible)          -> { path, dist, segments, steps }
+     route(destSel,  accessible)          -> { path, dist, segments, steps }
      resolveExhibit(name) / resolveGroup(label)
    ============================================================ */
 (function (global) {
@@ -1014,7 +1014,7 @@
   }
 
   /* ---------- adjacency + dijkstra (mirrors the Map Editor) ---------- */
-  function buildAdj(accessible) {
+  function buildAdj( accessible) {
     var adj = {};
     G.order.forEach(function (id) { adj[id] = []; });
     G.edges.forEach(function (e) {
@@ -1033,7 +1033,7 @@
       var g = groups[k];
       for (var i = 0; i < g.length; i++) for (var j = i + 1; j < g.length; j++) {
         if (g[i].floorId === g[j].floorId) continue;
-        if (accessible && !(g[i].type === 'elevator' && g[j].type === 'elevator')) continue;
+        if ( accessible && !(g[i].type === 'elevator' && g[j].type === 'elevator')) continue;
         adj[g[i].id].push({ to: g[j].id, w: CONNECTOR_WEIGHT });
         adj[g[j].id].push({ to: g[i].id, w: CONNECTOR_WEIGHT });
       }
@@ -1041,9 +1041,9 @@
     return adj;
   }
 
-  function dijkstra(startId, goalSet, accessible) {
+  function dijkstra(startId, goalSet,  accessible) {
     if (!G.nodes[startId]) return null;
-    var adj = buildAdj(accessible), dist = {}, prev = {}, done = {};
+    var adj = buildAdj( accessible), dist = {}, prev = {}, done = {};
     G.order.forEach(function (id) { dist[id] = Infinity; });
     dist[startId] = 0;
     while (true) {
@@ -1078,12 +1078,12 @@
   }
 
   /* nearest reachable node across the destination group */
-  function route(destSel, accessible) {
+  function route(destSel,  accessible) {
     var start = originId();
     var ids = idsFor(destSel);
     var goal = {}; ids.forEach(function (id) { if (G.nodes[id]) goal[id] = true; });
     if (!Object.keys(goal).length) return null;
-    var r = dijkstra(start, goal, accessible);
+    var r = dijkstra(start, goal,  accessible);
     if (!r) return null;
     r.segments = splitSegments(r.path);
     r.steps = buildDirections(r.path);
@@ -1187,15 +1187,15 @@ var VisitorNodeFields = {};
    accessDirection from the destination node in the graph. Fires ONLY for nodes
    that carry these fields, so no other destination is affected and nothing is
    inferred from floor IDs. The routing engine is not involved. */
-function applyAccessException(steps, route, accessible){
+function applyAccessException(steps, route,  accessible){
   if(!route || !route.path || !route.path.length) return steps;
   var node = VisitorNodeFields[route.path[route.path.length-1]];
   if(!node) return steps;
-  var access = accessible ? (node.accessElevator||'') : (node.accessStairs||'');
+  var access =  accessible ? (node.accessElevator||'') : (node.accessStairs||'');
   if(!access) return steps;                       // no override for this route mode -> unchanged
   var dir = (node.accessDirection==='up'||node.accessDirection==='down') ? (' '+node.accessDirection) : '';
   var target = node.visitorDestination || node.name || 'the entrance';
-  var step = { text: 'Take '+access+dir+' to '+target+'.', kind: accessible ? 'elevator' : 'stairs' };
+  var step = { text: 'Take '+access+dir+' to '+target+'.', kind:  accessible ? 'elevator' : 'stairs' };
   var idx = steps.length;
   for(var i=steps.length-1;i>=0;i--){ if(steps[i].kind==='arrive'){ idx=i; break; } }
   steps.splice(idx, 0, step);                      // insert just before "Arrive at ..."
@@ -1257,7 +1257,7 @@ const ICONS = {
   elevator: `<rect x="5" y="3" width="14" height="18" rx="1.6"/><path d="M12 3v18"/><path d="M9 8l1.5-2 1.5 2"/><path d="M15 16l-1.5 2-1.5-2"/>`,
   flag: `<path d="M5 21V4"/><path d="M5 5h11l-2 3 2 3H5"/>`,
   restroom: `<circle cx="7.5" cy="5" r="2"/><path d="M7.5 8.5c-1.4 0-2.2 1-2.2 2.5v3.6H6.6V20h1.8v-5.4h.9V11c0-1.5-.8-2.5-2.2-2.5Z"/><circle cx="16.5" cy="5" r="2"/><path d="M16.5 8.5c-1.4 0-2.2 1-2.6 2.4L13 15h1.6l.4 5h3l.4-5H20l-.9-4.1c-.4-1.4-1.2-2.4-2.6-2.4Z"/>`,
-  accessible: `<circle cx="11" cy="4" r="1.9"/><path d="M9.4 7.5v4.6H15l2.1 4.7"/><circle cx="10.4" cy="16" r="4.7"/>`,
+   accessible: `<circle cx="11" cy="4" r="1.9"/><path d="M9.4 7.5v4.6H15l2.1 4.7"/><circle cx="10.4" cy="16" r="4.7"/>`,
   food: `<path d="M6 3v4.5M9 3v4.5"/><path d="M7.5 3v9"/><path d="M7.5 12v9"/><path d="M16.5 3c-1.3 0-2.2 2-2.2 4.6 0 2 .9 3.2 2.2 3.5V21"/>`,
   coat: `<path d="M12 4a2 2 0 0 0-1 3.7c.6.4 1 .8 1 1.3"/><path d="M12 9 4.4 15a1 1 0 0 0 .6 1.8h14a1 1 0 0 0 .6-1.8L12 9Z"/>`,
   info: `<circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/>`,
@@ -1278,8 +1278,8 @@ function icon(name, size, stroke){
 const START_LOCATION = "Main Level 2 · Rotunda Kiosk";
 
 /* ================= AMENITY DATA =================
-   Placeholder locations. Accessible Restrooms and Elevators
-   force a step-free route. */
+   Placeholder locations.  accessible Restrooms and Elevators
+   force An accessible route. */
 /* AMENITIES built from the loaded graph. */
 
 /* ================= PARKING DATA =================
@@ -1488,7 +1488,7 @@ function renderRoute(){
     <div class="fact"><div class="k">From</div><div class="v">${fromLabel}</div></div>
     <div class="fact"><div class="k">Destination</div><div class="v">${d.name}</div></div>
     <div class="fact"><div class="k">${floorLabel}</div><div class="v">${destFloor}</div></div>
-    <div class="fact route-type"><div class="k">Route</div><div class="v">${sf ? 'Accessible' : 'Standard'}</div></div>
+    <div class="fact route-type"><div class="k">Route</div><div class="v">${sf ? ' accessible' : 'Standard'}</div></div>
   `;
 
   const steps = r ? applyAccessException(r.steps.map(function(s){ return { text:s.text, kind:s.kind }; }), r, sf)
