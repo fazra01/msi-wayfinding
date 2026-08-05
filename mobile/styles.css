@@ -1,0 +1,194 @@
+/* ============================================================
+   Griffin Museum — Mobile Companion
+   Design tokens copied from the kiosk (index.html / find-my-way.html):
+   Anton (display + buttons, uppercase, 0.5px tracking) + Inter (body),
+   warm palette, white cards with --line borders, 18px button radius,
+   page transitions translateY(14px) scale(0.994) over .38s ease.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root{
+  --orange:#FE4E04;
+  --orange-deep:#E64300;
+  --orange-dark:#C93800;
+  --orange-pill:#FF4B00;
+  --orange-tint:#FFF1EA;
+  --orange-tint2:#FFE3D4;
+  --cream:#FFFBF8;
+  --ink:#2A140A;
+  --ink-soft:#6B4433;
+  --line:#F0D9CC;
+  --white:#FFFFFF;
+  --shadow: 0 18px 40px rgba(120,40,0,0.18);
+  --shadow-sm: 0 6px 16px rgba(120,40,0,0.14);
+  --pad:22px;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body{ height:100%; background:var(--cream); }
+body{ font-family:'Inter',sans-serif; color:var(--ink); overscroll-behavior:none; }
+
+.display{ font-family:'Anton',sans-serif; font-weight:400; text-transform:uppercase; letter-spacing:0.5px; line-height:1.02; }
+
+/* ---- app shell ---- */
+.app{
+  position:relative; width:100%; max-width:480px; min-height:100dvh;
+  margin:0 auto; background:var(--cream); overflow:hidden;
+}
+
+/* ---- screen system (kiosk transition, no display:none) ---- */
+.screen{
+  position:absolute; inset:0; display:flex; flex-direction:column;
+  padding:max(env(safe-area-inset-top),18px) var(--pad) max(env(safe-area-inset-bottom),18px) var(--pad);
+  background:var(--orange); color:#fff;
+  opacity:0; visibility:hidden; pointer-events:none;
+  transform:translateY(14px) scale(0.994);
+  transition:opacity .38s ease, transform .38s ease, visibility 0s linear .38s;
+  overflow-y:auto; -webkit-overflow-scrolling:touch;
+}
+.screen.is-active{
+  opacity:1; visibility:visible; pointer-events:auto; transform:none;
+  transition:opacity .38s ease, transform .38s ease, visibility 0s;
+}
+
+/* ---- masthead / logo (matches kiosk: 240px, text fallback) ---- */
+.masthead{ display:flex; align-items:center; justify-content:center; padding:8px 0 16px; min-height:56px; }
+.brand-logo{ width:180px; max-width:64%; height:auto; display:block; }
+.brand-fallback{ display:none; color:#fff; line-height:1.05; text-align:center; }
+.brand-fallback b{ display:block; font-family:'Anton',sans-serif; font-size:26px; letter-spacing:0.5px; }
+.brand-fallback span{ display:block; font-size:12px; font-weight:700; letter-spacing:2px; opacity:0.85; margin-top:4px; }
+
+/* ---- typography (page-level text sits on the orange background) ---- */
+.h1{ font-size:40px; } .h2{ font-size:30px; }
+.display{ color:#fff; }
+.eyebrow{ font-family:'Inter',sans-serif; text-transform:uppercase; letter-spacing:2px; font-size:13px; font-weight:700; color:rgba(255,255,255,0.85); margin:0 0 8px; }
+.lede{ color:rgba(255,255,255,0.92); font-size:16px; font-weight:500; line-height:1.5; margin:6px 0 0; }
+.center{ text-align:center; } .spacer{ flex:1 1 auto; min-height:12px; } .hidden{ display:none !important; }
+
+/* ---- cards ---- */
+.card{ background:var(--white); border-radius:24px; box-shadow:var(--shadow-sm); padding:22px; border:1px solid var(--line); }
+.card + .card{ margin-top:16px; }
+
+/* home choice cards */
+.choice{ display:flex; flex-direction:column; gap:4px; text-align:left; width:100%; cursor:pointer;
+  border:none; border-radius:28px; box-shadow:var(--shadow); background:var(--white);
+  transition:transform .2s ease, box-shadow .2s ease; }
+.choice + .choice{ margin-top:20px; }
+.choice:active{ transform:translateY(-1px) scale(0.995); }
+@media (hover:hover){ .choice:hover{ transform:translateY(-6px); box-shadow:0 26px 55px rgba(0,0,0,0.22); } }
+.choice .kicker{ font-family:'Inter',sans-serif; text-transform:uppercase; letter-spacing:2px; font-size:11px; font-weight:700; color:var(--orange-deep); }
+.choice .title{ font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:0.5px; font-size:34px; color:var(--ink); line-height:1; margin-top:2px; }
+.choice .desc{ color:var(--ink-soft); font-size:15px; font-weight:500; line-height:1.4; margin-top:8px; }
+.choice .arrow{ margin-top:16px; align-self:flex-start; width:46px; height:46px; display:grid; place-items:center; border-radius:14px; background:var(--orange); color:#fff; font-size:22px; }
+
+/* ---- buttons (Anton, 18px radius — kiosk .btn) ---- */
+.btn{ font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:0.5px; font-size:22px;
+  padding:20px 28px; border-radius:18px; border:none; width:100%; cursor:pointer;
+  display:inline-flex; align-items:center; justify-content:center; gap:12px;
+  transition:transform .15s ease, box-shadow .2s ease, background .2s ease, opacity .2s ease; }
+.btn:active{ transform:scale(0.97); }
+/* Primary buttons sit on the orange page → white fill, orange text */
+.btn-primary{ background:#fff; color:var(--orange-deep); box-shadow:var(--shadow-sm); }
+.btn-primary:hover{ background:var(--orange-tint); }
+.btn-primary:disabled{ background:rgba(255,255,255,0.5); color:var(--orange-tint2); box-shadow:none; }
+.btn-secondary{ background:transparent; color:#fff; border:2px solid rgba(255,255,255,0.85); }
+.btn-secondary:hover{ background:rgba(255,255,255,0.14); }
+.btn-ghost{ background:rgba(255,255,255,0.16); color:#fff; }
+.btn-ghost:hover{ background:rgba(255,255,255,0.26); }
+.btn + .btn{ margin-top:12px; }
+.btn-row{ margin-top:auto; padding-top:18px; }
+/* The transfer confirm button lives on a white card, so keep it filled orange */
+.transfer .btn-primary{ background:var(--orange); color:#fff; }
+.transfer .btn-primary:hover{ background:var(--orange-deep); }
+
+/* large accessibility toggle on the home screen */
+.access-toggle{ width:100%; font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:0.5px;
+  font-size:20px; padding:22px 24px; border-radius:18px; margin-top:16px;
+  background:transparent; color:#fff; border:2px solid rgba(255,255,255,0.85); cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:12px;
+  transition:background .2s ease, color .2s ease, transform .15s ease; }
+.access-toggle:active{ transform:scale(0.98); }
+.access-toggle.is-active{ background:#fff; color:var(--orange-deep); border-color:#fff; }
+
+/* back control (kiosk .back-btn pill) */
+.back{ align-self:flex-start; background:var(--orange-tint); border:2px solid var(--orange-tint2);
+  color:var(--orange-deep); font-family:'Inter',sans-serif; font-weight:800; font-size:15px;
+  padding:10px 20px; border-radius:30px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; margin-bottom:14px; }
+.back:active{ transform:scale(0.95); }
+#screen-nav .back.link, .link.back{ background:none; border:none; color:var(--orange-deep); padding:4px 0; font-weight:700; }
+
+/* ---- plan ---- */
+.progress-track{ height:12px; border-radius:999px; background:var(--line); overflow:hidden; margin:2px 0 8px; }
+.progress-fill{ height:100%; background:var(--orange); border-radius:999px; transition:width .6s ease; }
+.progress-meta{ display:flex; justify-content:space-between; font-size:13px; font-weight:600; color:var(--ink-soft); }
+.stop-list{ list-style:none; margin:16px 0 0; padding:0; }
+.stop{ display:flex; align-items:center; gap:14px; padding:14px 0; border-top:1px solid var(--line); }
+.stop:first-child{ border-top:none; }
+.stop-dot{ width:30px; height:30px; border-radius:50%; flex:0 0 auto; display:grid; place-items:center; font-size:14px; font-weight:800; background:var(--orange-tint); color:var(--orange-deep); }
+.stop.done .stop-dot{ background:var(--orange); color:#fff; }
+.stop.done .stop-name{ color:var(--ink-soft); text-decoration:line-through; }
+.stop-name{ font-family:'Anton',sans-serif; letter-spacing:0.2px; font-size:19px; color:var(--ink); }
+.stop-sub{ font-size:12px; color:var(--ink-soft); font-weight:600; margin-top:1px; }
+
+/* ticket badge (kiosk .ticket-badge) */
+.ticket-badge{ display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; background:var(--orange); color:#fff; font-size:12px; font-weight:800; letter-spacing:0.45px; text-transform:uppercase; }
+
+/* ---- search ---- */
+.search-field{ width:100%; border:2px solid var(--line); border-radius:16px; padding:15px 16px; font-size:16px; font-family:inherit; background:var(--white); color:var(--ink); }
+.search-field:focus{ outline:none; border-color:var(--orange-tint2); }
+.tabs{ display:flex; gap:8px; margin:14px 0 4px; flex-wrap:wrap; }
+.tab{ border:none; cursor:pointer; font-family:'Inter',sans-serif; font-weight:700; font-size:13px; padding:9px 15px; border-radius:999px; background:var(--orange-tint); color:var(--orange-deep); transition:background .2s ease; }
+.tab.is-active{ background:#fff; color:var(--orange-deep); }
+.results{ margin-top:14px; display:flex; flex-direction:column; gap:12px; }
+.result{ display:flex; align-items:center; gap:16px; text-align:left; width:100%; cursor:pointer;
+  background:var(--white); border:2px solid var(--line); border-radius:22px; padding:16px 18px; transition:all .2s ease; }
+.result:active{ transform:scale(0.985); }
+@media (hover:hover){ .result:hover{ border-color:var(--orange-tint2); transform:translateY(-2px); box-shadow:var(--shadow-sm); } }
+.result-icon{ width:56px; height:56px; min-width:56px; border-radius:14px; display:grid; place-items:center; background:var(--orange-tint2); color:var(--orange-deep); font-size:26px; }
+.result-name{ font-family:'Anton',sans-serif; letter-spacing:0.2px; font-size:19px; color:var(--ink); line-height:1.05; }
+.result-meta{ font-size:12.5px; color:var(--ink-soft); font-weight:600; margin-top:3px; }
+.empty{ color:var(--ink-soft); text-align:center; padding:26px 0; font-size:14px; font-weight:600; }
+
+/* ---- navigation ---- */
+.nav-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; }
+.nav-dest-label{ font-size:12px; text-transform:uppercase; letter-spacing:2px; color:rgba(255,255,255,0.85); font-weight:700; }
+.nav-dest{ font-family:'Anton',sans-serif; text-transform:uppercase; letter-spacing:0.4px; color:#fff; font-size:28px; line-height:1; margin-top:3px; }
+.floor-pill{ flex:0 0 auto; background:var(--orange-dark); color:#fff; border-radius:999px; padding:9px 16px; font-family:'Anton',sans-serif; letter-spacing:0.4px; font-size:14px; white-space:nowrap; text-transform:uppercase; min-width:150px; text-align:center; box-shadow:inset 0 0 0 1px rgba(255,255,255,0.25); }
+
+.map-card{ background:var(--white); border:1px solid var(--line); border-radius:24px; box-shadow:var(--shadow-sm); padding:8px; }
+.map-svg{ width:100%; height:auto; display:block; border-radius:18px; background:#fff; aspect-ratio:16/9; }
+
+/* floor pager — review previous/next floor maps on multi-floor routes */
+.floornav{ display:flex; gap:10px; margin-top:12px; }
+.floornav-btn{ flex:1; font-family:'Inter',sans-serif; font-weight:800; font-size:14px; letter-spacing:0.3px;
+  padding:12px 14px; border-radius:14px; border:2px solid var(--orange-tint2); background:var(--orange-tint);
+  color:var(--orange-deep); cursor:pointer; transition:background .2s ease, opacity .2s ease; }
+.floornav-btn:active{ transform:scale(0.97); }
+.floornav-btn:disabled{ opacity:0.4; cursor:default; }
+.route-halo{ fill:none; stroke:#fff; stroke-linecap:round; stroke-linejoin:round; }
+.route-line{ fill:none; stroke:var(--orange); stroke-linecap:round; stroke-linejoin:round; }
+.origin-cap{ fill:var(--white); stroke:var(--ink); }
+.transfer-cap{ fill:var(--orange); stroke:#fff; }
+.pin{ fill:var(--orange); } .pin-core{ fill:#fff; }
+
+/* transfer prompt (the "next floor" control) */
+.transfer{ margin-top:14px; background:var(--white); border:1px solid var(--line); border-radius:20px; padding:20px; box-shadow:var(--shadow-sm); text-align:center; }
+.transfer .icon{ font-size:32px; }
+.transfer .msg{ font-family:'Anton',sans-serif; letter-spacing:0.3px; font-size:20px; margin:8px 0 2px; color:var(--ink); }
+.transfer .sub{ font-size:13px; color:var(--ink-soft); font-weight:500; }
+
+.directions{ margin-top:14px; background:var(--white); border:1px solid var(--line); border-radius:20px; padding:8px 6px; box-shadow:var(--shadow-sm); }
+.direction{ display:flex; gap:14px; align-items:flex-start; padding:12px 14px; }
+.direction + .direction{ border-top:1px solid var(--line); }
+.direction .step-n{ flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:var(--orange-tint); color:var(--orange-deep); font-weight:800; font-size:13px; display:grid; place-items:center; margin-top:1px; }
+.direction .step-text{ font-size:14.5px; color:var(--ink); line-height:1.4; font-weight:500; }
+
+.nav-link{ background:none; border:none; cursor:pointer; color:rgba(255,255,255,0.9); font-weight:700; font-size:14px; padding:6px 0; text-decoration:underline; text-underline-offset:3px; }
+
+/* ---- arrival ---- */
+.arrival-badge{ width:88px; height:88px; border-radius:50%; margin:8px auto 6px; background:#fff; color:var(--orange-deep); display:grid; place-items:center; font-size:42px; box-shadow:var(--shadow-sm); }
+
+@media (prefers-reduced-motion:reduce){
+  .screen,.progress-fill,.route-line,.choice,.btn,.result{ transition:none !important; }
+}
