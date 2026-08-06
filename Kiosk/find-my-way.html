@@ -350,12 +350,56 @@
   .fmw-map-head{ display:flex; align-items:center; justify-content:space-between; gap:14px; flex:0 0 auto; }
   .fmw-floor-pill{ background:var(--ink,#2A140A); color:#fff; font-family:'Inter',sans-serif; font-weight:800;
     font-size:14px; letter-spacing:0.3px; padding:7px 16px; border-radius:999px; white-space:nowrap; }
-  .fmw-route-casing{ fill:none; stroke:#fff; stroke-width:18; stroke-linejoin:round; stroke-linecap:round; opacity:.95; }
-  .fmw-route-line{ fill:none; stroke:var(--orange,#FE4E04); stroke-width:10; stroke-linejoin:round; stroke-linecap:round;
-    stroke-dasharray:2400; stroke-dashoffset:2400; animation:fmwDraw 5.6s ease-out forwards; }
-  @keyframes fmwDraw{ to{ stroke-dashoffset:0; } }
-  .fmw-mtag{ font-family:'Inter',sans-serif; font-weight:800; fill:var(--ink,#2A140A); paint-order:stroke;
-    stroke:#fff; stroke-width:7px; stroke-linejoin:round; }
+  .fmw-route-casing{
+  fill:none;
+  stroke:#fff;
+  stroke-width:26;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+  opacity:1;
+}
+
+.fmw-route-line{
+  fill:none;
+  stroke:var(--orange,#FE4E04);
+  stroke-width:15;
+  stroke-linejoin:round;
+  stroke-linecap:round;
+  stroke-dasharray:2400;
+  stroke-dashoffset:2400;
+  animation:fmwDraw 8.5s ease-in-out forwards;
+}
+
+@keyframes fmwDraw{
+  to{ stroke-dashoffset:0; }
+}
+
+.fmw-mtag{
+  font-family:'Inter',sans-serif;
+  font-weight:800;
+  fill:var(--ink,#2A140A);
+  paint-order:stroke;
+  stroke:#fff;
+  stroke-width:8px;
+  stroke-linejoin:round;
+}
+
+.fmw-you-halo{
+  transform-box:fill-box;
+  transform-origin:center;
+  animation:fmwYouPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes fmwYouPulse{
+  0%,100%{
+    opacity:.20;
+    transform:scale(1);
+  }
+  50%{
+    opacity:.42;
+    transform:scale(1.18);
+  }
+}
   .fmw-instruct{ margin-top:16px; font-family:'Inter',sans-serif; font-size:19px; line-height:1.45;
     color:var(--ink,#2A140A); background:var(--orange-tint,#FFF1EA); border-left:5px solid var(--orange,#FE4E04);
     border-radius:12px; padding:16px 18px; }
@@ -4044,23 +4088,37 @@ function cardParking(item, i){
   /* ---------------- ROUTE MAP (replaces the step list) ---------------- */
   var RT = { route:null, segIndex:0, dest:null };
 
-  function routeMarker(n, kind, text){
-    var color = (kind === "you") ? "#2563eb" : "#C93800";
+    function routeMarker(n, kind, text){
+    var isYou = kind === "you";
+    var color = isYou ? "#2563eb" : "#C93800";
+
+    if(isYou){
+      return '<g class="fmw-you-marker">'
+        + '<circle class="fmw-you-halo" cx="'+n.x+'" cy="'+n.y+'" r="38" fill="'+color+'" opacity="0.22"></circle>'
+        + '<circle cx="'+n.x+'" cy="'+n.y+'" r="21" fill="#fff" stroke="'+color+'" stroke-width="7"></circle>'
+        + '<circle cx="'+n.x+'" cy="'+n.y+'" r="10" fill="'+color+'"></circle>'
+        + '<text class="fmw-mtag" x="'+n.x+'" y="'+(n.y-44)+'" text-anchor="middle" font-size="29">'+esc(text)+'</text>'
+        + '</g>';
+    }
+
     return '<g>'
       + '<circle cx="'+n.x+'" cy="'+n.y+'" r="24" fill="'+color+'" opacity="0.16"></circle>'
       + '<circle cx="'+n.x+'" cy="'+n.y+'" r="12" fill="'+color+'" stroke="#fff" stroke-width="4"></circle>'
       + '<text class="fmw-mtag" x="'+n.x+'" y="'+(n.y-28)+'" text-anchor="middle" font-size="20">'+esc(text)+'</text>'
       + '</g>';
   }
-  function routeConnMarker(n, dir){
-    var arrow = (dir === "down") ? "\u25BC " : (dir === "up") ? "\u25B2 " : "";
-    var nm = (n.name && n.name.trim()) ? n.name.trim() : typeLabel(n.type);
-    return '<g>'
-      + '<circle cx="'+n.x+'" cy="'+n.y+'" r="26" fill="none" stroke="#F59E0B" stroke-width="6"></circle>'
-      + '<circle cx="'+n.x+'" cy="'+n.y+'" r="12" fill="#F59E0B" stroke="#fff" stroke-width="4"></circle>'
-      + '<text class="fmw-mtag" x="'+n.x+'" y="'+(n.y-30)+'" text-anchor="middle" font-size="20">'+esc(arrow+nm)+'</text>'
-      + '</g>';
-  }
+function routeConnMarker(n, dir){
+  var arrow = (dir === "down") ? "\u25BC " : (dir === "up") ? "\u25B2 " : "";
+  var nm = (n.name && n.name.trim()) ? n.name.trim() : typeLabel(n.type);
+  var color = "#F59E0B";
+
+  return '<g class="fmw-connector-marker">'
+    + '<circle class="fmw-you-halo" cx="'+n.x+'" cy="'+n.y+'" r="38" fill="'+color+'" opacity="0.22"></circle>'
+    + '<circle cx="'+n.x+'" cy="'+n.y+'" r="21" fill="#fff" stroke="'+color+'" stroke-width="7"></circle>'
+    + '<circle cx="'+n.x+'" cy="'+n.y+'" r="10" fill="'+color+'"></circle>'
+    + '<text class="fmw-mtag" x="'+n.x+'" y="'+(n.y-44)+'" text-anchor="middle" font-size="29">'+esc(arrow+nm)+'</text>'
+    + '</g>';
+}
 
   /* Measure the image's real ink bounds (non-white, non-transparent pixels) so
      ONLY the blank margin is trimmed — never any part of the floor plan.
@@ -4119,7 +4177,7 @@ function cardParking(item, i){
       if(n.x<minX) minX=n.x; if(n.x>maxX) maxX=n.x;
       if(n.y<minY) minY=n.y; if(n.y>maxY) maxY=n.y;
     });
-    var padX = 90, padY = 70;
+    var padX = 120, padY = 110;
     var x1 = Math.min(box.x, Math.max(0, minX - padX));
     var y1 = Math.min(box.y, Math.max(0, minY - padY));
     var x2 = Math.max(box.x + box.w, Math.min(fw, maxX + padX));
@@ -4162,8 +4220,7 @@ function cardParking(item, i){
     if(d) layer += '<path class="fmw-route-casing" d="'+d+'"></path><path class="fmw-route-line" d="'+d+'"></path>';
     if(pts.length) layer += routeMarker(pts[0], "you", RT.segIndex === 0 ? "You Are Here" : "Continue Here");
     if(seg.isFinal){
-      if(pts.length) layer += routeMarker(pts[pts.length-1], "dest", (RT.route.chosen && RT.route.chosen.name) ? RT.route.chosen.name : "Destination");
-    } else {
+      if(pts.length) layer += routeMarker(pts[pts.length-1], "dest", "");    } else {
       var ex = nodeById(seg.exitId);
       if(ex) layer += routeConnMarker(ex, directionWord(seg.floorId, seg.nextFloorId));
     }
