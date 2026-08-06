@@ -617,7 +617,251 @@
     width:44px; height:44px; border-radius:50%; background:var(--orange); color:#fff; font-weight:800;
     display:flex; align-items:center; justify-content:center; font-size:18px; min-width:44px;
   }
+/* ---------- ACCESSIBLE ROUTE CHOICE ---------- */
 
+#screen-accessibility{
+  background:var(--orange);
+}
+
+/* Transparent orange-page header */
+#screen-accessibility .app-header{
+  height:132px;
+  padding:0 64px;
+  background:transparent;
+  border-bottom:none;
+}
+
+#screen-accessibility .header-title,
+#screen-accessibility .progress{
+  display:none;
+}
+
+/* Match the Find My Way back button */
+#screen-accessibility .back-btn{
+  min-width:150px;
+  height:72px;
+  padding:0 28px;
+  border:none;
+  border-radius:36px;
+
+  background:rgba(255,255,255,.16);
+  color:#fff;
+
+  font-family:'Inter',sans-serif;
+  font-size:20px;
+  font-weight:800;
+}
+
+#screen-accessibility .back-btn:hover{
+  background:rgba(255,255,255,.26);
+  transform:translateY(-3px);
+}
+
+/* Match the language button */
+#screen-accessibility .header-lang{
+  min-height:52px;
+  padding:14px 22px;
+  border:none;
+  border-radius:40px;
+
+  background:rgba(255,255,255,.12);
+  color:#fff;
+
+  font-size:16px;
+  font-weight:700;
+  letter-spacing:1.5px;
+}
+
+#screen-accessibility .header-lang:hover{
+  background:rgba(255,255,255,.22);
+  transform:translateY(-2px);
+}
+
+/* Center the whole page like Find My Way */
+#screen-accessibility .app-body{
+  top:132px;
+  bottom:170px;
+  padding:40px 120px;
+
+  overflow:hidden;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.route-choice-shell{
+  width:100%;
+  max-width:1500px;
+  margin:0 auto;
+}
+
+#screen-accessibility .section-lede{
+  max-width:none;
+  margin-bottom:42px;
+  text-align:center;
+}
+
+#screen-accessibility .section-lede h2{
+  margin:0;
+  color:#fff;
+  font-size:54px;
+  line-height:1.08;
+}
+
+#screen-accessibility .section-lede p{
+  margin-top:14px;
+  color:rgba(255,255,255,.92);
+  font-size:22px;
+  font-weight:500;
+}
+
+.route-choice-grid{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:40px;
+  width:100%;
+}
+
+.route-choice-card{
+  position:relative;
+
+  min-height:370px;
+  padding:48px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:28px;
+
+  background:#fff;
+  border:3px solid var(--line);
+  border-radius:30px;
+
+  color:var(--ink);
+  text-align:center;
+  cursor:pointer;
+  overflow:hidden;
+
+  font-family:'Inter',sans-serif;
+
+  transition:
+    transform .22s ease,
+    border-color .22s ease,
+    box-shadow .22s ease,
+    background .22s ease;
+}
+
+/* Subtle orange shine */
+.route-choice-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(254,79,2,.07) 50%,
+    transparent 65%
+  );
+
+  transform:translateX(-120%);
+  transition:transform .55s ease;
+  pointer-events:none;
+}
+
+.route-choice-card > *{
+  position:relative;
+  z-index:1;
+}
+
+.route-choice-card:hover{
+  transform:translateY(-4px);
+  border-color:rgba(254,79,2,.55);
+  box-shadow:0 14px 28px rgba(72,28,10,.12);
+}
+
+.route-choice-card:hover::before{
+  transform:translateX(120%);
+}
+
+.route-choice-card:active{
+  transform:translateY(-1px) scale(.99);
+}
+
+.route-choice-card.selected{
+  border-color:var(--orange);
+  background:var(--orange-tint);
+}
+
+.route-choice-symbol{
+  width:150px;
+  height:150px;
+  min-width:150px;
+  border-radius:34px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:var(--orange-tint);
+  color:var(--orange-deep);
+
+  transition:
+    transform .22s ease,
+    background .22s ease,
+    color .22s ease,
+    box-shadow .22s ease;
+}
+
+.route-choice-symbol svg{
+  width:78px;
+  height:78px;
+}
+
+.route-choice-card:hover .route-choice-symbol{
+  transform:translateY(-2px) scale(1.04);
+  background:var(--orange);
+  color:#fff;
+  box-shadow:0 7px 14px rgba(42,20,10,.18);
+}
+
+.route-choice-card h3{
+  margin:0;
+
+  font-family:'Anton',sans-serif;
+  font-size:38px;
+  font-weight:400;
+  line-height:1.1;
+  color:var(--ink);
+}
+
+.route-choice-check{
+  position:absolute;
+  top:28px;
+  right:28px;
+
+  width:48px;
+  height:48px;
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:var(--orange);
+  color:#fff;
+
+  opacity:0;
+  transform:scale(.6);
+  transition:opacity .2s ease, transform .2s ease;
+}
+
+.route-choice-card.selected .route-choice-check{
+  opacity:1;
+  transform:scale(1);
+}
   /* ---------- QR SCREEN ---------- */
   #screen-qr .app-body{ display:flex; align-items:center; justify-content:center; }
   .qr-wrap{ display:flex; gap:70px; align-items:center; max-width:1500px; }
@@ -1085,16 +1329,149 @@
             <div class="count-text" id="recCountText">Exhibits added</div>
           </div>
         </div>
-        <button class="btn btn-primary" id="btnToBuilder">Generate my plan →</button>
+        <button class="btn btn-primary" id="btnToBuilder">Continue →</button>
       </div>
     </section>
+        <!-- ============ ROUTE PREFERENCE ============ -->
+    <!-- ============ ACCESSIBLE ROUTE CHOICE ============ -->
+<section class="screen" id="screen-accessibility">
 
+  <header class="app-header">
+
+    <div class="header-left">
+      <button
+        class="back-btn"
+        data-back="recommended"
+        type="button"
+        aria-label="Go back">
+      </button>
+    </div>
+
+    <div class="header-lang">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M3 12h18M12 3c2.5 2.6 4 6 4 9s-1.5 6.4-4 9c-2.5-2.6-4-6-4-9s1.5-6.4 4-9Z"/>
+      </svg>
+
+      LANGUAGE
+    </div>
+
+  </header>
+
+  <div class="app-body">
+
+    <div class="route-choice-shell">
+
+      <div class="section-lede">
+        <h2 class="display">
+          Would you like an accessible route?
+        </h2>
+
+        <p>
+          An accessible route avoids stairs, using elevators and ramps instead.
+        </p>
+      </div>
+
+      <div class="route-choice-grid">
+
+        <button
+          class="route-choice-card"
+          type="button"
+          data-access-choice="true"
+          aria-label="Yes, accessible route"
+          aria-pressed="false">
+
+          <div class="route-choice-check" aria-hidden="true">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="4 12 9 17 20 6"/>
+            </svg>
+          </div>
+
+          <div class="route-choice-symbol" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="11" cy="4" r="1.9"/>
+              <path d="M9.4 7.5v4.6H15l2.1 4.7"/>
+              <circle cx="10.4" cy="16" r="4.7"/>
+            </svg>
+          </div>
+
+          <h3>Yes, accessible route</h3>
+
+        </button>
+
+        <button
+          class="route-choice-card"
+          type="button"
+          data-access-choice="false"
+          aria-label="No preference"
+          aria-pressed="false">
+
+          <div class="route-choice-check" aria-hidden="true">
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="3"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <polyline points="4 12 9 17 20 6"/>
+            </svg>
+          </div>
+
+          <div class="route-choice-symbol" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <circle cx="6" cy="18" r="2.4"/>
+              <circle cx="18" cy="6" r="2.4"/>
+              <path
+                d="M8 16.5c6-1.2 8.3-3.5 8.5-8.5"
+                stroke-dasharray="0.5 3.6"/>
+            </svg>
+          </div>
+
+          <h3>No preference</h3>
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
     <!-- ============ QR HANDOFF ============ -->
     <section class="screen" id="screen-qr">
       <header class="app-header">
         <div class="header-left">
-          <button class="back-btn" data-back="recommended" type="button" aria-label="Go back"></button>
-          <div class="header-title">
+          <button class="back-btn" data-back="accessibility" type="button" aria-label="Go back"></button>          <div class="header-title">
           </div>
         </div>
         <div class="progress" id="progress-qr"></div>
@@ -1293,17 +1670,30 @@ function sortByMuseumRoute(exhibits){
 const state = {
   categories: new Set(),
   myVisit: new Set(),
+  accessible: null
 };
 
-const FLOW = ['home','categories','recommended','qr'];
+const FLOW = [
+  'home',
+  'categories',
+  'recommended',
+  'accessibility',
+  'qr'
+];
 
 const STEP_LABELS = {
   categories: 'Interests',
   recommended: 'Recommendations',
+  accessibility: 'Route preference',
   qr: 'Get your plan'
 };
 
-const STEP_SCREENS = ['categories','recommended','qr'];
+const STEP_SCREENS = [
+  'categories',
+  'recommended',
+  'accessibility',
+  'qr'
+];
 let current = 'home';
 
 function goTo(screenId){
@@ -1495,9 +1885,30 @@ document.getElementById('btnToBuilder').addEventListener('click', () => {
     return;
   }
 
-  goTo('qr');
+  goTo('accessibility');
 });
+function renderAccessibility(){
+  document
+    .querySelectorAll('#screen-accessibility [data-access-choice]')
+    .forEach(card => {
+      card.classList.remove('selected');
+      card.setAttribute('aria-pressed', 'false');
+    });
+}
+document
+  .querySelectorAll('#screen-accessibility [data-access-choice]')
+  .forEach(card => {
 
+    card.addEventListener('click', () => {
+
+      state.accessible =
+        card.getAttribute('data-access-choice') === 'true';
+
+      goTo('qr');
+
+    });
+
+  });
 /* ================= QR SCREEN (real, scannable plan transfer) ================= */
 /* Builds a genuine QR encoding a mobile URL. Stops are the visitor's chosen
    exhibits resolved to STABLE graph node ids (captured by the graph.json sync
@@ -1538,7 +1949,16 @@ function drawQr(){
 
   var startId = window.__activeKioskId || null;   // omit if this kiosk's start isn't set → mobile uses its default
   try{
-    var url = window.MuseumTransfer.renderPlanQR(canvas, stops, startId, false, { dark:'#2A140A', light:'#ffffff' });
+   var url = window.MuseumTransfer.renderPlanQR(
+  canvas,
+  stops,
+  startId,
+  state.accessible === true,
+  {
+    dark:'#2A140A',
+    light:'#ffffff'
+  }
+);
     if(link && url){ link.href = url; link.hidden = false; }
   }catch(e){
     try{ var c1 = canvas.getContext('2d'); c1.fillStyle = '#fff'; c1.fillRect(0,0,canvas.width,canvas.height); }catch(_){}
@@ -1548,14 +1968,32 @@ function drawQr(){
 document.getElementById('btnStartOver').addEventListener('click', ()=>{
   state.categories.clear();
   state.myVisit.clear();
+  state.accessible = null;
   goTo('home');
 });
 
 /* ================= SCREEN RENDER DISPATCH ================= */
 function renderScreen(id){
-  if(id==='categories'){ renderCategories(); updateCategoryBar(); renderProgress('progress-categories','categories'); }
-  if(id==='recommended'){ renderRecommended(); renderProgress('progress-recommended','recommended'); }
-  if(id==='qr'){ drawQr(); renderProgress('progress-qr','qr'); }
+  if(id === 'categories'){
+    renderCategories();
+    updateCategoryBar();
+    renderProgress('progress-categories', 'categories');
+  }
+
+  if(id === 'recommended'){
+    renderRecommended();
+    renderProgress('progress-recommended', 'recommended');
+  }
+
+  if(id === 'accessibility'){
+    renderAccessibility();
+    renderProgress('progress-accessibility', 'accessibility');
+  }
+
+  if(id === 'qr'){
+    drawQr();
+    renderProgress('progress-qr', 'qr');
+  }
 }
 
 /* ================= SCALE TO FIT VIEWPORT ================= */

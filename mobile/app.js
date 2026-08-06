@@ -400,7 +400,104 @@ function renderArrivalFind() {
 const SVGNS = 'http://www.w3.org/2000/svg';
 const XLINK = 'http://www.w3.org/1999/xlink';
 function svgEl(tag, attrs) { const e = document.createElementNS(SVGNS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); return e; }
+function pointToSegmentDistance(px, py, a, b){
+  const vx = b.x - a.x;
+  const vy = b.y - a.y;
+  const lengthSquared = vx * vx + vy * vy;
 
+  let t = 0;
+
+  if(lengthSquared > 0){
+    t = (
+      (px - a.x) * vx +
+      (py - a.y) * vy
+    ) / lengthSquared;
+
+    t = Math.max(0, Math.min(1, t));
+  }
+
+  const closestX = a.x + t * vx;
+  const closestY = a.y + t * vy;
+
+  return Math.hypot(
+    px - closestX,
+    py - closestY
+  );
+}
+
+function chooseStartLabelPosition(start, routePoints, W, H, sw){
+  const distanceFromMarker = sw * 5.8;
+
+  const directions = [
+    -Math.PI / 2,       // above
+     Math.PI / 2,       // below
+     Math.PI,           // left
+     0,                 // right
+    -3 * Math.PI / 4,   // upper left
+    -Math.PI / 4,       // upper right
+     3 * Math.PI / 4,   // lower left
+     Math.PI / 4        // lower right
+  ];
+
+  const horizontalPadding = sw * 8.5;
+  const verticalPadding = sw * 4.5;
+
+  let best = {
+    x: start.x,
+    y: start.y - distanceFromMarker,
+    score: -Infinity
+  };
+
+  directions.forEach(angle => {
+    const rawX =
+      start.x +
+      Math.cos(angle) * distanceFromMarker;
+
+    const rawY =
+      start.y +
+      Math.sin(angle) * distanceFromMarker;
+
+    const x = Math.max(
+      horizontalPadding,
+      Math.min(W - horizontalPadding, rawX)
+    );
+
+    const y = Math.max(
+      verticalPadding,
+      Math.min(H - verticalPadding, rawY)
+    );
+
+    let routeDistance = Infinity;
+
+    if(routePoints.length < 2){
+      routeDistance = distanceFromMarker;
+    }else{
+      for(let i = 0; i < routePoints.length - 1; i++){
+        routeDistance = Math.min(
+          routeDistance,
+          pointToSegmentDistance(
+            x,
+            y,
+            routePoints[i],
+            routePoints[i + 1]
+          )
+        );
+      }
+    }
+
+    const edgePenalty =
+      Math.hypot(rawX - x, rawY - y) * 2;
+
+    const score =
+      routeDistance - edgePenalty;
+
+    if(score > best.score){
+      best = { x, y, score };
+    }
+  });
+
+  return best;
+}
 function drawMap(seg, isLast) {
   const floor = State.floorByLevel[seg.level] || { width: 1920, height: 1080, image: null };
   const svg = $('#nav-map'); svg.innerHTML = '';
@@ -420,22 +517,101 @@ function drawMap(seg, isLast) {
     svg.appendChild(img);
   }
 
-  const sw = Math.max(8, Math.min(W, H) * 0.012);
-  const d = seg.nodes.map((id, i) => (i ? 'L' : 'M') + State.nodes[id].x + ' ' + State.nodes[id].y).join(' ');
-  const halo = svgEl('path', { class: 'route-halo', d }); halo.setAttribute('stroke-width', sw * 2.1);
-  svg.appendChild(halo);
-  const rp = svgEl('path', { class: 'route-line', d }); rp.id = 'route-path'; rp.setAttribute('stroke-width', sw);
-  svg.appendChild(rp);
+const sw = Math.max(14, Math.min(W, H) * 0.017);
 
-  // Start ("you are here") and destination markers only. Stair/elevator
-  // locations are already shown by the coloured blocks on the floor map, so
-  // no extra transfer marker is drawn there.
-  const s = pts[0], e = pts[pts.length - 1], mr = sw * 1.5;
-  svg.appendChild(svgEl('circle', { class: 'origin-cap', cx: s.x, cy: s.y, r: mr, 'stroke-width': sw * 0.5 }));
-  if (isLast) {
-    svg.appendChild(svgEl('circle', { class: 'pin', cx: e.x, cy: e.y, r: mr * 1.5 }));
-    svg.appendChild(svgEl('circle', { class: 'pin-core', cx: e.x, cy: e.y, r: mr * 0.6 }));
-  }
+const d = seg.nodes
+  .map((id, i) =>
+    (i ? 'L' : 'M') +
+    State.nodes[id].x + ' ' +
+    State.nodes[id].y
+  )
+  .join(' ');
+
+/* Wider white outline behind the route */
+const halo = svgEl('path', {
+  class: 'route-halo',
+  d
+});
+
+halo.setAttribute('stroke-width', sw * 2.6);
+svg.appendChild(halo);
+
+/* Thicker orange route */
+const rp = svgEl('path', {
+  class: 'route-line',
+  d
+});
+
+rp.id = 'route-path';
+rp.setAttribute('stroke-width', sw);
+svg.appendChild(rp);
+
+const s = pts[0];
+const e = pts[pts.length - 1];
+
+/* Large You Are Here marker */
+const startHalo = svgEl('circle', {
+  class: 'origin-halo',
+  cx: s.x,
+  cy: s.y,
+  r: sw * 3.1
+});
+svg.appendChild(startHalo);
+
+const startRing = svgEl('circle', {
+  class: 'origin-ring',
+  cx: s.x,
+  cy: s.y,
+  r: sw * 1.75,
+  'stroke-width': sw * 0.55
+});
+svg.appendChild(startRing);
+
+const startCore = svgEl('circle', {
+  class: 'origin-core',
+  cx: s.x,
+  cy: s.y,
+  r: sw * 0.75
+});
+svg.appendChild(startCore);
+
+const labelPosition =
+  chooseStartLabelPosition(
+    s,
+    pts,
+    W,
+    H,
+    sw
+  );
+
+const startLabel = svgEl('text', {
+  class: 'origin-label',
+  x: labelPosition.x,
+  y: labelPosition.y,
+  'text-anchor': 'middle',
+  'dominant-baseline': 'middle',
+  'font-size': sw * 2.35
+});
+
+startLabel.textContent = 'You Are Here';
+svg.appendChild(startLabel);
+
+/* Destination marker remains orange */
+if (isLast) {
+  svg.appendChild(svgEl('circle', {
+    class: 'pin',
+    cx: e.x,
+    cy: e.y,
+    r: sw * 2
+  }));
+
+  svg.appendChild(svgEl('circle', {
+    class: 'pin-core',
+    cx: e.x,
+    cy: e.y,
+    r: sw * 0.75
+  }));
+}
 }
 
 function animateRoute() {
@@ -533,13 +709,16 @@ function chooseSearch(entry) {
 /* ---------------- accessibility toggle ---------------- */
 function setAccessible(on) {
   State.accessible = on;
-  document.querySelectorAll('[data-access-toggle]').forEach(t => {
-    t.setAttribute('aria-pressed', String(on));
-    t.textContent = on ? 'Accessible Route: On' : 'Accessible Route: Off';
-    t.classList.toggle('is-active', on);
+
+  document.querySelectorAll('[data-access-toggle]').forEach(button => {
+    button.setAttribute('aria-pressed', String(on));
+    button.classList.toggle('is-active', on);
+
+    button.textContent = on
+      ? 'Accessible Route: On'
+      : 'Accessible Route: Off';
   });
 }
-
 /* ---------------- wiring ---------------- */
 function wire() {
   const reload = document.getElementById('error-reload');

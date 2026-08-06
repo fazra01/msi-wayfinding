@@ -14,30 +14,41 @@
     <!-- ============================ HOME ============================ -->
     <section id="screen-home" class="screen is-active">
       <div class="masthead">
-        <img src="images/griffin-msi-logo.png" alt="Griffin Museum of Science and Industry" class="brand-logo"
+        <img src="../Kiosk/images/griffin-msi-logo.png" alt="Griffin Museum of Science and Industry" class="brand-logo"
              onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
         <div class="brand-fallback" aria-hidden="true"><b>Griffin</b><span>Museum of Science + Industry</span></div>
       </div>
 
-      <h1 class="display h1 center" style="margin-bottom:10px;">How can we<br>help you today?</h1>
+      <h1 class="display h1 center home-heading">
+        How can we help you today?
+      </h1>
       <p class="lede center" style="margin-bottom:26px;">Pick up your visit from the kiosk, or find your way to anywhere in the museum.</p>
 
       <button id="go-plan" class="choice">
-        <span style="padding:24px 24px 0;" class="kicker">Continue where you left off</span>
-        <span style="padding:0 24px;" class="title">My Plan</span>
-        <span style="padding:0 24px;" class="desc">See your itinerary, track progress, and navigate to each stop.</span>
-        <span style="margin:16px 24px 24px;" class="arrow">→</span>
+        <span class="kicker">Continue where you left off</span>
+        <span class="title">My Plan</span>
+        <span class="desc">
+          See your itinerary, track progress, and navigate to each stop.
+        </span>
+        <span class="arrow">→</span>
       </button>
 
       <button id="go-find" class="choice">
-        <span style="padding:24px 24px 0;" class="kicker">Go anywhere</span>
-        <span style="padding:0 24px;" class="title">Find Your Way</span>
-        <span style="padding:0 24px;" class="desc">Step-by-step directions to any exhibit, amenity, or exit.</span>
-        <span style="margin:16px 24px 24px;" class="arrow">→</span>
+        <span class="kicker">Go anywhere</span>
+        <span class="title">Find Your Way</span>
+        <span class="desc">
+          Step-by-step directions to any exhibit, amenity, or exit.
+        </span>
+        <span class="arrow">→</span>
       </button>
 
-      <div class="spacer"></div>
-      <button class="access-toggle" data-access-toggle aria-pressed="false">Accessible Route: Off</button>
+      <button
+        class="access-toggle"
+        data-access-toggle
+        aria-pressed="false"
+        type="button">
+        Accessible Route: Off
+      </button>
     </section>
 
     <!-- ============================ MY PLAN ============================ -->
