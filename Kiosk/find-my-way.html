@@ -1396,6 +1396,116 @@
   cursor:not-allowed;
   box-shadow:none;
 }
+/* HOME CARDS — REMOVE ICONS AND ENLARGE TEXT */
+
+#homeScreen .nav-top{
+  display:none !important;
+}
+
+#homeScreen .nav-card{
+  justify-content:center;
+  padding:40px 36px;
+}
+
+#homeScreen .nav-name{
+  font-size:42px;
+  line-height:1;
+}
+
+#homeScreen .nav-desc{
+  font-size:20px;
+  line-height:1.35;
+  margin-top:16px;
+}
+/* Small directional arrow on the four home cards */
+#homeScreen .nav-card::after{
+  content:"→";
+  position:absolute;
+  right:28px;
+  bottom:24px;
+
+  width:44px;
+  height:44px;
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:var(--orange-tint);
+  color:var(--orange);
+  font-size:26px;
+  font-weight:700;
+
+  transition:
+    transform .18s ease,
+    background .18s ease,
+    color .18s ease;
+}
+
+#homeScreen .nav-card{
+  position:relative;
+}
+
+/* Desktop preview */
+#homeScreen .nav-card:hover::after{
+  transform:translateX(4px);
+  background:var(--orange);
+  color:#fff;
+}
+
+/* Touchscreen tap feedback */
+#homeScreen .nav-card:active::after{
+  transform:translateX(5px) scale(.94);
+  background:var(--orange);
+  color:#fff;
+}
+/* AMENITIES — 3 LARGE SQUARE CARDS */
+#amenitiesScreen #amenitiesGrid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:24px;
+}
+
+/* Make cards larger and more square */
+#amenitiesScreen #amenitiesGrid .result-card{
+  position:relative;
+  min-height:230px;
+  padding:34px;
+  border-radius:22px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+/* Remove amenity icons */
+#amenitiesScreen #amenitiesGrid .result-icon{
+  display:none !important;
+}
+
+/* Center and enlarge the names */
+#amenitiesScreen #amenitiesGrid .result-body{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+#amenitiesScreen #amenitiesGrid .result-name{
+  font-size:34px;
+  line-height:1.05;
+}
+
+/* Keep the small arrow in the bottom-right */
+#amenitiesScreen #amenitiesGrid .result-go{
+  position:absolute;
+  right:24px;
+  bottom:22px;
+  margin:0;
+}
 /* PASTE ABOVE THIS LINE */
 </style>
 </head>
