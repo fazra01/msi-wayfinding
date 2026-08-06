@@ -1506,6 +1506,180 @@
   bottom:22px;
   margin:0;
 }
+/* ROUTE SCREEN — clean bottom bar */
+#routeScreen .action-bar{
+  border-top:none !important;
+  justify-content:flex-end;
+}
+
+/* Remove bottom-left text */
+#routeScreen .action-info{
+  display:none !important;
+}
+/* =========================================
+   ROUTE MAP SCREEN — LARGER LAYOUT
+   ========================================= */
+
+/* Give the map more horizontal and vertical room */
+#routeScreen .screen-body.with-bar{
+  bottom:130px !important;
+  padding:22px 52px 10px !important;
+}
+
+/* Reduce the space beneath the title */
+#routeScreen .section-lede{
+  margin-bottom:8px !important;
+}
+
+/* Bring QR column closer to the map */
+#routeScreen .route-main{
+  gap:18px !important;
+}
+
+/* Make the floor label slightly larger */
+#routeScreen .fmw-floor-pill{
+  font-size:16px !important;
+  padding:8px 18px !important;
+}
+
+/* Make the buttons underneath the map much larger */
+#routeScreen .fmw-mapnav{
+  margin-top:14px !important;
+  gap:14px !important;
+}
+
+#routeScreen .fmw-mapnav .btn{
+  min-height:58px !important;
+  padding:16px 28px !important;
+  border-radius:15px !important;
+  font-size:18px !important;
+}
+
+/* Larger QR and closer to the map */
+#routeScreen .route-qr{
+  width:380px !important;
+  min-width:380px !important;
+  gap:12px !important;
+  padding-top:18px !important;
+}
+
+#routeScreen .qr-card{
+  padding:26px !important;
+  border-radius:24px !important;
+}
+
+#routeScreen .qr-card canvas{
+  width:275px !important;
+  height:275px !important;
+}
+
+#routeScreen .qr-card h3{
+  font-size:24px !important;
+  margin-top:16px !important;
+}
+
+#routeScreen .qr-card p{
+  font-size:16px !important;
+  line-height:1.4 !important;
+}
+
+#routeScreen .qr-card .qr-open-link{
+  font-size:16px !important;
+  margin-top:12px !important;
+}
+
+/* Larger instruction card */
+#routeScreen .route-qr .fmw-instruct{
+  font-size:19px !important;
+  line-height:1.4 !important;
+  padding:18px 20px !important;
+  border-radius:18px !important;
+}
+
+/* Shorter bottom area now that only Start Over remains */
+#routeScreen .action-bar{
+  height:130px !important;
+  padding:0 70px !important;
+}
+/* ROUTE SCREEN — reposition Start Over */
+#routeScreen .action-bar{
+  padding-right:140px !important;
+}
+
+/* Larger controls underneath the map */
+#routeScreen .fmw-mapnav{
+  gap:18px !important;
+  margin-top:16px !important;
+}
+
+#routeScreen .fmw-mapnav .btn{
+  min-width:170px !important;
+  min-height:68px !important;
+  padding:18px 30px !important;
+  border-radius:16px !important;
+  font-size:21px !important;
+}
+
+#routeScreen .fmw-mapnav .btn:last-child{
+  min-width:230px !important;
+}
+
+/* Slightly larger Start Over button */
+#routeScreen .action-bar .btn{
+  min-height:70px !important;
+  padding:18px 34px !important;
+  font-size:22px !important;
+  border-radius:17px !important;
+}
+/* Center the three controls evenly under the map */
+#routeScreen .fmw-mapnav{
+  display:grid !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+
+  width:min(760px, 100%) !important;
+  margin:18px auto 0 !important;
+  gap:18px !important;
+}
+
+#routeScreen .fmw-mapnav .btn,
+#routeScreen .fmw-mapnav .btn:last-child{
+  width:100% !important;
+  min-width:0 !important;
+  min-height:72px !important;
+  padding:18px 20px !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+
+  font-size:21px !important;
+  text-align:center !important;
+}
+/* Center floor-navigation buttons automatically */
+#routeScreen .fmw-mapnav{
+  display:flex !important;
+  justify-content:center !important;
+  align-items:center !important;
+  flex-wrap:wrap !important;
+
+  width:100% !important;
+  max-width:none !important;
+  margin:18px auto 0 !important;
+  gap:18px !important;
+}
+
+#routeScreen .fmw-mapnav .btn,
+#routeScreen .fmw-mapnav .btn:last-child{
+  flex:0 0 auto !important;
+  width:auto !important;
+  min-width:220px !important;
+  min-height:72px !important;
+  padding:18px 28px !important;
+
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
 /* PASTE ABOVE THIS LINE */
 </style>
 </head>
@@ -4033,7 +4207,6 @@ function cardParking(item, i){
       + '</div>'
       + '<div class="fmw-mapnav">'
       +   (segs.length > 1 ? '<button class="btn btn-ghost fmw-nav-prev" type="button"'+(RT.segIndex===0?' disabled':'')+'>Previous floor</button>' : '')
-      +   '<button class="btn btn-ghost fmw-nav-replay" type="button">Replay</button>'
       +   (seg.isFinal ? '' : '<button class="btn btn-primary fmw-nav-next" type="button">Continue to next floor</button>')
       + '</div>';
 
