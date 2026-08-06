@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "activeFloor": "balcony-level",
+  "activeFloor": "main-level",
   "activeKioskId": "",
   "floors": [
     {
@@ -193,7 +193,7 @@
     },
     {
       "id": "n25",
-      "name": "The Blue Paradox Entrance",
+      "name": "The Blue Paradox",
       "type": "exhibit entrance",
       "x": 493,
       "y": 703,
@@ -316,11 +316,12 @@
     },
     {
       "id": "n49",
-      "name": "Escalator",
+      "name": "Main Escalator",
       "type": "escalator",
       "x": 931,
       "y": 725,
       "floorId": "main-level",
+      "connectorId": "main",
       "visitorDestination": "Escalator"
     },
     {
@@ -754,8 +755,8 @@
       "id": "n113",
       "name": "Main Escalator",
       "type": "escalator",
-      "x": 1000,
-      "y": 598,
+      "x": 996,
+      "y": 600,
       "floorId": "lower-level",
       "connectorId": "main",
       "visitorDestination": "Escalator"
@@ -876,8 +877,8 @@
       "id": "n128",
       "name": "",
       "type": "intersection",
-      "x": 1001,
-      "y": 671,
+      "x": 997,
+      "y": 672,
       "floorId": "lower-level"
     },
     {
@@ -1125,12 +1126,12 @@
     },
     {
       "id": "n168",
-      "name": "",
+      "name": "Lower Escalator",
       "type": "escalator",
       "x": 993,
       "y": 288,
       "floorId": "entry-hall",
-      "connectorId": "main",
+      "connectorId": "lower",
       "visitorDestination": "Escalator"
     },
     {
@@ -1487,6 +1488,15 @@
       "x": 381,
       "y": 626,
       "floorId": "balcony-level"
+    },
+    {
+      "id": "n221",
+      "name": "Lower Escalator",
+      "type": "escalator",
+      "x": 996,
+      "y": 809,
+      "floorId": "lower-level",
+      "connectorId": "lower"
     }
   ],
   "edges": [
@@ -2424,6 +2434,11 @@
       "id": "e223",
       "from": "n219",
       "to": "n176"
+    },
+    {
+      "id": "e224",
+      "from": "n128",
+      "to": "n221"
     }
   ]
 }
