@@ -166,11 +166,91 @@ body{ font-family:'Inter',sans-serif; color:var(--ink); overscroll-behavior:none
   color:var(--orange-deep); cursor:pointer; transition:background .2s ease, opacity .2s ease; }
 .floornav-btn:active{ transform:scale(0.97); }
 .floornav-btn:disabled{ opacity:0.4; cursor:default; }
-.route-halo{ fill:none; stroke:#fff; stroke-linecap:round; stroke-linejoin:round; }
-.route-line{ fill:none; stroke:var(--orange); stroke-linecap:round; stroke-linejoin:round; }
-.origin-cap{ fill:var(--white); stroke:var(--ink); }
-.transfer-cap{ fill:var(--orange); stroke:#fff; }
-.pin{ fill:var(--orange); } .pin-core{ fill:#fff; }
+.route-halo{
+  fill:none;
+  stroke:#fff;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  opacity:1;
+}
+
+.route-line{
+  fill:none;
+  stroke:var(--orange);
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  filter:drop-shadow(0 3px 3px rgba(42,20,10,.18));
+}
+
+/* You Are Here marker */
+.origin-halo{
+  fill:#2563eb;
+  opacity:.28;
+
+  transform-box:fill-box;
+  transform-origin:center;
+
+  animation:youAreHerePulse 1.7s ease-out infinite;
+}
+
+@keyframes youAreHerePulse{
+  0%{
+    opacity:.38;
+    transform:scale(.78);
+  }
+
+  70%{
+    opacity:0;
+    transform:scale(1.5);
+  }
+
+  100%{
+    opacity:0;
+    transform:scale(1.5);
+  }
+}
+
+@media (prefers-reduced-motion:reduce){
+  .origin-halo{
+    animation:none;
+  }
+}
+
+.origin-ring{
+  fill:#fff;
+  stroke:#2563eb;
+}
+
+.origin-core{
+  fill:#2563eb;
+}
+
+.origin-label{
+  font-family:'Inter',sans-serif;
+  font-weight:800;
+  fill:var(--ink);
+
+  paint-order:stroke;
+  stroke:#fff;
+  stroke-width:10px;
+  stroke-linejoin:round;
+}
+
+/* Final destination */
+.pin{
+  fill:var(--orange);
+  stroke:#fff;
+  stroke-width:8px;
+}
+
+.pin-core{
+  fill:#fff;
+}
+
+.transfer-cap{
+  fill:var(--orange);
+  stroke:#fff;
+}
 
 /* transfer prompt (the "next floor" control) */
 .transfer{ margin-top:14px; background:var(--white); border:1px solid var(--line); border-radius:20px; padding:20px; box-shadow:var(--shadow-sm); text-align:center; }
@@ -188,7 +268,649 @@ body{ font-family:'Inter',sans-serif; color:var(--ink); overscroll-behavior:none
 
 /* ---- arrival ---- */
 .arrival-badge{ width:88px; height:88px; border-radius:50%; margin:8px auto 6px; background:#fff; color:var(--orange-deep); display:grid; place-items:center; font-size:42px; box-shadow:var(--shadow-sm); }
+/* ---------- COMPACT MOBILE HOME ---------- */
 
+#screen-home{
+  justify-content:flex-start;
+
+  padding-top:max(env(safe-area-inset-top),8px);
+  padding-bottom:max(env(safe-area-inset-bottom),18px);
+}
+
+/* Do not push accessibility to the bottom */
+#screen-home .spacer{
+  display:none;
+}
+
+#screen-home .masthead{
+  min-height:42px;
+  padding:0 0 6px;
+}
+
+#screen-home .brand-logo{
+  width:205px;
+  max-width:72%;
+}
+
+/* Main heading */
+#screen-home .home-heading{
+  width:100%;
+  margin:2px 0 12px !important;
+  padding:0;
+
+  font-size:29px;
+  line-height:1;
+  text-align:center;
+  white-space:nowrap;
+}
+
+/* Intro sentence */
+#screen-home > .lede{
+  max-width:410px;
+  margin:0 auto 28px !important;
+
+  font-size:14px;
+  line-height:1.4;
+}
+
+/* White cards */
+#screen-home .choice{
+  width:100%;
+  min-height:0;
+
+  padding:24px 24px 20px !important;
+  gap:0;
+
+  border-radius:24px;
+  overflow:hidden;
+}
+
+/* Remove old inline spacing */
+#screen-home .choice .kicker,
+#screen-home .choice .title,
+#screen-home .choice .desc,
+#screen-home .choice .arrow{
+  padding:0 !important;
+}
+
+/* More room between the two cards */
+#screen-home .choice + .choice{
+  margin-top:22px;
+}
+
+/* Card label */
+#screen-home .choice .kicker{
+  margin:0 0 7px !important;
+
+  font-size:10px;
+  line-height:1.2;
+}
+
+/* Large card titles */
+#screen-home .choice .title{
+  margin:0 !important;
+
+  font-size:40px;
+  line-height:1;
+}
+
+/* Card description */
+#screen-home .choice .desc{
+  margin:9px 0 0 !important;
+
+  font-size:14px;
+  line-height:1.35;
+}
+
+/* Small arrow */
+#screen-home .choice .arrow{
+  width:34px;
+  height:34px;
+
+  margin:15px 0 0 !important;
+  border-radius:10px;
+
+  font-size:17px;
+}
+
+/* Separate accessibility from the main actions */
+#screen-home .access-toggle{
+  flex:none;
+
+  margin-top:auto;
+  margin-bottom:48px;
+  padding:16px 20px;
+
+  font-size:17px;
+}
+/* ---------- HOME CARD + ACCESSIBILITY HOVER EFFECTS ---------- */
+
+/* White cards: same orange shine as Plan My Visit categories */
+#screen-home .choice{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+
+  border:2px solid transparent;
+
+  /* Stop the card from jumping */
+  transform:none !important;
+
+  transition:
+    border-color .22s ease,
+    box-shadow .22s ease;
+}
+
+/* Orange shine moving across the card */
+#screen-home .choice::before{
+  content:"";
+  position:absolute;
+  inset:0;
+
+  background:linear-gradient(
+    110deg,
+    transparent 35%,
+    rgba(254,79,2,.07) 50%,
+    transparent 65%
+  );
+
+  transform:translateX(-120%);
+  transition:transform .55s ease;
+  pointer-events:none;
+  z-index:0;
+}
+
+#screen-home .choice > *{
+  position:relative;
+  z-index:1;
+}
+
+#screen-home .choice .arrow{
+  transition:
+    background .22s ease,
+    box-shadow .22s ease;
+}
+
+@media (hover:hover){
+
+  #screen-home .choice:hover{
+    transform:none !important;
+    border-color:rgba(254,79,2,.55);
+
+    box-shadow:
+      0 12px 26px rgba(72,28,10,.12);
+  }
+
+  #screen-home .choice:hover::before{
+    transform:translateX(120%);
+  }
+
+  #screen-home .choice:hover .arrow{
+    background:var(--orange-deep);
+    box-shadow:0 6px 12px rgba(201,56,0,.16);
+  }
+}
+
+/* No jumping when clicked */
+#screen-home .choice:active{
+  transform:none !important;
+}
+
+
+/* Accessibility: same animation as the exhibit Remove button */
+#screen-home .access-toggle{
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+
+  background:#fff;
+  color:var(--orange-deep);
+  border:2px solid var(--orange);
+
+  transition:
+    color .25s ease,
+    border-color .35s ease,
+    transform .25s ease,
+    box-shadow .25s ease;
+}
+
+/* Black layer expands through the button */
+#screen-home .access-toggle::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+
+  background:var(--ink);
+
+  transform:scaleY(0);
+  transform-origin:center;
+  opacity:0;
+
+  transition:
+    transform .4s cubic-bezier(.22,1,.36,1),
+    opacity .25s ease;
+
+  z-index:0;
+  pointer-events:none;
+}
+
+/* Replacement hover label */
+#screen-home .access-toggle::after{
+  content:"Accessible Route: On";
+  position:absolute;
+  inset:0;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#fff;
+  font-family:'Anton',sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+  font-size:17px;
+
+  opacity:0;
+  transform:translateY(10px);
+
+  transition:
+    opacity .2s ease .08s,
+    transform .35s cubic-bezier(.22,1,.36,1);
+
+  z-index:2;
+  pointer-events:none;
+}
+
+#screen-home .access-toggle[aria-pressed="true"]::after{
+  content:"Accessible Route: On";
+}
+
+@media (hover:hover){
+
+  #screen-home .access-toggle:hover{
+    color:transparent;
+    border-color:var(--ink);
+    transform:translateY(-2px);
+
+    box-shadow:
+      0 8px 18px rgba(38,20,13,.18);
+  }
+
+  #screen-home .access-toggle:hover::before{
+    transform:scaleY(1);
+    opacity:1;
+  }
+
+  #screen-home .access-toggle:hover::after{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+#screen-home .access-toggle:active{
+  transform:translateY(0) scale(.97);
+}
+/* Accessibility OFF: white */
+#screen-home .access-toggle{
+  background:#fff;
+  color:var(--orange-deep);
+  border-color:var(--orange);
+}
+
+/* Accessibility ON: remain black */
+#screen-home .access-toggle.is-active,
+#screen-home .access-toggle[aria-pressed="true"]{
+  background:var(--ink);
+  color:#fff;
+  border-color:var(--ink);
+
+  box-shadow:
+    0 8px 18px rgba(38,20,13,.18);
+}
+
+/* Keep the black animated layer open while ON */
+#screen-home .access-toggle.is-active::before,
+#screen-home .access-toggle[aria-pressed="true"]::before{
+  transform:scaleY(1);
+  opacity:1;
+}
+/* ---------- SIMPLE ACCESSIBILITY TOGGLE ---------- */
+
+/* Remove the fake replacement labels */
+#screen-home .access-toggle::before,
+#screen-home .access-toggle::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* OFF — white button */
+#screen-home .access-toggle{
+  background:#fff !important;
+  color:var(--orange-deep) !important;
+  border:2px solid var(--orange) !important;
+
+  transition:
+    background-color .28s ease,
+    color .28s ease,
+    border-color .28s ease,
+    box-shadow .28s ease;
+}
+
+/* Hover while OFF — preview black */
+@media (hover:hover){
+  #screen-home .access-toggle:hover{
+    background:var(--ink) !important;
+    color:#fff !important;
+    border-color:var(--ink) !important;
+    box-shadow:0 8px 18px rgba(38,20,13,.18);
+    transform:none !important;
+  }
+}
+
+/* ON — stay black */
+#screen-home .access-toggle.is-active,
+#screen-home .access-toggle[aria-pressed="true"]{
+  background:var(--ink) !important;
+  color:#fff !important;
+  border-color:var(--ink) !important;
+  box-shadow:0 8px 18px rgba(38,20,13,.18);
+}
+
+/* ON hover — remain black */
+#screen-home .access-toggle.is-active:hover,
+#screen-home .access-toggle[aria-pressed="true"]:hover{
+  background:var(--ink) !important;
+  color:#fff !important;
+  border-color:var(--ink) !important;
+}
+/* ==========================================================
+   DRIBBBLE-STYLE ACCESSIBILITY BUBBLE
+   ========================================================== */
+
+/* Disable every older fake label and hover layer */
+#screen-home .access-toggle::before,
+#screen-home .access-toggle::after{
+  content:none !important;
+  display:none !important;
+}
+
+/* Button base — OFF is white */
+#screen-home .access-toggle{
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  background:#fff !important;
+  color:var(--orange-deep) !important;
+  border:2px solid #fff !important;
+
+  transform:none !important;
+
+  transition:
+    background-color .35s ease,
+    border-color .35s ease,
+    box-shadow .35s ease !important;
+}
+
+/* The expanding circular layer */
+#screen-home .access-bubble{
+  position:absolute;
+  z-index:0;
+
+  top:50%;
+  right:34px;
+
+  width:48px;
+  height:48px;
+  border-radius:50%;
+
+  background:var(--ink);
+
+  transform:
+    translate(50%, -50%)
+    scale(0);
+
+  transition:
+    transform .65s cubic-bezier(.22, 1, .36, 1),
+    background-color .3s ease;
+
+  pointer-events:none;
+}
+
+/* Real button text */
+#screen-home .access-label{
+  position:relative;
+  z-index:2;
+
+  transition:
+    color .22s ease,
+    transform .65s cubic-bezier(.22, 1, .36, 1),
+    letter-spacing .65s cubic-bezier(.22, 1, .36, 1);
+}
+
+
+/* ---------------- OFF HOVER ---------------- */
+
+@media (hover:hover){
+
+  #screen-home
+  .access-toggle:not(.is-active):hover
+  .access-bubble,
+
+  #screen-home
+  .access-toggle[aria-pressed="false"]:hover
+  .access-bubble{
+    transform:
+      translate(50%, -50%)
+      scale(24);
+  }
+
+  #screen-home
+  .access-toggle:not(.is-active):hover
+  .access-label,
+
+  #screen-home
+  .access-toggle[aria-pressed="false"]:hover
+  .access-label{
+    color:#fff;
+    transform:translateX(-5px);
+    letter-spacing:.8px;
+  }
+}
+
+
+/* ---------------- ON STATE ---------------- */
+
+/* ON stays completely black */
+#screen-home .access-toggle.is-active,
+#screen-home .access-toggle[aria-pressed="true"]{
+  background:var(--ink) !important;
+  color:#fff !important;
+  border-color:var(--ink) !important;
+
+  box-shadow:
+    0 10px 22px rgba(38,20,13,.22);
+}
+
+/* While ON, the hover bubble becomes white */
+#screen-home .access-toggle.is-active .access-bubble,
+#screen-home
+.access-toggle[aria-pressed="true"]
+.access-bubble{
+  background:#fff;
+}
+
+#screen-home .access-toggle.is-active .access-label,
+#screen-home
+.access-toggle[aria-pressed="true"]
+.access-label{
+  color:#fff;
+}
+
+
+/* ---------------- ON HOVER ---------------- */
+
+@media (hover:hover){
+
+  #screen-home
+  .access-toggle.is-active:hover
+  .access-bubble,
+
+  #screen-home
+  .access-toggle[aria-pressed="true"]:hover
+  .access-bubble{
+    transform:
+      translate(50%, -50%)
+      scale(24);
+  }
+
+  #screen-home
+  .access-toggle.is-active:hover
+  .access-label,
+
+  #screen-home
+  .access-toggle[aria-pressed="true"]:hover
+  .access-label{
+    color:var(--orange-deep);
+    transform:translateX(-5px);
+    letter-spacing:.8px;
+  }
+}
+
+
+/* Small press response */
+#screen-home .access-toggle:active{
+  transform:scale(.985) !important;
+}
+#screen-home .access-toggle:focus{
+  outline:none;
+}
+
+#screen-home .access-toggle:focus-visible{
+  outline:3px solid rgba(255,255,255,.85);
+  outline-offset:4px;
+}
+/* ---------- SIMPLE ACCESSIBILITY TOGGLE ---------- */
+
+/* Remove all previous bubble and fake-label effects */
+#screen-home .access-toggle::before,
+#screen-home .access-toggle::after,
+#screen-home .access-bubble,
+#screen-home .access-label{
+  content:none !important;
+  display:none !important;
+}
+
+/* OFF: transparent */
+#screen-home .access-toggle{
+  background:transparent !important;
+  color:#fff !important;
+  border:2px solid rgba(255,255,255,.9) !important;
+
+  box-shadow:none !important;
+  transform:none !important;
+
+  transition:
+    background-color .2s ease,
+    color .2s ease,
+    border-color .2s ease !important;
+}
+
+/* Simple hover */
+@media (hover:hover){
+  #screen-home .access-toggle:hover{
+    background:rgba(255,255,255,.14) !important;
+    color:#fff !important;
+    border-color:#fff !important;
+    transform:none !important;
+  }
+}
+
+/* ON: solid white */
+#screen-home .access-toggle.is-active,
+#screen-home .access-toggle[aria-pressed="true"]{
+  background:#fff !important;
+  color:var(--orange-deep) !important;
+  border-color:#fff !important;
+}
+
+/* Keep ON white during hover */
+#screen-home .access-toggle.is-active:hover,
+#screen-home .access-toggle[aria-pressed="true"]:hover{
+  background:#fff !important;
+  color:var(--orange-deep) !important;
+  border-color:#fff !important;
+}
+
+#screen-home .access-toggle:active{
+  transform:scale(.98) !important;
+}
+/* Last destination is unavailable until the visitor reaches somewhere */
+#find-last:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+
+#find-last:disabled:hover{
+  transform:none;
+  box-shadow:none;
+}
+/* ===== FIND START SCREEN LAYOUT ===== */
+#screen-find-start{
+  display: flex;
+  flex-direction: column;
+  padding-top: 20px;
+  padding-bottom: 50px;
+}
+
+#screen-find-start .eyebrow{
+  text-align: center;
+  margin: 42px 0 10px;
+}
+
+#screen-find-start .display.h2{
+  text-align: center;
+  font-size: 52px;
+  line-height: 0.95;
+  max-width: 430px;
+  margin: 0 auto 34px !important;
+}
+
+#screen-find-start #find-last,
+#screen-find-start #find-new{
+  width: 100%;
+  max-width: 440px;
+  min-height: 190px;
+  margin: 0 auto 24px;
+}
+
+#screen-find-start .choice .kicker{
+  padding-left: 26px !important;
+  padding-right: 26px !important;
+}
+
+#screen-find-start .choice .title{
+  padding-left: 26px !important;
+  padding-right: 26px !important;
+  font-size: 24px !important;
+  line-height: 1.05;
+}
+
+#screen-find-start .choice .desc{
+  padding-left: 26px !important;
+  padding-right: 26px !important;
+  margin-top: 8px;
+  line-height: 1.4;
+}
+
+#screen-find-start .choice .arrow{
+  margin: 18px 26px 24px !important;
+}
 @media (prefers-reduced-motion:reduce){
   .screen,.progress-fill,.route-line,.choice,.btn,.result{ transition:none !important; }
 }

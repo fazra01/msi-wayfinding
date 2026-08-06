@@ -30,6 +30,7 @@ const State = {
   origin: null,
   plan: [], done: new Set(), planIndex: 0,
   lastNodeId: null,
+  hasVisitedDestination: false,
   navContext: 'plan', navDest: null,
   route: null, segments: [], segIndex: 0,
   _nextIndex: null,
@@ -203,40 +204,113 @@ const SEARCH_TABS = [
   { id: 'all', label: 'All', match: () => true },
   { id: 'exhibits', label: 'Exhibits', match: e => e.kind === 'exhibits' },
   { id: 'amenities', label: 'Amenities', match: e => e.kind === 'amenities' },
-  { id: 'transit', label: 'Stairs & elevators', match: e => e.kind === 'transit' },
   { id: 'exits', label: 'Exits & parking', match: e => e.kind === 'exit' || e.kind === 'parking' },
 ];
-
 function searchEntries() {
   const entries = [];
-  // exhibits grouped by name (handles multi-entrance / same name on two floors)
-  const ex = {};
-  Object.values(State.nodes).forEach(n => { if (/exhibit/.test(n.type)) (ex[n.name] = ex[n.name] || []).push(n.id); });
-  Object.keys(ex).sort().forEach(name =>
-    entries.push({ kind: 'exhibits', label: name, ids: ex[name], sample: State.nodes[ex[name][0]] }));
-  // transit grouped by connectorId (named shafts: Yellow Stairs, Silver Elevator…)
-  const tr = {};
+
+  /* Exhibits grouped by name */
+  const exhibits = {};
+
   Object.values(State.nodes).forEach(n => {
-    if (isVertical(n.type) && String(n.connectorId).trim()) {
-      const k = String(n.connectorId).trim(); (tr[k] = tr[k] || []).push(n.id);
+    if (/exhibit/.test(n.type)) {
+      (exhibits[n.name] = exhibits[n.name] || []).push(n.id);
     }
   });
-  Object.keys(tr).sort().forEach(k =>
-    entries.push({ kind: 'transit', label: k, ids: tr[k], sample: State.nodes[tr[k][0]] }));
-  // labeled amenities / exits / parking grouped by visitorDestination
-  const vd = {};
+
+  Object.keys(exhibits)
+    .sort()
+    .forEach(name => {
+      entries.push({
+        kind: 'exhibits',
+        label: name,
+        ids: exhibits[name],
+        sample: State.nodes[exhibits[name][0]]
+      });
+    });
+
+
+  /* Keep stairs and elevators searchable under All */
+  const transit = {};
+
   Object.values(State.nodes).forEach(n => {
-    const v = String(n.visitorDestination || '').trim();
-    if (!v || isVertical(n.type)) return;
-    (vd[v] = vd[v] || []).push(n.id);
+    if (isVertical(n.type) && String(n.connectorId).trim()) {
+      const connectorName = String(n.connectorId).trim();
+
+      (transit[connectorName] =
+        transit[connectorName] || []).push(n.id);
+    }
   });
-  Object.keys(vd).sort().forEach(v => {
-    const ids = vd[v], sample = State.nodes[ids[0]];
-    entries.push({ kind: deriveCategory(sample), label: v, ids, sample });
+
+  Object.keys(transit)
+    .sort()
+    .forEach(name => {
+      entries.push({
+        kind: 'transit',
+        label: name,
+        ids: transit[name],
+        sample: State.nodes[transit[name][0]]
+      });
+    });
+
+
+  /* Only these three items appear under Amenities */
+  const amenityNames = [
+    'Museum Store',
+    'Vending',
+    'Guest Services'
+  ];
+
+  amenityNames.forEach(name => {
+    const ids = Object.values(State.nodes)
+      .filter(n => String(n.name || '').trim() === name)
+      .map(n => n.id);
+
+    if (!ids.length) return;
+
+    entries.push({
+      kind: 'amenities',
+      label: name,
+      ids,
+      sample: State.nodes[ids[0]]
+    });
   });
+
+
+  /* Add exits and parking, but completely exclude bathrooms */
+  const destinations = {};
+
+  Object.values(State.nodes).forEach(n => {
+    const destination =
+      String(n.visitorDestination || '').trim();
+
+    if (!destination) return;
+    if (isVertical(n.type)) return;
+
+    /* Remove all restroom and bathroom results */
+    if (n.type === 'restroom') return;
+    if (/restroom|bathroom/i.test(destination)) return;
+
+    (destinations[destination] =
+      destinations[destination] || []).push(n.id);
+  });
+
+  Object.keys(destinations)
+    .sort()
+    .forEach(destination => {
+      const ids = destinations[destination];
+      const sample = State.nodes[ids[0]];
+
+      entries.push({
+        kind: deriveCategory(sample),
+        label: destination,
+        ids,
+        sample
+      });
+    });
+
   return entries;
 }
-
 /* ---------------- screen router ---------------- */
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('is-active'));
@@ -244,7 +318,38 @@ function show(id) {
   scr.classList.add('is-active');
   scr.scrollTop = 0;
 }
+function renderFindStart() {
+  const button = $('#find-last');
+  const title = $('#find-last-title');
+  const description = $('#find-last-name');
 
+  const hasRealLastDestination = Boolean(
+    State.hasVisitedDestination &&
+    State.lastNodeId &&
+    State.nodes[State.lastNodeId]
+  );
+
+  const startId = hasRealLastDestination
+    ? State.lastNodeId
+    : State.origin;
+
+  const startNode = startId
+    ? State.nodes[startId]
+    : null;
+
+  button.disabled = !startNode;
+
+  if (hasRealLastDestination) {
+    title.textContent = 'Start from Last Destination';
+    description.textContent = `Last visited: ${startNode.label}`;
+  } else {
+    title.textContent = 'Start from Kiosk Location';
+
+    description.textContent = startNode
+      ? `Starting point: ${startNode.label}`
+      : 'Kiosk location unavailable';
+  }
+}
 /* ---------------- MY PLAN ---------------- */
 function planList() { return State.plan; }
 function doneCount() { return State.plan.filter(p => State.done.has(p.label)).length; }
@@ -374,6 +479,7 @@ function renderArrivalPlan() {
     // set current position to the reached node (nearest instance we routed to)
     State.origin = State.route ? State.route.path.slice(-1)[0] : State.origin;
     State.lastNodeId = State.origin;
+    State.hasVisitedDestination = true;
   }
   const next = firstUnvisited();
   const hasNext = next < planList().length;
@@ -388,7 +494,9 @@ function renderArrivalPlan() {
 
 function renderArrivalFind() {
   const last = State.route.path.slice(-1)[0];
-  State.origin = last; State.lastNodeId = last;
+  State.origin = last;
+  State.lastNodeId = last;
+  State.hasVisitedDestination = true;
   $('#arrival-title').textContent = 'Destination reached';
   $('#arrival-sub').textContent = `You've arrived at ${State.nodes[last].label}.`;
   $('#arrival-continue').classList.add('hidden');
@@ -724,7 +832,10 @@ function wire() {
   const reload = document.getElementById('error-reload');
   if (reload) reload.onclick = () => location.reload();
   $('#go-plan').onclick = () => { renderPlan(); show('screen-plan'); };
-  $('#go-find').onclick = () => show('screen-find-start');
+  $('#go-find').onclick = () => {
+  renderFindStart();
+  show('screen-find-start');
+  };
   document.querySelectorAll('[data-access-toggle]').forEach(t => t.onclick = () => setAccessible(!State.accessible));
 
   $('#plan-back').onclick = () => show('screen-home');
@@ -746,13 +857,36 @@ function wire() {
   $('#stop-go').onclick = () => startNavigation(State.navDest);
 
   $('#find-start-back').onclick = () => show('screen-home');
-  $('#find-last').onclick = () => {
-    const startId = State.lastNodeId || State.origin;
-    _startSel = { kind: 'node', label: State.nodes[startId].label, ids: [startId], sample: State.nodes[startId] };
-    openSearch('dest', 'Where do you want to go?', 'Starting from ' + State.nodes[startId].label);
-  };
-  $('#find-new').onclick = () => openSearch('start', 'Where are you starting?', 'Pick a place you can see near you');
+$('#find-last').onclick = () => {
+  const startId =
+    State.hasVisitedDestination && State.lastNodeId
+      ? State.lastNodeId
+      : State.origin;
 
+  const startNode = State.nodes[startId];
+
+  if (!startNode) return;
+
+  _startSel = {
+    kind: 'node',
+    label: startNode.label,
+    ids: [startId],
+    sample: startNode
+  };
+
+  openSearch(
+    'dest',
+    'Where do you want to go?',
+    'Starting from ' + startNode.label
+  );
+};
+  $('#find-new').onclick = () => {
+    openSearch(
+      'start',
+      "What's your starting point?",
+      'Pick a place you can see near you'
+    );
+  };
   $('#search-back').onclick = () => {
     if (_searchTarget === 'dest') show('screen-find-start');
     else if (_searchTarget === 'recover') show('screen-nav');
@@ -766,7 +900,10 @@ function wire() {
   $('#nav-exit').onclick = () => show('screen-home');
 
   $('#arrival-continue').onclick = () => goToStop(State._nextIndex != null ? State._nextIndex : firstUnvisited(), false);
-  $('#arrival-else').onclick = () => show('screen-find-start');
+  $('#arrival-else').onclick = () => {
+    renderFindStart();
+    show('screen-find-start');
+  };  
   $('#arrival-back-plan').onclick = () => { renderPlan(); show('screen-plan'); };
 }
 
@@ -866,7 +1003,6 @@ function readParams() {
   const startRaw = p.get('start') || p.get('origin');
   if (startRaw && State.nodes[startRaw]) State.origin = startRaw;
   if (!State.origin || !State.nodes[State.origin]) State.origin = State.nodes['n84'] ? 'n84' : State.order[0];
-  State.lastNodeId = State.origin;
 
   const mode = (p.get('mode') || '').toLowerCase();
   const destRaw = p.get('destination');
@@ -900,7 +1036,7 @@ function readParams() {
   const saved = loadImportedPlan();
   if (saved) {
     if (saved.access) setAccessible(true);
-    if (saved.start && State.nodes[saved.start]) { State.origin = saved.start; State.lastNodeId = saved.start; }
+  if (saved.start && State.nodes[saved.start]) {State.origin = saved.start;}
     const stops = resolveStops(saved.stops);
     if (stops.length) State.plan = stops;
   }
