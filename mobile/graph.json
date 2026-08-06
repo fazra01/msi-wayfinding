@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "activeFloor": "entry-hall",
+  "activeFloor": "lower-level",
   "activeKioskId": "",
   "floors": [
     {
@@ -745,7 +745,7 @@
       "id": "n112",
       "name": "Silver Elevator",
       "type": "elevator",
-      "x": 1099,
+      "x": 1104,
       "y": 763,
       "floorId": "lower-level",
       "connectorId": "Silver Elevator",
@@ -805,7 +805,7 @@
       "id": "n119",
       "name": "",
       "type": "intersection",
-      "x": 1094,
+      "x": 1099,
       "y": 666,
       "floorId": "lower-level"
     },
@@ -877,8 +877,8 @@
       "id": "n128",
       "name": "",
       "type": "intersection",
-      "x": 997,
-      "y": 672,
+      "x": 995,
+      "y": 669,
       "floorId": "lower-level"
     },
     {
@@ -1493,8 +1493,8 @@
       "id": "n221",
       "name": "Lower Escalator",
       "type": "escalator",
-      "x": 996,
-      "y": 809,
+      "x": 997,
+      "y": 776,
       "floorId": "lower-level",
       "connectorId": "lower"
     }
