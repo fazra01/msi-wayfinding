@@ -206,10 +206,35 @@ const SEARCH_TABS = [
   { id: 'amenities', label: 'Amenities', match: e => e.kind === 'amenities' },
   { id: 'exits', label: 'Exits & parking', match: e => e.kind === 'exit' || e.kind === 'parking' },
 ];
-function searchEntries() {
+function searchEntries(target = 'dest') {
   const entries = [];
 
-  /* Exhibits grouped by name */
+  function nodesByName(name) {
+    return Object.values(State.nodes)
+      .filter(n => String(n.name || '').trim() === name)
+      .map(n => n.id);
+  }
+
+  function nodesByDestination(name) {
+    return Object.values(State.nodes)
+      .filter(n => String(n.visitorDestination || '').trim() === name)
+      .map(n => n.id);
+  }
+
+  function addEntry(kind, label, ids) {
+    if (!ids || !ids.length) return;
+
+    entries.push({
+      kind,
+      label,
+      ids,
+      sample: State.nodes[ids[0]]
+    });
+  }
+
+
+  /* ================= EXHIBITS ================= */
+
   const exhibits = {};
 
   Object.values(State.nodes).forEach(n => {
@@ -221,93 +246,139 @@ function searchEntries() {
   Object.keys(exhibits)
     .sort()
     .forEach(name => {
-      entries.push({
-        kind: 'exhibits',
-        label: name,
-        ids: exhibits[name],
-        sample: State.nodes[exhibits[name][0]]
-      });
+      addEntry('exhibits', name, exhibits[name]);
     });
 
 
-  /* Keep stairs and elevators searchable under All */
-  const transit = {};
+/* ================= AMENITIES ================= */
 
-  Object.values(State.nodes).forEach(n => {
-    if (isVertical(n.type) && String(n.connectorId).trim()) {
-      const connectorName = String(n.connectorId).trim();
+if (target === 'start') {
 
-      (transit[connectorName] =
-        transit[connectorName] || []).push(n.id);
-    }
-  });
+  /* Allowed starting points */
+  addEntry(
+    'amenities',
+    'Museum Kitchen',
+    nodesByName('Museum Kitchen')
+  );
 
-  Object.keys(transit)
-    .sort()
-    .forEach(name => {
-      entries.push({
-        kind: 'transit',
-        label: name,
-        ids: transit[name],
-        sample: State.nodes[transit[name][0]]
-      });
-    });
+  addEntry(
+    'amenities',
+    "Stan's Donut",
+    nodesByName("Stan's Donut")
+  );
 
-
-  /* Only these three items appear under Amenities */
-  const amenityNames = [
+  addEntry(
+    'amenities',
     'Museum Store',
+    nodesByName('Museum Store')
+  );
+
+  addEntry(
+    'amenities',
     'Vending',
-    'Guest Services'
-  ];
+    nodesByName('Vending')
+  );
 
-  amenityNames.forEach(name => {
-    const ids = Object.values(State.nodes)
-      .filter(n => String(n.name || '').trim() === name)
-      .map(n => n.id);
+  addEntry(
+    'amenities',
+    'Tickets',
+    nodesByName('Tickets')
+  );
 
-    if (!ids.length) return;
+  addEntry(
+    'amenities',
+    'Guest Services',
+    nodesByName('Guest Services')
+  );
 
-    entries.push({
-      kind: 'amenities',
-      label: name,
-      ids,
-      sample: State.nodes[ids[0]]
-    });
-  });
+} else {
 
+  /* Destination amenities */
+  addEntry(
+    'amenities',
+    'Museum Kitchen',
+    nodesByName('Museum Kitchen')
+  );
 
-  /* Add exits and parking, but completely exclude bathrooms */
-  const destinations = {};
+  addEntry(
+    'amenities',
+    "Stan's Donut",
+    nodesByName("Stan's Donut")
+  );
 
-  Object.values(State.nodes).forEach(n => {
-    const destination =
-      String(n.visitorDestination || '').trim();
+  addEntry(
+    'amenities',
+    'Museum Store',
+    nodesByName('Museum Store')
+  );
 
-    if (!destination) return;
-    if (isVertical(n.type)) return;
+  addEntry(
+    'amenities',
+    'Restrooms',
+    nodesByDestination('Restrooms')
+  );
 
-    /* Remove all restroom and bathroom results */
-    if (n.type === 'restroom') return;
-    if (/restroom|bathroom/i.test(destination)) return;
+  addEntry(
+    'amenities',
+    'Family Restrooms',
+    nodesByDestination('Family Restrooms')
+  );
 
-    (destinations[destination] =
-      destinations[destination] || []).push(n.id);
-  });
+  addEntry(
+    'amenities',
+    'Vending',
+    nodesByName('Vending')
+  );
 
-  Object.keys(destinations)
-    .sort()
-    .forEach(destination => {
-      const ids = destinations[destination];
-      const sample = State.nodes[ids[0]];
+  addEntry(
+    'amenities',
+    'Tickets',
+    nodesByName('Tickets')
+  );
 
+  addEntry(
+    'amenities',
+    'Guest Services',
+    nodesByName('Guest Services')
+  );
+}
+  /* ================= PARKING ================= */
+
+  addEntry(
+    'parking',
+    'Parking A, B, C',
+    nodesByName('Exit to Parking (A, B, C)')
+  );
+
+  addEntry(
+    'parking',
+    'Parking D, E, F',
+    nodesByName('Exit to Parking (D, E, F)')
+  );
+  /* Parking help — destination only */
+  if (target === 'dest') {
+    const guestServicesIds = nodesByName('Guest Services');
+
+    if (guestServicesIds.length) {
       entries.push({
-        kind: deriveCategory(sample),
-        label: destination,
-        ids,
-        sample
+        kind: 'parking',
+        label: "I don't remember where I parked",
+        routeLabel: 'Guest Services',
+        ids: guestServicesIds,
+        sample: State.nodes[guestServicesIds[0]],
+        parkingHelp: true
       });
-    });
+    }
+  }
+
+  /* ================= EXIT ================= */
+
+  addEntry(
+    'exit',
+    'Exit',
+    nodesByDestination('Exit')
+  );
+
 
   return entries;
 }
@@ -783,17 +854,178 @@ function renderTabs() {
 function renderResults() {
   const q = $('#search-input').value.trim().toLowerCase();
   const tab = SEARCH_TABS.find(t => t.id === _searchTab);
-  const box = $('#search-results'); box.innerHTML = '';
-  const items = searchEntries().filter(e => tab.match(e)).filter(e => !q || e.label.toLowerCase().includes(q));
-  if (!items.length) { box.appendChild(el('div', 'empty', 'No matches. Try another word.')); return; }
-  items.forEach(e => {
-    const btn = el('button', 'result');
-    const body = el('div');
-    body.appendChild(el('div', 'result-name', e.label));
-    const levels = [...new Set(e.ids.map(id => floorName(State.nodes[id].level)))];
-    body.appendChild(el('div', 'result-meta', levels.join(' · ')));
+  const box = $('#search-results');
+
+  box.innerHTML = '';
+
+  let items = searchEntries(_searchTarget);
+
+
+  /* Remove the chosen starting location from destinations */
+ /* Remove ONLY the selected starting location */
+  if (_searchTarget === 'dest' && _startSel) {
+
+    const startLabel =
+      String(_startSel.label || '')
+        .trim()
+        .toLowerCase();
+
+      items = items.filter(entry => {
+    const actualDestination =
+      String(entry.routeLabel || entry.label || '')
+        .trim()
+        .toLowerCase();
+
+    return actualDestination !== startLabel;
+  });
+  }
+
+
+    /* Category tab */
+    items = items.filter(entry =>
+      tab.match(entry)
+    );
+
+
+    /* Search text */
+    items = items.filter(entry =>
+      !q ||
+      entry.label.toLowerCase().includes(q)
+    );
+
+
+  if (!items.length) {
+    box.appendChild(
+      el(
+        'div',
+        'empty',
+        'No matches. Try another word.'
+      )
+    );
+
+    return;
+  }
+
+
+  items.forEach(entry => {
+
+  const btn = el(
+    'button',
+    'result' +
+      (entry.kind === 'parking' ? ' parking-result' : '') +
+      (entry.parkingHelp ? ' parking-help-result' : '')
+  );
+
+  const body = el('div');
+
+
+  /* I DON'T REMEMBER */
+  if (entry.parkingHelp) {
+
+    body.appendChild(
+      el(
+        'div',
+        'result-name',
+        "I don't remember where I parked"
+      )
+    );
+
+    body.appendChild(
+      el(
+        'div',
+        'result-meta',
+        'Take me to Guest Services for help.'
+      )
+    );
+
+  }
+
+
+    /* PARKING A B C / D E F */
+    else if (
+      entry.label === 'Parking A, B, C' ||
+      entry.label === 'Parking D, E, F'
+    ) {
+
+      const heading = el('div', 'parking-heading');
+
+      heading.appendChild(
+        el('div', 'result-name', 'Parking')
+      );
+
+      const badges = el('div', 'parking-badges');
+
+      const letters =
+        entry.label === 'Parking A, B, C'
+          ? ['A', 'B', 'C']
+          : ['D', 'E', 'F'];
+
+      letters.forEach(letter => {
+        badges.appendChild(
+          el(
+            'span',
+            'parking-letter parking-' + letter.toLowerCase(),
+            letter
+          )
+        );
+      });
+
+      heading.appendChild(badges);
+      body.appendChild(heading);
+
+      const levels = [
+        ...new Set(
+          entry.ids.map(id =>
+            floorName(State.nodes[id].level)
+          )
+        )
+      ];
+
+      body.appendChild(
+        el(
+          'div',
+          'result-meta',
+          levels.join(' · ')
+        )
+      );
+
+    }
+
+
+    /* EVERYTHING ELSE */
+    else {
+
+      body.appendChild(
+        el(
+          'div',
+          'result-name',
+          entry.label
+        )
+      );
+
+      const levels = [
+        ...new Set(
+          entry.ids.map(id =>
+            floorName(State.nodes[id].level)
+          )
+        )
+      ];
+
+      body.appendChild(
+        el(
+          'div',
+          'result-meta',
+          levels.join(' · ')
+        )
+      );
+    }
+
+
     btn.appendChild(body);
-    btn.onclick = () => chooseSearch(e);
+
+    btn.onclick = () =>
+      chooseSearch(entry);
+
     box.appendChild(btn);
   });
 }
@@ -802,11 +1034,34 @@ function chooseSearch(entry) {
   if (_searchTarget === 'start') {
     _startSel = entry;
     openSearch('dest', 'Where do you want to go?', 'Starting from ' + entry.label);
-  } else if (_searchTarget === 'dest') {
-    State.navContext = 'find';
-    const route = buildRoute(_startSel, entry, State.accessible);
-    if (!route) { alert('No route found between those two. Try step-free off, or a different pair.'); return; }
-    State.origin = route.path[0]; State.navDest = entry; State.route = route;
+} else if (_searchTarget === 'dest') {
+
+  State.navContext = 'find';
+
+  /* Some display options route somewhere else */
+  const destination = entry.routeLabel
+    ? {
+        ...entry,
+        label: entry.routeLabel
+      }
+    : entry;
+
+  const route = buildRoute(
+    _startSel,
+    destination,
+    State.accessible
+  );
+
+  if (!route) {
+    alert(
+      'No route found between those two. Try turning accessible routing off, or choose a different destination.'
+    );
+    return;
+  }
+
+  State.origin = route.path[0];
+  State.navDest = destination;
+  State.route = route;
     State.segments = splitSegments(route.path); State.segIndex = 0;
     renderNav(); show('screen-nav');
   } else if (_searchTarget === 'recover') {

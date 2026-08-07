@@ -911,6 +911,79 @@ body{ font-family:'Inter',sans-serif; color:var(--ink); overscroll-behavior:none
 #screen-find-start .choice .arrow{
   margin: 18px 26px 24px !important;
 }
+/* ================= MOBILE PARKING COLORS ================= */
+
+.parking-heading{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.parking-badges{
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+
+.parking-letter{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  color:#fff;
+
+  font-family:'Inter',sans-serif;
+  font-size:15px;
+  font-weight:800;
+
+  border:2px solid rgba(255,255,255,.9);
+
+  box-shadow:
+    0 3px 7px rgba(42,20,10,.16);
+}
+
+/* Same colors as kiosk */
+.parking-a{
+  background:#f58220;
+}
+
+.parking-b{
+  background:#71369a;
+}
+
+.parking-c{
+  background:#79bd43;
+}
+
+.parking-d{
+  background:#1ea7d7;
+}
+
+.parking-e{
+  background:#f2d522;
+  color:#2a140a;
+}
+
+.parking-f{
+  background:#8b5a35;
+}
+
+
+/* Help card */
+.parking-help-result .result-name{
+  font-size:20px;
+}
+
+.parking-help-result .result-meta{
+  margin-top:6px;
+  font-size:13px;
+  line-height:1.35;
+}
 @media (prefers-reduced-motion:reduce){
   .screen,.progress-fill,.route-line,.choice,.btn,.result{ transition:none !important; }
 }
