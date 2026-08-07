@@ -264,7 +264,21 @@ body{ font-family:'Inter',sans-serif; color:var(--ink); overscroll-behavior:none
 .direction .step-n{ flex:0 0 auto; width:26px; height:26px; border-radius:50%; background:var(--orange-tint); color:var(--orange-deep); font-weight:800; font-size:13px; display:grid; place-items:center; margin-top:1px; }
 .direction .step-text{ font-size:14.5px; color:var(--ink); line-height:1.4; font-weight:500; }
 
-.nav-link{ background:none; border:none; cursor:pointer; color:rgba(255,255,255,0.9); font-weight:700; font-size:14px; padding:6px 0; text-decoration:underline; text-underline-offset:3px; }
+.nav-link{
+  background:none;
+  border:none;
+  cursor:pointer;
+
+  color:rgba(255,255,255,0.95);
+
+  font-weight:700;
+  font-size:17px;
+
+  padding:10px 14px;
+
+  text-decoration:underline;
+  text-underline-offset:4px;
+}
 
 /* ---- arrival ---- */
 .arrival-badge{ width:88px; height:88px; border-radius:50%; margin:8px auto 6px; background:#fff; color:var(--orange-deep); display:grid; place-items:center; font-size:42px; box-shadow:var(--shadow-sm); }
