@@ -984,6 +984,516 @@ body{ font-family:'Inter',sans-serif; color:var(--ink); overscroll-behavior:none
   font-size:13px;
   line-height:1.35;
 }
+/* ==========================================================
+   CATEGORY-FIRST WAYFINDING
+   ========================================================== */
+
+#screen-category,
+#screen-search{
+  padding-top:max(env(safe-area-inset-top),18px);
+}
+
+
+/* ---------- CATEGORY SCREEN ---------- */
+
+.category-stage{
+  flex:1;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+
+  padding-bottom:70px;
+}
+
+.category-stage .eyebrow{
+  margin-bottom:10px;
+}
+
+.category-title{
+  max-width:440px;
+  margin:0 auto;
+
+  text-align:center;
+
+  font-size:46px;
+  line-height:.98;
+}
+
+.category-sub{
+  max-width:350px;
+  margin:14px auto 32px;
+
+  text-align:center;
+
+  font-size:15px;
+  line-height:1.4;
+}
+
+.category-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+
+  width:100%;
+}
+
+.category-card{
+  position:relative;
+  overflow:hidden;
+
+  min-height:142px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+
+  border:2px solid var(--line);
+  border-radius:24px;
+
+  background:#fff;
+  color:var(--ink);
+
+  cursor:pointer;
+
+  box-shadow:var(--shadow-sm);
+
+  transform:none;
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease,
+    background .2s ease;
+}
+
+.category-name{
+  position:relative;
+  z-index:2;
+
+  font-family:'Anton',sans-serif;
+  text-transform:uppercase;
+  letter-spacing:.4px;
+
+  font-size:27px;
+  line-height:1;
+
+  text-align:center;
+}
+
+@media (hover:hover){
+
+  .category-card:hover{
+    border-color:rgba(254,78,4,.55);
+
+    box-shadow:
+      0 12px 28px rgba(72,28,10,.14);
+
+    background:var(--orange-tint);
+  }
+}
+
+.category-card:active{
+  transform:scale(.985);
+}
+
+
+/* ---------- FOCUSED SEARCH ---------- */
+
+.focused-search-stage{
+  flex:1;
+
+  display:flex;
+  flex-direction:column;
+
+  padding-top:150px;
+}
+
+#search-category-kicker{
+  margin-bottom:10px;
+}
+
+.focused-search-title{
+  max-width:430px;
+
+  margin:0 auto;
+
+  text-align:center;
+
+  font-size:42px;
+  line-height:.98;
+}
+
+.focused-search-sub{
+  max-width:360px;
+
+  margin:14px auto 28px;
+
+  text-align:center;
+
+  font-size:15px;
+  line-height:1.4;
+}
+
+.focused-search-input{
+  padding:18px 18px;
+
+  border-radius:18px;
+
+  font-size:17px;
+
+  box-shadow:var(--shadow-sm);
+}
+
+#screen-search .results{
+  margin-top:18px;
+}
+
+.search-prompt{
+  padding:24px 10px;
+
+  color:rgba(255,255,255,.82);
+
+  text-align:center;
+
+  font-size:14px;
+  font-weight:600;
+}
+
+
+/* Search results remain compact */
+#screen-search .result{
+  padding:15px 18px;
+}
+
+
+/* Keep category buttons comfortable on narrow phones */
+@media (max-width:390px){
+
+  .category-grid{
+    gap:12px;
+  }
+
+  .category-card{
+    min-height:126px;
+    padding:16px;
+  }
+
+  .category-name{
+    font-size:23px;
+  }
+
+  .category-title{
+    font-size:40px;
+  }
+
+  .focused-search-title{
+    font-size:37px;
+  }
+}
+/* ==========================================================
+   PARKING CHOICE SCREEN
+   ========================================================== */
+
+.parking-stage{
+  justify-content:center;
+  padding-bottom:70px;
+}
+
+.parking-choice-grid{
+  width:100%;
+
+  display:flex;
+  flex-direction:column;
+
+  gap:18px;
+}
+
+.parking-choice-card{
+  width:100%;
+  min-height:130px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  gap:12px;
+
+  padding:24px;
+
+  background:#fff;
+
+  border:2px solid var(--line);
+  border-radius:24px;
+
+  color:var(--ink);
+
+  box-shadow:var(--shadow-sm);
+
+  cursor:pointer;
+
+  transition:
+    border-color .2s ease,
+    background .2s ease,
+    box-shadow .2s ease;
+}
+
+.parking-choice-title{
+  font-family:'Anton',sans-serif;
+
+  font-size:30px;
+  line-height:1;
+
+  text-transform:uppercase;
+  letter-spacing:.4px;
+}
+
+.parking-choice-badges{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  gap:12px;
+}
+
+.parking-choice-card .parking-letter{
+  width:42px;
+  height:42px;
+
+  font-size:17px;
+}
+
+.parking-choice-kicker{
+  font-family:'Inter',sans-serif;
+
+  font-size:11px;
+  font-weight:800;
+
+  text-transform:uppercase;
+  letter-spacing:2px;
+
+  color:var(--orange-deep);
+}
+
+.parking-help-title{
+  max-width:330px;
+
+  text-align:center;
+
+  font-size:25px;
+  line-height:1.08;
+}
+
+.parking-choice-desc{
+  font-size:14px;
+  font-weight:600;
+
+  color:var(--ink-soft);
+}
+
+@media (hover:hover){
+
+  .parking-choice-card:hover{
+    background:var(--orange-tint);
+
+    border-color:
+      rgba(254,78,4,.55);
+
+    box-shadow:
+      0 12px 28px
+      rgba(72,28,10,.14);
+  }
+}
+
+.parking-choice-card:active{
+  transform:scale(.985);
+}
+/* ===== AMENITIES: TWO COLUMN RESULTS ===== */
+
+#search-results.amenities-grid{
+  display:grid !important;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:12px;
+}
+
+#search-results.amenities-grid .result{
+  width:100%;
+  min-width:0;
+  min-height:92px;
+
+  padding:15px 14px;
+
+  align-items:flex-start;
+}
+
+#search-results.amenities-grid .result-name{
+  font-size:17px;
+  line-height:1.05;
+}
+
+#search-results.amenities-grid .result-meta{
+  font-size:11.5px;
+  margin-top:4px;
+}
+/* ==========================================================
+   STARTING POINT CONFIRMATION
+   ========================================================== */
+
+#screen-start-confirmed{
+  padding-top:0;
+}
+
+.start-confirm-stage{
+  flex:1;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+
+  text-align:center;
+
+  padding:40px 20px 90px;
+}
+
+
+/* Checkmark */
+.start-confirm-check{
+  width:76px;
+  height:76px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  margin-bottom:26px;
+
+  border-radius:50%;
+
+  background:#fff;
+  color:var(--orange-deep);
+
+  font-size:38px;
+  font-weight:800;
+
+  box-shadow:
+    0 12px 28px rgba(72,28,10,.14);
+
+  animation:
+    confirmPop .45s cubic-bezier(.22,1,.36,1);
+}
+
+
+/* Small label */
+.start-confirm-stage .eyebrow{
+  margin-bottom:10px;
+}
+
+
+/* YOUR STARTING POINT IS */
+.start-confirm-heading{
+  margin:0;
+
+  max-width:420px;
+
+  color:#fff;
+
+  font-size:40px;
+  line-height:.98;
+
+  text-align:center;
+}
+
+
+/* Actual place */
+.start-confirm-name{
+  margin-top:22px;
+
+  max-width:430px;
+
+  font-family:'Anton',sans-serif;
+
+  color:#fff;
+
+  font-size:52px;
+  line-height:1;
+
+  text-transform:uppercase;
+
+  animation:
+    confirmNameIn .5s .08s both
+    cubic-bezier(.22,1,.36,1);
+}
+
+
+/* Explanation of what happens next */
+.start-confirm-next{
+  margin-top:24px;
+
+  color:#fff;
+
+  font-size:16px;
+  font-weight:600;
+
+  opacity:.9;
+}
+
+
+@keyframes confirmPop{
+  from{
+    opacity:0;
+    transform:scale(.65);
+  }
+
+  to{
+    opacity:1;
+    transform:scale(1);
+  }
+}
+
+
+@keyframes confirmNameIn{
+  from{
+    opacity:0;
+    transform:translateY(12px);
+  }
+
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+/* ===== AMENITY CARDS: CENTERED + LARGER TYPE ===== */
+
+#search-results.amenities-grid .result{
+  min-height:96px;
+
+  display:flex;
+  align-items:center !important;
+  justify-content:center !important;
+
+  padding:16px;
+  text-align:center;
+}
+
+#search-results.amenities-grid .result > div{
+  width:100%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#search-results.amenities-grid .result-name{
+  width:100%;
+
+  font-size:22px !important;
+  line-height:1.08 !important;
+
+  text-align:center !important;
+}
 @media (prefers-reduced-motion:reduce){
   .screen,.progress-fill,.route-line,.choice,.btn,.result{ transition:none !important; }
 }

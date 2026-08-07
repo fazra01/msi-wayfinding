@@ -252,13 +252,19 @@ function searchEntries(target = 'dest') {
 
 /* ================= AMENITIES ================= */
 
-if (target === 'start') {
+if (target === 'start' || target === 'recover') {
 
   /* Allowed starting points */
   addEntry(
     'amenities',
     'Museum Kitchen',
     nodesByName('Museum Kitchen')
+  );
+
+  addEntry(
+    'amenities',
+    'Outside Seating',
+  nodesByName('Outside Seating')
   );
 
   addEntry(
@@ -310,6 +316,12 @@ if (target === 'start') {
     'amenities',
     'Museum Store',
     nodesByName('Museum Store')
+  );
+
+  addEntry(
+    'amenities',
+    'Outside Seating',
+    nodesByName('Outside Seating')
   );
 
   addEntry(
@@ -441,7 +453,6 @@ function renderPlan() {
     li.appendChild(el('span', 'stop-dot', isDone ? '✓' : String(i + 1)));
     const body = el('div');
     body.appendChild(el('div', 'stop-name', p.label));
-    body.appendChild(el('div', 'stop-sub', floorName(p.sample.level)));
     li.appendChild(body); ul.appendChild(li);
   });
 
@@ -829,97 +840,678 @@ function renderDirections(seg, isLast) {
   });
 }
 
-/* ---------------- SEARCH UI ---------------- */
-let _searchTarget = null, _searchTab = 'all', _startSel = null;
+//* ---------------- SEARCH UI ---------------- */
 
-function openSearch(target, title, subtitle) {
-  _searchTarget = target; _searchTab = 'all';
-  $('#search-title').textContent = title;
-  $('#search-sub').textContent = subtitle || '';
-  $('#search-input').value = '';
-  renderTabs(); renderResults();
-  show('screen-search');
-  setTimeout(() => $('#search-input').focus(), 300);
+let _searchTarget = null;
+let _searchCategory = null;
+let _startSel = null;
+let _startConfirmTimer = null;
+function confirmStartingPoint(entry) {
+
+  _startSel = entry;
+
+  $('#start-confirm-name').textContent =
+    entry.label;
+
+  show('screen-start-confirmed');
+
+  clearTimeout(_startConfirmTimer);
+
+  _startConfirmTimer = setTimeout(() => {
+    openCategory('dest');
+  }, 2600);
 }
 
-function renderTabs() {
-  const wrap = $('#search-tabs'); wrap.innerHTML = '';
-  SEARCH_TABS.forEach(t => {
-    const b = el('button', 'tab' + (t.id === _searchTab ? ' is-active' : ''), t.label);
-    b.onclick = () => { _searchTab = t.id; renderTabs(); renderResults(); };
-    wrap.appendChild(b);
-  });
+/* ============================================================
+   CATEGORY SCREEN
+   ============================================================ */
+
+function openCategory(target) {
+  _searchTarget = target;
+  _searchCategory = null;
+
+  const title = $('#category-title');
+  const sub = $('#category-sub');
+
+  if (target === 'dest') {
+    title.textContent = 'Where do you want to go?';
+
+    sub.textContent = _startSel
+      ? 'Starting from ' + _startSel.label
+      : 'Choose a destination category.';
+  }
+
+  else if (target === 'recover') {
+    title.textContent = 'Where are you now?';
+    sub.textContent = 'Choose something you can see near you.';
+  }
+
+  else {
+    title.textContent = "What's your starting point?";
+    sub.textContent = 'Choose something you can see near you.';
+  }
+
+  show('screen-category');
 }
 
-function renderResults() {
-  const q = $('#search-input').value.trim().toLowerCase();
-  const tab = SEARCH_TABS.find(t => t.id === _searchTab);
-  const box = $('#search-results');
 
-  box.innerHTML = '';
+/* ============================================================
+   CATEGORY → SEARCH
+   ============================================================ */
 
-  let items = searchEntries(_searchTarget);
+const CATEGORY_COPY = {
+
+  exhibits: {
+    label: 'Exhibits',
+    startTitle: 'Which exhibit are you near?',
+    destTitle: 'Which exhibit do you want to visit?',
+    placeholder: 'Search exhibits...'
+  },
+
+  amenities: {
+    label: 'Amenities',
+    startTitle: 'Which amenity are you near?',
+    destTitle: 'Which amenity do you need?',
+    placeholder: 'Search amenities...'
+  },
+
+  exit: {
+    label: 'Exits',
+    startTitle: 'Which exit are you near?',
+    destTitle: 'Which exit do you want?',
+    placeholder: 'Search exits...'
+  },
+
+  parking: {
+    label: 'Parking',
+    startTitle: 'Which parking area are you near?',
+    destTitle: 'Where did you park?',
+    placeholder: 'Type your parking letter...'
+  }
+};
 
 
-  /* Remove the chosen starting location from destinations */
- /* Remove ONLY the selected starting location */
-  if (_searchTarget === 'dest' && _startSel) {
+function chooseCategory(category) {
+  _searchCategory = category;
 
-    const startLabel =
-      String(_startSel.label || '')
-        .trim()
-        .toLowerCase();
 
-      items = items.filter(entry => {
-    const actualDestination =
-      String(entry.routeLabel || entry.label || '')
-        .trim()
-        .toLowerCase();
+  /* EXIT:
+     There is only one Exit option, so skip the search page. */
+  if (category === 'exit') {
 
-    return actualDestination !== startLabel;
-  });
+    const exitEntry =
+      availableSearchEntries()
+        .find(entry => entry.kind === 'exit');
+
+    if (!exitEntry) return;
+
+    chooseSearch(exitEntry);
+    return;
   }
 
 
-    /* Category tab */
-    items = items.filter(entry =>
-      tab.match(entry)
-    );
+  /* PARKING:
+     Use the dedicated big-card screen. */
+  if (category === 'parking') {
 
-
-    /* Search text */
-    items = items.filter(entry =>
-      !q ||
-      entry.label.toLowerCase().includes(q)
-    );
-
-
-  if (!items.length) {
-    box.appendChild(
-      el(
-        'div',
-        'empty',
-        'No matches. Try another word.'
-      )
-    );
+    renderParkingChoices();
+    show('screen-parking');
 
     return;
   }
 
 
-  items.forEach(entry => {
+  /* EXHIBITS + AMENITIES:
+     Continue to the normal search screen. */
+  const copy = CATEGORY_COPY[category];
+
+  const isDestination =
+    _searchTarget === 'dest';
+
+  $('#search-category-kicker').textContent =
+    copy.label;
+
+  $('#search-title').textContent =
+    isDestination
+      ? copy.destTitle
+      : copy.startTitle;
+
+
+  const searchSub = $('#search-sub');
+
+  if (category === 'exhibits') {
+
+    searchSub.classList.remove('hidden');
+
+    searchSub.textContent =
+      isDestination
+        ? 'Start typing the name of the exhibit.'
+        : 'Start typing the name you can see.';
+
+  } else {
+
+    /* Amenities does not need helper text */
+    searchSub.classList.add('hidden');
+  }
+
+
+  const searchInput = $('#search-input');
+
+  /* Only Exhibits needs a search bar */
+  if (category === 'exhibits') {
+    searchInput.classList.remove('hidden');
+    searchInput.placeholder = copy.placeholder;
+    searchInput.value = '';
+  } else {
+    searchInput.classList.add('hidden');
+    searchInput.value = '';
+  }
+
+  renderResults();
+
+  show('screen-search');
+
+  /* Only open keyboard for Exhibits */
+  if (category === 'exhibits') {
+    setTimeout(() => {
+      searchInput.focus();
+    }, 250);
+  }
+}
+
+function renderParkingChoices() {
+
+  const wrap = $('#parking-choices');
+
+  wrap.innerHTML = '';
+
+
+  const isDestination =
+    _searchTarget === 'dest';
+
+
+  $('#parking-title').textContent =
+    isDestination
+      ? 'Where did you park?'
+      : 'Which parking area are you near?';
+
+
+  $('#parking-sub').textContent =
+    isDestination
+      ? 'Choose the color and letter you remember.'
+      : 'Choose the color and letter you can see.';
+
+
+  /* availableSearchEntries already respects:
+     - starting vs destination
+     - selected starting point removal
+     - parking help being destination-only
+  */
+  const parkingItems =
+    availableSearchEntries();
+
+
+  parkingItems.forEach(entry => {
+
+    const button =
+      el('button', 'parking-choice-card');
+
+
+    /* I DON'T REMEMBER */
+    if (entry.parkingHelp) {
+
+      const kicker =
+        el(
+          'span',
+          'parking-choice-kicker',
+          'Need help?'
+        );
+
+      const title =
+        el(
+          'span',
+          'parking-choice-title parking-help-title',
+          "I DON'T REMEMBER WHERE I PARKED"
+        );
+
+      const description =
+        el(
+          'span',
+          'parking-choice-desc',
+          'Take me to Guest Services.'
+        );
+
+      button.appendChild(kicker);
+      button.appendChild(title);
+      button.appendChild(description);
+
+    }
+
+
+    /* PARKING A B C / D E F */
+    else {
+
+      const title =
+        el(
+          'span',
+          'parking-choice-title',
+          'PARKING'
+        );
+
+      const badges =
+        el(
+          'div',
+          'parking-choice-badges'
+        );
+
+
+      const letters =
+        entry.label === 'Parking A, B, C'
+          ? ['A', 'B', 'C']
+          : ['D', 'E', 'F'];
+
+
+      letters.forEach(letter => {
+
+        badges.appendChild(
+          el(
+            'span',
+            'parking-letter parking-' +
+              letter.toLowerCase(),
+            letter
+          )
+        );
+
+      });
+
+
+      button.appendChild(title);
+      button.appendChild(badges);
+    }
+
+
+    button.onclick = () => {
+      chooseSearch(entry);
+    };
+
+
+    wrap.appendChild(button);
+  });
+}
+
+/* ============================================================
+   SMART / FUZZY SEARCH
+   ============================================================ */
+
+function normalizeSearchText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/&/g, ' and ')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+
+function compactSearchText(value) {
+  return normalizeSearchText(value)
+    .replace(/\s+/g, '');
+}
+
+
+function levenshtein(a, b) {
+  a = normalizeSearchText(a);
+  b = normalizeSearchText(b);
+
+  const matrix =
+    Array.from(
+      { length: b.length + 1 },
+      () => Array(a.length + 1).fill(0)
+    );
+
+  for (let i = 0; i <= b.length; i++) {
+    matrix[i][0] = i;
+  }
+
+  for (let j = 0; j <= a.length; j++) {
+    matrix[0][j] = j;
+  }
+
+  for (let i = 1; i <= b.length; i++) {
+    for (let j = 1; j <= a.length; j++) {
+
+      const cost =
+        b[i - 1] === a[j - 1]
+          ? 0
+          : 1;
+
+      matrix[i][j] = Math.min(
+        matrix[i - 1][j] + 1,
+        matrix[i][j - 1] + 1,
+        matrix[i - 1][j - 1] + cost
+      );
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+
+function fuzzySimilarity(a, b) {
+  const aa = normalizeSearchText(a);
+  const bb = normalizeSearchText(b);
+
+  const longest =
+    Math.max(aa.length, bb.length);
+
+  if (!longest) return 1;
+
+  return 1 -
+    levenshtein(aa, bb) / longest;
+}
+
+
+/* Helpful museum-specific language */
+const SEARCH_ALIASES = {
+
+  'museum store': [
+    'gift shop',
+    'gift store',
+    'shop',
+    'store',
+    'souvenir'
+  ],
+
+  'museum kitchen': [
+    'kitchen',
+    'food',
+    'restaurant',
+    'cafeteria'
+  ],
+
+  "stan's donut": [
+    'stans',
+    'stan',
+    'donut',
+    'donuts',
+    'food'
+  ],
+
+  'guest services': [
+    'guest service',
+    'information',
+    'information desk',
+    'info desk',
+    'help desk'
+  ],
+
+  'tickets': [
+    'ticket',
+    'ticket desk',
+    'admission'
+  ],
+
+  'vending': [
+    'vending machine',
+    'snacks',
+    'drinks'
+  ],
+
+  'restrooms': [
+    'restroom',
+    'bathroom',
+    'bathrooms',
+    'toilet',
+    'toilets',
+    'washroom'
+  ],
+
+  'family restrooms': [
+    'family restroom',
+    'family bathroom',
+    'family toilet',
+    'baby changing'
+  ],
+
+  'exit': [
+    'exit',
+    'way out',
+    'leave',
+    'leave museum'
+  ],
+
+  'parking a b c': [
+    'abc',
+    'a b c',
+    'parking a',
+    'parking b',
+    'parking c',
+    'orange parking',
+    'purple parking',
+    'green parking'
+  ],
+
+  'parking d e f': [
+    'def',
+    'd e f',
+    'parking d',
+    'parking e',
+    'parking f',
+    'blue parking',
+    'yellow parking',
+    'brown parking'
+  ],
+
+  "i don't remember where i parked": [
+    'dont remember',
+    'forgot',
+    'forgot parking',
+    'parking help',
+    'dont know where i parked'
+  ]
+};
+
+
+function searchTermsForEntry(entry) {
+  const key =
+    normalizeSearchText(entry.label);
+
+  const terms = [
+    entry.label
+  ];
+
+  const aliases =
+    SEARCH_ALIASES[key] || [];
+
+  aliases.forEach(alias =>
+    terms.push(alias)
+  );
+
+  return terms;
+}
+
+
+function scoreSearchEntry(entry, query) {
+  const q =
+    normalizeSearchText(query);
+
+  const qc =
+    compactSearchText(query);
+
+  if (!q) return 0;
+
+  let best = 0;
+
+  searchTermsForEntry(entry)
+    .forEach(term => {
+
+      const t =
+        normalizeSearchText(term);
+
+      const tc =
+        compactSearchText(term);
+
+      if (t === q) {
+        best = Math.max(best, 120);
+      }
+
+      else if (t.startsWith(q)) {
+        best = Math.max(best, 110);
+      }
+
+      else if (t.includes(q)) {
+        best = Math.max(best, 100);
+      }
+
+      else if (
+        qc &&
+        tc.includes(qc)
+      ) {
+        best = Math.max(best, 95);
+      }
+
+
+      /* Typo matching only once user types enough letters */
+      if (q.length >= 3) {
+
+        const similarity =
+          fuzzySimilarity(q, t);
+
+        if (similarity >= 0.58) {
+          best = Math.max(
+            best,
+            similarity * 88
+          );
+        }
+
+
+        /* Handle multi-word misspellings:
+           "musuem kichen" → Museum Kitchen */
+        const queryWords =
+          q.split(' ');
+
+        const termWords =
+          t.split(' ');
+
+        let total = 0;
+
+        queryWords.forEach(queryWord => {
+
+          let wordBest = 0;
+
+          termWords.forEach(termWord => {
+            wordBest = Math.max(
+              wordBest,
+              fuzzySimilarity(
+                queryWord,
+                termWord
+              )
+            );
+          });
+
+          total += wordBest;
+        });
+
+        const average =
+          total / queryWords.length;
+
+        if (average >= 0.62) {
+          best = Math.max(
+            best,
+            average * 82
+          );
+        }
+      }
+    });
+
+  return best;
+}
+
+
+/* ============================================================
+   FILTER RESULTS
+   ============================================================ */
+
+function categoryMatches(entry) {
+
+  if (_searchCategory === 'exhibits') {
+    return entry.kind === 'exhibits';
+  }
+
+  if (_searchCategory === 'amenities') {
+    return entry.kind === 'amenities';
+  }
+
+  if (_searchCategory === 'exit') {
+    return entry.kind === 'exit';
+  }
+
+  if (_searchCategory === 'parking') {
+    return entry.kind === 'parking';
+  }
+
+  return false;
+}
+
+
+function availableSearchEntries() {
+
+  let items =
+    searchEntries(_searchTarget)
+      .filter(categoryMatches);
+
+
+  /* Destination cannot equal starting point */
+  if (
+    _searchTarget === 'dest' &&
+    _startSel
+  ) {
+
+    const startLabel =
+      normalizeSearchText(
+        _startSel.label
+      );
+
+    items = items.filter(entry => {
+
+      const actualDestination =
+        normalizeSearchText(
+          entry.routeLabel ||
+          entry.label
+        );
+
+      return actualDestination !==
+        startLabel;
+    });
+  }
+
+  return items;
+}
+
+
+/* ============================================================
+   RESULT CARD
+   ============================================================ */
+
+function makeSearchResult(entry) {
 
   const btn = el(
     'button',
     'result' +
-      (entry.kind === 'parking' ? ' parking-result' : '') +
-      (entry.parkingHelp ? ' parking-help-result' : '')
+      (entry.kind === 'parking'
+        ? ' parking-result'
+        : '') +
+      (entry.parkingHelp
+        ? ' parking-help-result'
+        : '')
   );
 
   const body = el('div');
 
 
-  /* I DON'T REMEMBER */
+  /* PARKING HELP */
   if (entry.parkingHelp) {
 
     body.appendChild(
@@ -941,130 +1533,231 @@ function renderResults() {
   }
 
 
-    /* PARKING A B C / D E F */
-    else if (
-      entry.label === 'Parking A, B, C' ||
-      entry.label === 'Parking D, E, F'
-    ) {
+  /* PARKING LETTERS */
+  else if (
+    entry.label === 'Parking A, B, C' ||
+    entry.label === 'Parking D, E, F'
+  ) {
 
-      const heading = el('div', 'parking-heading');
+    const heading =
+      el('div', 'parking-heading');
 
-      heading.appendChild(
-        el('div', 'result-name', 'Parking')
-      );
+    heading.appendChild(
+      el(
+        'div',
+        'result-name',
+        'Parking'
+      )
+    );
 
-      const badges = el('div', 'parking-badges');
+    const badges =
+      el('div', 'parking-badges');
 
-      const letters =
-        entry.label === 'Parking A, B, C'
-          ? ['A', 'B', 'C']
-          : ['D', 'E', 'F'];
+    const letters =
+      entry.label === 'Parking A, B, C'
+        ? ['A', 'B', 'C']
+        : ['D', 'E', 'F'];
 
-      letters.forEach(letter => {
-        badges.appendChild(
-          el(
-            'span',
-            'parking-letter parking-' + letter.toLowerCase(),
-            letter
-          )
-        );
-      });
+    letters.forEach(letter => {
 
-      heading.appendChild(badges);
-      body.appendChild(heading);
-
-      const levels = [
-        ...new Set(
-          entry.ids.map(id =>
-            floorName(State.nodes[id].level)
-          )
-        )
-      ];
-
-      body.appendChild(
+      badges.appendChild(
         el(
-          'div',
-          'result-meta',
-          levels.join(' · ')
+          'span',
+          'parking-letter parking-' +
+            letter.toLowerCase(),
+          letter
         )
       );
 
-    }
+    });
+
+    heading.appendChild(badges);
+    body.appendChild(heading);
+
+  }
 
 
-    /* EVERYTHING ELSE */
-    else {
+  /* NORMAL RESULT */
+  else {
 
-      body.appendChild(
-        el(
-          'div',
-          'result-name',
-          entry.label
-        )
-      );
-
-      const levels = [
-        ...new Set(
-          entry.ids.map(id =>
-            floorName(State.nodes[id].level)
-          )
-        )
-      ];
-
-      body.appendChild(
-        el(
-          'div',
-          'result-meta',
-          levels.join(' · ')
-        )
-      );
-    }
+    body.appendChild(
+      el(
+        'div',
+        'result-name',
+        entry.label
+      )
+    );
+  }
 
 
-    btn.appendChild(body);
+  btn.appendChild(body);
 
-    btn.onclick = () =>
-      chooseSearch(entry);
+  btn.onclick = () =>
+    chooseSearch(entry);
 
-    box.appendChild(btn);
-  });
+  return btn;
 }
 
-function chooseSearch(entry) {
-  if (_searchTarget === 'start') {
-    _startSel = entry;
-    openSearch('dest', 'Where do you want to go?', 'Starting from ' + entry.label);
-} else if (_searchTarget === 'dest') {
 
-  State.navContext = 'find';
+/* ============================================================
+   RENDER SEARCH
+   ============================================================ */
 
-  /* Some display options route somewhere else */
-  const destination = entry.routeLabel
-    ? {
-        ...entry,
-        label: entry.routeLabel
-      }
-    : entry;
+function renderResults() {
 
-  const route = buildRoute(
-    _startSel,
-    destination,
-    State.accessible
+  const box =
+    $('#search-results');
+
+  box.classList.toggle(
+    'amenities-grid',
+    _searchCategory === 'amenities'
   );
 
-  if (!route) {
-    alert(
-      'No route found between those two. Try turning accessible routing off, or choose a different destination.'
-    );
+  const query =
+    $('#search-input').value.trim();
+
+  box.innerHTML = '';
+
+  const available =
+    availableSearchEntries();
+
+
+  /* Exhibits require typing.
+    Amenities, exits and parking show their full list immediately. */
+  if (!query) {
+
+    if (_searchCategory === 'exhibits') {
+
+      box.appendChild(
+        el(
+          'div',
+          'search-prompt',
+          'Start typing to see matches.'
+        )
+      );
+
+      return;
+    }
+
+    /* Small categories: show every available option */
+    available.forEach(entry => {
+      box.appendChild(
+        makeSearchResult(entry)
+      );
+    });
+
     return;
   }
 
-  State.origin = route.path[0];
-  State.navDest = destination;
-  State.route = route;
-    State.segments = splitSegments(route.path); State.segIndex = 0;
-    renderNav(); show('screen-nav');
-  } else if (_searchTarget === 'recover') {
+
+  const matches =
+    available
+      .map(entry => ({
+        entry,
+        score:
+          scoreSearchEntry(
+            entry,
+            query
+          )
+      }))
+      .filter(item =>
+        item.score >= 55
+      )
+      .sort((a, b) =>
+        b.score - a.score
+      )
+      .slice(0, 5);
+
+
+  if (!matches.length) {
+
+    box.appendChild(
+      el(
+        'div',
+        'empty',
+        'No close matches. Try another spelling.'
+      )
+    );
+
+    return;
+  }
+
+
+  matches.forEach(item => {
+    box.appendChild(
+      makeSearchResult(item.entry)
+    );
+  });
+}
+
+
+/* ============================================================
+   CHOOSE RESULT
+   ============================================================ */
+
+function chooseSearch(entry) {
+
+  /* Starting point selected */
+  if (_searchTarget === 'start') {
+
+    confirmStartingPoint(entry);
+
+    return;
+  }
+
+
+  /* Destination selected */
+  if (_searchTarget === 'dest') {
+
+    State.navContext = 'find';
+
+    const destination =
+      entry.routeLabel
+        ? {
+            ...entry,
+            label: entry.routeLabel
+          }
+        : entry;
+
+    const route =
+      buildRoute(
+        _startSel,
+        destination,
+        State.accessible
+      );
+
+    if (!route) {
+
+      alert(
+        'No route found between those two. Try turning accessible routing off, or choose a different destination.'
+      );
+
+      return;
+    }
+
+    State.origin =
+      route.path[0];
+
+    State.navDest =
+      destination;
+
+    State.route =
+      route;
+
+    State.segments =
+      splitSegments(route.path);
+
+    State.segIndex = 0;
+
+    renderNav();
+    show('screen-nav');
+
+    return;
+  }
+
+
+  /* Updating position while navigating */
+  if (_searchTarget === 'recover') {
     recalcFromNewStart(entry);
   }
 }
@@ -1112,7 +1805,7 @@ function wire() {
   $('#stop-go').onclick = () => startNavigation(State.navDest);
 
   $('#find-start-back').onclick = () => show('screen-home');
-$('#find-last').onclick = () => {
+  $('#find-last').onclick = () => {
   const startId =
     State.hasVisitedDestination && State.lastNodeId
       ? State.lastNodeId
@@ -1122,36 +1815,57 @@ $('#find-last').onclick = () => {
 
   if (!startNode) return;
 
-  _startSel = {
+  const startEntry = {
     kind: 'node',
     label: startNode.label,
     ids: [startId],
     sample: startNode
   };
 
-  openSearch(
-    'dest',
-    'Where do you want to go?',
-    'Starting from ' + startNode.label
-  );
-};
-  $('#find-new').onclick = () => {
-    openSearch(
-      'start',
-      "What's your starting point?",
-      'Pick a place you can see near you'
-    );
+  confirmStartingPoint(startEntry);
   };
+    $('#find-new').onclick = () => {
+    openCategory('start');
+  };
+
   $('#search-back').onclick = () => {
-    if (_searchTarget === 'dest') show('screen-find-start');
-    else if (_searchTarget === 'recover') show('screen-nav');
-    else show('screen-find-start');
-  };
+  show('screen-category');
+};
+
+$('#parking-back').onclick = () => {
+  show('screen-category');
+};
+
+$('#category-back').onclick = () => {
+  if (_searchTarget === 'recover') {
+    show('screen-nav');
+    return;
+  }
+
+  show('screen-find-start');
+};
+
+
+document
+  .querySelectorAll('[data-search-category]')
+  .forEach(button => {
+
+    button.onclick = () => {
+      chooseCategory(
+        button.getAttribute(
+          'data-search-category'
+        )
+      );
+    };
+
+  });
   $('#search-input').oninput = renderResults;
 
   $('#nav-back').onclick = () => navBack();
   $('#nav-advance').onclick = () => continueNav();
-  $('#nav-recover').onclick = () => openSearch('recover', 'Set your location', 'Pick a place you can see near you');
+  $('#nav-recover').onclick = () => {
+  openCategory('recover');
+  };
   $('#nav-exit').onclick = () => show('screen-home');
 
   $('#arrival-continue').onclick = () => goToStop(State._nextIndex != null ? State._nextIndex : firstUnvisited(), false);

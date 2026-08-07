@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#FE4E04" />
   <title>Griffin Museum — Your Visit</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="stylesheet" href="styles.css?v=3" />
+  <link rel="stylesheet" href="styles.css?v=4" />
 </head>
 <body>
   <div class="app">
@@ -134,17 +134,119 @@
     <span style="margin:16px 24px 24px;" class="arrow">→</span>
   </button>
 </section>
+  <!-- =================== STARTING POINT CONFIRMED =================== -->
+<section id="screen-start-confirmed" class="screen">
 
+  <div class="start-confirm-stage">
+
+    <div class="start-confirm-check">✓</div>
+
+
+    <h2 class="display start-confirm-heading">
+      Your starting point is
+    </h2>
+
+    <div id="start-confirm-name" class="start-confirm-name">
+      Museum Kitchen
+    </div>
+
+    <p class="lede center start-confirm-next">
+      Now choose where you want to go.
+    </p>
+
+  </div>
+
+</section>
     <!-- ============================ SEARCH ============================ -->
-    <section id="screen-search" class="screen">
-      <button id="search-back" class="back">← Back</button>
-      <h2 id="search-title" class="display h2" style="margin-bottom:2px;">Where do you want to go?</h2>
-      <p id="search-sub" class="lede" style="margin-bottom:14px;"></p>
-      <input id="search-input" class="search-field" type="search" placeholder="Search exhibits, amenities, exits…" autocomplete="off" />
-      <div id="search-tabs" class="tabs"></div>
+    <!-- ======================= CATEGORY CHOICE ======================= -->
+<section id="screen-category" class="screen">
+  <button id="category-back" class="back">← Back</button>
+
+  <div class="category-stage">
+    <p class="eyebrow center">Find your way</p>
+
+    <h2 id="category-title" class="display category-title">
+      What's your starting point?
+    </h2>
+
+    <p id="category-sub" class="lede center category-sub">
+      Choose what you can see near you.
+    </p>
+
+    <div class="category-grid">
+
+      <button class="category-card" data-search-category="exhibits">
+        <span class="category-name">Exhibits</span>
+      </button>
+
+      <button class="category-card" data-search-category="amenities">
+        <span class="category-name">Amenities</span>
+      </button>
+
+      <button class="category-card" data-search-category="exit">
+        <span class="category-name">Exits</span>
+      </button>
+
+      <button class="category-card" data-search-category="parking">
+        <span class="category-name">Parking</span>
+      </button>
+
+    </div>
+  </div>
+</section>
+<!-- ======================== PARKING CHOICE ======================== -->
+<section id="screen-parking" class="screen">
+  <button id="parking-back" class="back">← Back</button>
+
+  <div class="category-stage parking-stage">
+
+    <p class="eyebrow center">Parking</p>
+
+    <h2 id="parking-title" class="display category-title">
+      Which parking area are you near?
+    </h2>
+
+    <p id="parking-sub" class="lede center category-sub">
+      Choose the color and letter you remember.
+    </p>
+
+    <div id="parking-choices" class="parking-choice-grid"></div>
+
+  </div>
+</section>
+
+<!-- ======================== FOCUSED SEARCH ======================== -->
+  <section id="screen-search" class="screen">
+    <button id="search-back" class="back">← Back</button>
+
+    <div class="focused-search-stage">
+
+      <p id="search-category-kicker" class="eyebrow center">
+        Exhibits
+      </p>
+
+      <h2 id="search-title" class="display focused-search-title">
+        Which exhibit are you near?
+      </h2>
+
+      <p id="search-sub" class="lede center focused-search-sub">
+        Start typing the name you can see.
+      </p>
+
+      <input
+        id="search-input"
+        class="search-field focused-search-input"
+        type="search"
+        placeholder="Search exhibits..."
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+      />
+
       <div id="search-results" class="results"></div>
-      <div class="spacer"></div>
-    </section>
+
+    </div>
+  </section>
 
     <!-- ========================= NAVIGATION ========================= -->
     <section id="screen-nav" class="screen">
@@ -198,6 +300,6 @@
 
   </div>
 
-  <script src="app.js?v=3"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
