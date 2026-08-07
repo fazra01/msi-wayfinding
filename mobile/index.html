@@ -58,9 +58,23 @@
       <h2 class="display h2" style="margin-bottom:16px;">Your visit</h2>
 
       <div class="card">
-        <div class="progress-track"><div id="plan-progress-fill" class="progress-fill" style="width:0%"></div></div>
-        <div id="plan-progress-meta" class="progress-meta"></div>
-        <ul id="plan-stops" class="stop-list"></ul>
+        <div class="progress-track">
+  <div id="plan-progress-fill" class="progress-fill" style="width:0%"></div>
+</div>
+
+<div id="plan-progress-meta" class="progress-meta"></div>
+
+<div class="plan-reorder-tools">
+  <button id="plan-reorder" class="plan-reorder-btn" type="button">
+    Reorder stops
+  </button>
+
+  <div id="plan-reorder-hint" class="plan-reorder-hint hidden">
+    Press and hold a stop, then drag it.
+  </div>
+</div>
+
+<ul id="plan-stops" class="stop-list"></ul>
       </div>
 
       <div class="btn-row">
@@ -299,7 +313,7 @@
     </section>
 
   </div>
-
-  <script src="app.js?v=4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+  <script src="app.js?v=5"></script>
 </body>
 </html>

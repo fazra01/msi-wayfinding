@@ -1206,7 +1206,115 @@
   display:block;
   margin:0;
 }
+/* ==========================================================
+   RECOMMENDATIONS — SEARCH ALL OTHER EXHIBITS
+   ========================================================== */
 
+.rec-search-wrap{
+  width:100%;
+
+  margin-top:38px;
+  padding-top:34px;
+
+  border-top:2px solid rgba(255,255,255,.42);
+}
+
+
+.rec-search-input{
+  display:block;
+
+  width:100%;
+  max-width:1000px;
+
+  margin:0 auto 30px;
+
+  padding:22px 28px;
+
+  border:3px solid transparent;
+  border-radius:18px;
+
+  background:#fff;
+  color:var(--ink);
+
+  font-family:'Inter',sans-serif;
+  font-size:21px;
+  font-weight:600;
+
+  outline:none;
+
+  box-shadow:var(--shadow-sm);
+
+  transition:
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+
+.rec-search-input::placeholder{
+  color:#947464;
+}
+
+
+.rec-search-input:focus{
+  border-color:var(--orange);
+
+  box-shadow:
+    0 10px 24px
+    rgba(72,28,10,.16);
+}
+
+
+.rec-search-results{
+  width:100%;
+  margin:0 auto;
+}
+
+
+.rec-search-no-results{
+  grid-column:1 / -1;
+
+  width:100%;
+
+  padding:26px;
+
+  text-align:center;
+
+  color:#fff;
+
+  font-size:18px;
+  font-weight:700;
+}
+.rec-search-copy{
+  width:100%;
+  max-width:none;
+
+  margin:0 0 22px 0;
+
+  text-align:left;
+}
+
+.rec-search-copy h3{
+  font-family:'Anton',sans-serif;
+  font-size:40px;
+  font-weight:400;
+  line-height:1.1;
+
+  color:#fff;
+
+  margin:0 0 8px 0;
+
+  text-align:left;
+}
+
+.rec-search-copy p{
+  font-size:16px;
+  font-weight:600;
+
+  color:rgba(255,255,255,.88);
+
+  text-align:left;
+  margin:0;
+}
 </style>
 </head>
 <body>
@@ -1321,6 +1429,30 @@
           <p>We built this itinerary based on your interests. Remove or add a few extra exhibits if you would like.</p>
         </div>
         <div class="exhibit-grid" id="recGrid"></div>
+
+<div class="rec-search-wrap">
+
+  <div class="rec-search-copy">
+    <h3 class="display">Want to add more?</h3>
+    <p>Search all other exhibits.</p>
+  </div>
+
+  <input
+    id="recSearch"
+    class="rec-search-input"
+    type="search"
+    autocomplete="off"
+    spellcheck="false"
+    placeholder="Search all other exhibits..."
+    aria-label="Search all other exhibits"
+  >
+
+  <div
+    id="recSearchResults"
+    class="exhibit-grid rec-search-results">
+  </div>
+
+</div>
       </div>
       <div class="action-bar">
         <div class="action-info">
@@ -1807,7 +1939,6 @@ function exhibitCardHTML(e){
   const added = state.myVisit.has(e.id);
   return `
   <div class="exhibit-card ${added?'added':''}" data-ex="${e.id}">
-    <div class="exhibit-icon">${icon(e.icon,32,2)}</div>
     <div class="exhibit-body">
       ${e.paid ? '<div class="ticket-badge">Additional Ticket Required</div>' : ''}
       <div class="exhibit-name display">${e.name}</div>
@@ -1821,30 +1952,258 @@ function exhibitCardHTML(e){
   </div>`;
 }
 function renderRecommended(){
-  const matches = getRecommended();
-  const included = matches.filter(e => state.myVisit.has(e.id));
-  const extras = matches.filter(e => !state.myVisit.has(e.id));
 
-  const includedHTML = included.length
-    ? included.map(exhibitCardHTML).join('')
-    : `<div class="empty-state">Your visit is empty. Add an exhibit below.</div>`;
+  /*
+    IMPORTANT:
+    Show EVERYTHING currently in the visitor's itinerary,
+    even if they manually added something that did not match
+    their original interest categories.
+  */
+  const included =
+    EXHIBITS.filter(e =>
+      state.myVisit.has(e.id)
+    );
 
-  const extrasHTML = extras.length
-    ? `
-      <div class="recommendation-divider">
-        <h3 class="display">Want to add more?</h3>
-        <p>These also match your interests but were not included in your itinerary.</p>
-      </div>
-      ${extras.map(exhibitCardHTML).join('')}
-    `
-    : '';
+  const includedHTML =
+    included.length
+      ? included.map(exhibitCardHTML).join('')
+      : `
+        <div class="empty-state">
+          Your visit is empty. Search below to add an exhibit.
+        </div>
+      `;
 
   document.getElementById('recGrid').innerHTML =
-    includedHTML + extrasHTML;
+    includedHTML;
 
   bindAddButtons('recGrid');
+
   updateRecommendedBar();
+
+  /*
+    Refresh search results too, so something disappears
+    from search immediately after it is added.
+  */
+  renderRecSearch();
 }
+/* ==========================================================
+   SEARCH ALL EXHIBITS NOT ALREADY IN THE ITINERARY
+   ========================================================== */
+
+function recSearchNormalize(value){
+
+  return String(value || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+
+
+/* Small typo-distance helper */
+function recSearchDistance(a, b){
+
+  a = recSearchNormalize(a);
+  b = recSearchNormalize(b);
+
+  const matrix =
+    Array.from(
+      { length: b.length + 1 },
+      () => new Array(a.length + 1)
+    );
+
+  for(let i = 0; i <= b.length; i++){
+    matrix[i][0] = i;
+  }
+
+  for(let j = 0; j <= a.length; j++){
+    matrix[0][j] = j;
+  }
+
+  for(let i = 1; i <= b.length; i++){
+
+    for(let j = 1; j <= a.length; j++){
+
+      const cost =
+        b[i - 1] === a[j - 1]
+          ? 0
+          : 1;
+
+      matrix[i][j] =
+        Math.min(
+          matrix[i - 1][j] + 1,
+          matrix[i][j - 1] + 1,
+          matrix[i - 1][j - 1] + cost
+        );
+    }
+  }
+
+  return matrix[b.length][a.length];
+}
+
+
+function renderRecSearch(){
+
+  const input =
+    document.getElementById('recSearch');
+
+  const results =
+    document.getElementById('recSearchResults');
+
+  if(!input || !results) return;
+
+
+  const rawQuery =
+    input.value.trim();
+
+  const query =
+    recSearchNormalize(rawQuery);
+
+
+  /* Show NOTHING until the visitor types */
+  if(!query){
+
+    results.innerHTML = '';
+
+    return;
+  }
+
+
+  /*
+    Search the ENTIRE exhibit catalog.
+
+    The only exhibits removed from this pool are exhibits
+    already in the visitor's itinerary.
+  */
+  const available =
+    EXHIBITS.filter(e =>
+      !state.myVisit.has(e.id)
+    );
+
+
+  const scored =
+    available
+      .map(e => {
+
+        const name =
+          recSearchNormalize(e.name);
+
+        const desc =
+          recSearchNormalize(e.desc);
+
+        let score = 9999;
+
+
+        /* Exact exhibit name */
+        if(name === query){
+          score = 0;
+        }
+
+        /* Name begins with query */
+        else if(name.startsWith(query)){
+          score = 1;
+        }
+
+        /* Query appears somewhere in exhibit name */
+        else if(name.includes(query)){
+          score = 2;
+        }
+
+        /* Query appears in description */
+        else if(desc.includes(query)){
+          score = 3;
+        }
+
+        /* Allow reasonable misspellings */
+        else {
+
+          const words =
+            String(e.name || '')
+              .split(/\s+/)
+              .filter(Boolean);
+
+          const bestTypo =
+            words.reduce(
+              (best, word) =>
+                Math.min(
+                  best,
+                  recSearchDistance(
+                    query,
+                    word
+                  )
+                ),
+              Infinity
+            );
+
+
+          const allowedTypos =
+            query.length <= 4
+              ? 1
+              : query.length <= 8
+                ? 2
+                : 3;
+
+
+          if(bestTypo <= allowedTypos){
+            score =
+              10 + bestTypo;
+          }
+        }
+
+
+        return {
+          exhibit:e,
+          score:score
+        };
+
+      })
+
+      .filter(item =>
+        item.score < 9999
+      )
+
+      .sort((a,b) =>
+        a.score - b.score ||
+        a.exhibit.name.localeCompare(
+          b.exhibit.name
+        )
+      );
+
+
+  const matches =
+    scored.map(item =>
+      item.exhibit
+    );
+
+
+  if(!matches.length){
+
+    results.innerHTML = `
+      <div class="rec-search-no-results">
+        No exhibits found. Try another spelling.
+      </div>
+    `;
+
+    return;
+  }
+
+
+  results.innerHTML =
+    matches
+      .map(exhibitCardHTML)
+      .join('');
+
+
+  bindAddButtons(
+    'recSearchResults'
+  );
+}
+document
+  .getElementById('recSearch')
+  .addEventListener(
+    'input',
+    renderRecSearch
+  );
 function bindAddButtons(containerId) {
   const container = document.getElementById(containerId);
 

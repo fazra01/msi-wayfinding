@@ -434,31 +434,264 @@ function renderFindStart() {
   }
 }
 /* ---------------- MY PLAN ---------------- */
+let planReorderMode = false;
+let planSortable = null;
+
+
+function planStopToken(stop) {
+  return (
+    stop.ids &&
+    stop.ids.length
+      ? stop.ids[0]
+      : stop.label
+  );
+}
+
+
+function savePlanOrder() {
+
+  saveImportedPlan(
+    State.plan.map(planStopToken),
+    State.origin,
+    State.accessible
+  );
+}
+
+
+function enablePlanSorting() {
+
+  const list =
+    $('#plan-stops');
+
+  if (planSortable) {
+    planSortable.destroy();
+    planSortable = null;
+  }
+
+  if (!planReorderMode) {
+    return;
+  }
+
+
+  planSortable =
+    new Sortable(list, {
+
+      animation: 220,
+
+      /* Important for touch screens */
+      delay: 220,
+      delayOnTouchOnly: true,
+      touchStartThreshold: 4,
+
+      /* Only upcoming stops can move */
+      draggable: '.stop:not(.done)',
+
+      ghostClass: 'stop-ghost',
+      chosenClass: 'stop-chosen',
+      dragClass: 'stop-dragging',
+
+      /*
+        Prevent an upcoming stop from being dragged
+        through a completed stop.
+      */
+      onMove: function(evt) {
+
+        if (
+          evt.related &&
+          evt.related.classList.contains('done')
+        ) {
+          return false;
+        }
+
+        return true;
+      },
+
+
+      onEnd: function(evt) {
+
+        if (
+          evt.oldIndex == null ||
+          evt.newIndex == null ||
+          evt.oldIndex === evt.newIndex
+        ) {
+          return;
+        }
+
+
+        const moved =
+          State.plan.splice(
+            evt.oldIndex,
+            1
+          )[0];
+
+
+        State.plan.splice(
+          evt.newIndex,
+          0,
+          moved
+        );
+
+
+        savePlanOrder();
+
+        /*
+          Re-render so the numbers update:
+          1, 2, 3, 4...
+        */
+        renderPlan();
+      }
+    });
+}
 function planList() { return State.plan; }
 function doneCount() { return State.plan.filter(p => State.done.has(p.label)).length; }
 
 function renderPlan() {
+
   const list = planList();
+
   const total = list.length;
   const dc = doneCount();
-  const pct = total ? Math.round((dc / total) * 100) : 0;
-  $('#plan-progress-fill').style.width = pct + '%';
-  $('#plan-progress-meta').innerHTML =
-    `<span>${dc} of ${total} exhibits</span><span>${pct}% complete</span>`;
 
-  const ul = $('#plan-stops'); ul.innerHTML = '';
+  const pct =
+    total
+      ? Math.round((dc / total) * 100)
+      : 0;
+
+
+  $('#plan-progress-fill').style.width =
+    pct + '%';
+
+
+  $('#plan-progress-meta').innerHTML =
+    `<span>${dc} of ${total} exhibits</span>` +
+    `<span>${pct}% complete</span>`;
+
+
+  const reorderButton =
+    $('#plan-reorder');
+
+  const reorderHint =
+    $('#plan-reorder-hint');
+
+
+  reorderButton.textContent =
+    planReorderMode
+      ? 'Done'
+      : 'Reorder stops';
+
+
+  reorderButton.classList.toggle(
+    'is-active',
+    planReorderMode
+  );
+
+
+  reorderHint.classList.toggle(
+    'hidden',
+    !planReorderMode
+  );
+
+
+  const ul =
+    $('#plan-stops');
+
+  ul.classList.toggle(
+    'is-reordering',
+    planReorderMode
+  );
+
+  ul.innerHTML = '';
+
+
   list.forEach((p, i) => {
-    const isDone = State.done.has(p.label);
-    const li = el('li', 'stop' + (isDone ? ' done' : ''));
-    li.appendChild(el('span', 'stop-dot', isDone ? '✓' : String(i + 1)));
-    const body = el('div');
-    body.appendChild(el('div', 'stop-name', p.label));
-    li.appendChild(body); ul.appendChild(li);
+
+    const isDone =
+      State.done.has(p.label);
+
+
+    const li =
+      el(
+        'li',
+        'stop' +
+          (isDone ? ' done' : '')
+      );
+
+
+    li.appendChild(
+      el(
+        'span',
+        'stop-dot',
+        isDone
+          ? '✓'
+          : String(i + 1)
+      )
+    );
+
+
+    const body =
+      el('div', 'stop-body');
+
+
+    body.appendChild(
+      el(
+        'div',
+        'stop-name',
+        p.label
+      )
+    );
+
+
+    li.appendChild(body);
+
+
+    /*
+      Grip appears only while reorder mode is on
+      and only for stops that are not completed.
+    */
+    if (
+      planReorderMode &&
+      !isDone
+    ) {
+
+      li.appendChild(
+        el(
+          'span',
+          'stop-drag-handle',
+          '⋮⋮'
+        )
+      );
+    }
+
+
+    ul.appendChild(li);
   });
 
-  const hasProgress = dc > 0 && dc < total;
-  $('#plan-continue').classList.toggle('hidden', !hasProgress);
-  $('#plan-start').textContent = dc === 0 ? 'Start visit' : 'Restart visit';
+
+  const hasProgress =
+    dc > 0 &&
+    dc < total;
+
+
+  $('#plan-continue').classList.toggle(
+    'hidden',
+    !hasProgress ||
+    planReorderMode
+  );
+
+
+  $('#plan-start').classList.toggle(
+    'hidden',
+    planReorderMode
+  );
+
+
+  $('#plan-start').textContent =
+    dc === 0
+      ? 'Start visit'
+      : 'Restart visit';
+
+
+  enablePlanSorting();
 }
 
 function firstUnvisited() {
@@ -817,25 +1050,680 @@ function animateRoute() {
   path.style.strokeDashoffset = '0';
 }
 
-function renderDirections(seg, isLast) {
-  const box = $('#nav-directions'); box.innerHTML = '';
-  const steps = [];
-  const start = State.nodes[seg.nodes[0]];
-  steps.push(State.segIndex === 0 ? `Start at ${start.label}` : `Continue from ${floorName(seg.level)}`);
-  for (let i = 1; i < seg.nodes.length - 1; i++) {
-    const n = State.nodes[seg.nodes[i]];
-    if (n.type === 'intersection' || n.type === 'entrance') continue;
-    if (/exhibit/.test(n.type) && !isLast) steps.push(`Pass ${n.name}`);
-    else if (n.visitorDestination) steps.push(`Pass ${n.visitorDestination}`);
-  }
-  const end = State.nodes[seg.nodes.slice(-1)[0]];
-  if (isLast) steps.push(`Arrive at ${end.label}`);
-  else if (seg.transfer) steps.push(`Take ${seg.transfer.label} ${seg.transfer.dir} to ${seg.transfer.toName}`);
+/* ============================================================
+   LANDMARK-BASED MOBILE DIRECTIONS
+   Mirrors the kiosk direction logic.
+   ============================================================ */
 
-  steps.slice(0, 8).forEach((t, i) => {
-    const row = el('div', 'direction');
-    row.appendChild(el('span', 'step-n', String(i + 1)));
-    row.appendChild(el('span', 'step-text', t));
+const MOBILE_LANDMARK_MAX_DISTANCE = 150;
+const MOBILE_LANDMARK_SIDE_MIN_DISTANCE = 40;
+const MOBILE_LANDMARK_MAX_PER_FLOOR = 3;
+
+
+/* Is this a recognizable exhibit? */
+function isMobileRouteLandmark(n) {
+  if (!n) return false;
+
+  return (
+    /exhibit/i.test(String(n.type || '')) ||
+    String(n.visitorCategory || '').toLowerCase() === 'exhibits'
+  );
+}
+
+
+/* Find nearest point on a section of the orange route */
+function mobileLandmarkProjection(p, a, b) {
+
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+
+  const len2 = dx * dx + dy * dy;
+
+  if (!len2) {
+    return {
+      t: 0,
+      dist: Math.hypot(
+        p.x - a.x,
+        p.y - a.y
+      ),
+      side: ''
+    };
+  }
+
+  let t =
+    ((p.x - a.x) * dx +
+     (p.y - a.y) * dy) / len2;
+
+  t = Math.max(0, Math.min(1, t));
+
+  const x = a.x + dx * t;
+  const y = a.y + dy * t;
+
+  const dist =
+    Math.hypot(
+      p.x - x,
+      p.y - y
+    );
+
+  /*
+    SVG coordinates increase downward.
+    Negative = left of walking direction.
+    Positive = right.
+  */
+  const cross =
+    dx * (p.y - a.y) -
+    dy * (p.x - a.x);
+
+  let side = '';
+
+  if (dist >= MOBILE_LANDMARK_SIDE_MIN_DISTANCE) {
+    side = cross < 0 ? 'left' : 'right';
+  }
+
+  return {
+    t,
+    dist,
+    side
+  };
+}
+
+
+/* Find up to 3 exhibit landmarks close to this floor's route */
+function mobileRouteLandmarks(seg, isLast) {
+
+  const pts =
+    seg.nodes
+      .map(id => State.nodes[id])
+      .filter(Boolean);
+
+  if (pts.length < 2) return [];
+
+  const floorId = pts[0].floorId;
+
+  /* Every node actually used by the orange route */
+  const routeSet =
+    new Set(seg.nodes);
+
+
+  /* Build graph-neighbor lookup */
+  const neighbors = {};
+
+  State.edges.forEach(edge => {
+
+    if (!neighbors[edge.from]) {
+      neighbors[edge.from] = new Set();
+    }
+
+    if (!neighbors[edge.to]) {
+      neighbors[edge.to] = new Set();
+    }
+
+    neighbors[edge.from].add(edge.to);
+    neighbors[edge.to].add(edge.from);
+  });
+
+
+  /* Distance travelled along the route */
+  const cumulative = [0];
+
+  for (let i = 1; i < pts.length; i++) {
+
+    cumulative[i] =
+      cumulative[i - 1] +
+      Math.hypot(
+        pts[i].x - pts[i - 1].x,
+        pts[i].y - pts[i - 1].y
+      );
+  }
+
+  const totalLength =
+    cumulative[cumulative.length - 1];
+
+  const edgeBuffer =
+    Math.min(
+      70,
+      totalLength * 0.12
+    );
+
+
+  const startNode = pts[0];
+
+  const finalNode =
+    State.route &&
+    State.route.path &&
+    State.route.path.length
+      ? State.nodes[
+          State.route.path[
+            State.route.path.length - 1
+          ]
+        ]
+      : null;
+
+
+  const startName =
+    String(
+      startNode.name ||
+      startNode.visitorDestination ||
+      startNode.label ||
+      ''
+    )
+      .trim()
+      .toLowerCase();
+
+
+  const destinationName =
+    finalNode
+      ? String(
+          finalNode.name ||
+          finalNode.visitorDestination ||
+          finalNode.label ||
+          ''
+        )
+          .trim()
+          .toLowerCase()
+      : '';
+
+
+  const byName = {};
+
+
+  Object.values(State.nodes).forEach(n => {
+
+    if (!isMobileRouteLandmark(n)) return;
+
+    if (n.floorId !== floorId) return;
+
+
+    const name =
+      String(
+        n.name ||
+        n.visitorDestination ||
+        n.label ||
+        ''
+      ).trim();
+
+    if (!name) return;
+
+
+    const key =
+      name.toLowerCase();
+
+    if (key === startName) return;
+    if (destinationName && key === destinationName) return;
+
+
+    /* ======================================================
+       RULE 1:
+       Exhibit node is ACTUALLY on the orange route.
+       This is always trustworthy.
+       ====================================================== */
+
+    if (routeSet.has(n.id)) {
+
+      const routeIndex =
+        seg.nodes.indexOf(n.id);
+
+      const candidate = {
+        kind: 'exhibit',
+        name,
+        dist: 0,
+        along: cumulative[routeIndex],
+        side: '',
+        priority: 0
+      };
+
+      if (
+        candidate.along >= edgeBuffer &&
+        (!isLast ||
+         candidate.along <= totalLength - edgeBuffer)
+      ) {
+        byName[key] = candidate;
+      }
+
+      return;
+    }
+
+
+    /* ======================================================
+       RULE 2:
+       Exhibit is BESIDE an actual route segment.
+
+       It must:
+       - be close to the segment
+       - connect directly to that corridor in graph.json
+       - project onto the MIDDLE of the segment
+         rather than merely being near a corner/intersection
+       ====================================================== */
+
+    let best = null;
+
+
+    for (let i = 0; i < pts.length - 1; i++) {
+
+      const a = pts[i];
+      const b = pts[i + 1];
+
+      const projection =
+        mobileLandmarkProjection(
+          n,
+          a,
+          b
+        );
+
+
+      /*
+        IMPORTANT:
+        The exhibit must branch directly from one of the
+        two nodes making up this exact route segment.
+      */
+      const connectedToSegment =
+        (neighbors[n.id] &&
+          (
+            neighbors[n.id].has(a.id) ||
+            neighbors[n.id].has(b.id)
+          ));
+
+
+      if (!connectedToSegment) {
+        continue;
+      }
+
+
+/*
+  If the landmark is beside the END of a route segment,
+  allow it only when it genuinely branches off to the side
+  of the direction the visitor is walking.
+
+  This allows things like Idea Factory beside the route,
+  while rejecting exhibits that are merely ahead/behind
+  near an intersection.
+*/
+if (
+  projection.t < 0.18 ||
+  projection.t > 0.82
+) {
+
+  const anchorIndex =
+    projection.t < 0.5
+      ? i
+      : i + 1;
+
+  const anchor =
+    pts[anchorIndex];
+
+  const previous =
+    pts[Math.max(0, anchorIndex - 1)];
+
+  const next =
+    pts[Math.min(
+      pts.length - 1,
+      anchorIndex + 1
+    )];
+
+
+  /* Local walking direction through this route node */
+  const routeDX =
+    next.x - previous.x;
+
+  const routeDY =
+    next.y - previous.y;
+
+
+  /* Direction from route node toward the exhibit */
+  const landmarkDX =
+    n.x - anchor.x;
+
+  const landmarkDY =
+    n.y - anchor.y;
+
+
+  const routeLength =
+    Math.hypot(
+      routeDX,
+      routeDY
+    );
+
+  const landmarkLength =
+    Math.hypot(
+      landmarkDX,
+      landmarkDY
+    );
+
+
+  if (
+    routeLength > 0 &&
+    landmarkLength > 0
+  ) {
+
+    /*
+      0 = perfectly beside you
+      1 = directly ahead/behind you
+    */
+    const alignment =
+      Math.abs(
+        (
+          routeDX * landmarkDX +
+          routeDY * landmarkDY
+        ) /
+        (
+          routeLength *
+          landmarkLength
+        )
+      );
+
+
+    /*
+      Only accept endpoint landmarks that are
+      substantially to the SIDE of the route.
+    */
+    if (alignment > 0.45) {
+      continue;
+    }
+  }
+}
+
+
+      /* Much stricter than the old 150px rule */
+      if (projection.dist > 90) {
+        continue;
+      }
+
+
+      const segmentLength =
+        Math.hypot(
+          b.x - a.x,
+          b.y - a.y
+        );
+
+
+      const along =
+        cumulative[i] +
+        segmentLength * projection.t;
+
+
+      if (
+        !best ||
+        projection.dist < best.dist
+      ) {
+
+        best = {
+          kind: 'exhibit',
+          name,
+          dist: projection.dist,
+          along,
+          side: projection.side,
+          priority: 1
+        };
+      }
+    }
+
+
+    if (!best) return;
+
+    if (best.along < edgeBuffer) return;
+
+    if (
+      isLast &&
+      best.along > totalLength - edgeBuffer
+    ) {
+      return;
+    }
+
+
+    /*
+      Prefer an exhibit actually ON the route over
+      a merely nearby side landmark.
+    */
+    if (
+      !byName[key] ||
+      best.priority < byName[key].priority ||
+      (
+        best.priority === byName[key].priority &&
+        best.dist < byName[key].dist
+      )
+    ) {
+      byName[key] = best;
+    }
+
+  });
+
+
+  let candidates =
+    Object.values(byName);
+
+
+  /*
+    Prioritize:
+    1. exhibits actually on the route
+    2. then legitimate side landmarks
+    */
+  candidates.sort((a, b) => {
+
+    if (a.priority !== b.priority) {
+      return a.priority - b.priority;
+    }
+
+    return a.dist - b.dist;
+  });
+
+
+  candidates =
+    candidates.slice(
+      0,
+      MOBILE_LANDMARK_MAX_PER_FLOOR
+    );
+
+
+  /* Finally display them in walking order */
+  candidates.sort(
+    (a, b) => a.along - b.along
+  );
+
+
+  return candidates;
+}
+
+
+/* Staircases the orange route ACTUALLY passes through */
+function mobileRouteStairCallouts(seg) {
+
+  const pts =
+    seg.nodes
+      .map(id => State.nodes[id])
+      .filter(Boolean);
+
+  if (pts.length < 3) return [];
+
+
+  const cumulative = [0];
+
+  for (let i = 1; i < pts.length; i++) {
+
+    cumulative[i] =
+      cumulative[i - 1] +
+      Math.hypot(
+        pts[i].x - pts[i - 1].x,
+        pts[i].y - pts[i - 1].y
+      );
+  }
+
+
+  const stairs = [];
+
+
+  /*
+    Ignore first and last nodes.
+
+    This prevents:
+    - repeating the stairs you just came from
+    - repeating the stairs used as the actual floor connector
+  */
+  for (let i = 1; i < pts.length - 1; i++) {
+
+    const n = pts[i];
+
+    if (n.type !== 'stairs') continue;
+
+
+    const name =
+      n.name && n.name.trim()
+        ? n.name.trim()
+        : 'Stairs';
+
+
+    stairs.push({
+      kind: 'stairs',
+      name,
+      along: cumulative[i]
+    });
+  }
+
+
+  return stairs;
+}
+
+
+/* Build the actual written directions */
+function renderDirections(seg, isLast) {
+
+  const box =
+    $('#nav-directions');
+
+  box.innerHTML = '';
+
+
+  const landmarks =
+    mobileRouteLandmarks(
+      seg,
+      isLast
+    );
+
+
+  const stairs =
+    mobileRouteStairCallouts(seg);
+
+
+  /*
+    Combine landmarks and stairs so everything appears
+    in the actual order the visitor encounters it.
+  */
+  const events = [
+    ...landmarks,
+    ...stairs
+  ];
+
+
+  events.sort(
+    (a, b) => a.along - b.along
+  );
+
+
+  const steps = [];
+
+
+  events.forEach(event => {
+
+    /* Staircase */
+    if (event.kind === 'stairs') {
+
+      steps.push(
+        `Pass the ${event.name}.`
+      );
+
+      return;
+    }
+
+
+    /* Exhibit */
+    let text =
+      `Pass ${event.name}`;
+
+    if (event.side) {
+      text +=
+        ` on your ${event.side}`;
+    }
+
+    text += '.';
+
+    steps.push(text);
+  });
+
+
+  /* FINAL FLOOR */
+  if (isLast) {
+
+    const end =
+      State.nodes[
+        seg.nodes[
+          seg.nodes.length - 1
+        ]
+      ];
+
+    steps.push(
+      `Arrive at ${end.label}.`
+    );
+  }
+
+
+  /* FLOOR CHANGE */
+  else if (seg.transfer) {
+
+    const transferNode =
+      State.nodes[
+        seg.nodes[
+          seg.nodes.length - 1
+        ]
+      ];
+
+
+    const connectorName =
+      transferNode &&
+      transferNode.name &&
+      transferNode.name.trim()
+        ? transferNode.name.trim()
+        : seg.transfer.label;
+
+
+    const direction =
+      String(
+        seg.transfer.dir || ''
+      ).toLowerCase();
+
+
+    steps.push(
+      `Take the ${connectorName} ${direction} to ${seg.transfer.toName}.`
+    );
+  }
+
+
+  /* Render numbered cards */
+  steps.forEach((text, i) => {
+
+    const row =
+      el(
+        'div',
+        'direction'
+      );
+
+
+    row.appendChild(
+      el(
+        'span',
+        'step-n',
+        String(i + 1)
+      )
+    );
+
+
+    row.appendChild(
+      el(
+        'span',
+        'step-text',
+        text
+      )
+    );
+
+
     box.appendChild(row);
   });
 }
@@ -1786,7 +2674,21 @@ function wire() {
   };
   document.querySelectorAll('[data-access-toggle]').forEach(t => t.onclick = () => setAccessible(!State.accessible));
 
-  $('#plan-back').onclick = () => show('screen-home');
+  $('#plan-back').onclick = () => {
+
+  planReorderMode = false;
+
+  renderPlan();
+
+  show('screen-home');
+};
+  $('#plan-reorder').onclick = () => {
+
+  planReorderMode =
+    !planReorderMode;
+
+  renderPlan();
+};
   $('#plan-start').onclick = () => {
     if (doneCount() > 0) {
       // "Restart visit" — clear all progress and show the reset plan (0%, nothing ticked)

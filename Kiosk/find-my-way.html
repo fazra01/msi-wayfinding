@@ -1724,6 +1724,245 @@
   align-items:center !important;
   justify-content:center !important;
 }
+/* =========================================
+   LANDMARK-BASED WRITTEN DIRECTIONS
+   ========================================= */
+
+#routeScreen .fmw-dir-list{
+  display:flex;
+  flex-direction:column;
+  gap:17px;
+}
+
+#routeScreen .fmw-dir-line{
+  display:flex;
+  align-items:flex-start;
+  gap:11px;
+}
+
+#routeScreen .fmw-dir-num{
+  width:38px;
+  height:38px;
+  min-width:38px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  border-radius:50%;
+
+  background:var(--orange-tint);
+  color:var(--orange-deep);
+
+  font-size:18px;
+  font-weight:800;
+  line-height:1;
+}
+
+#routeScreen .fmw-dir-text{
+  flex:1;
+
+  font-size:22px !important;
+  line-height:1.35;
+
+  color:var(--ink);
+}
+/* =========================================
+   ROUTE SCREEN — QR + DIRECTIONS FINAL LAYOUT
+   ========================================= */
+
+/* Keep enough room for the wider directions card */
+#routeScreen .route-qr{
+  width:430px !important;
+  min-width:430px !important;
+
+  padding-top:0 !important;
+  gap:10px !important;
+
+  align-items:flex-end !important;
+}
+
+/* Smaller QR card, pushed to the upper-right */
+#routeScreen .qr-card{
+  width:290px !important;
+
+  padding:18px !important;
+  border-radius:20px !important;
+
+  align-self:flex-end !important;
+}
+
+/* Smaller QR code */
+#routeScreen .qr-card canvas{
+  width:205px !important;
+  height:205px !important;
+}
+
+/* Keep the phone heading compact */
+#routeScreen .qr-card h3{
+  font-size:20px !important;
+  line-height:1.15 !important;
+  margin-top:10px !important;
+}
+
+/* Wider directions card that reaches toward the map */
+#routeScreen .route-qr .fmw-instruct{
+  width:550px !important;
+
+  margin-top:0 !important;
+  margin-left:-120px !important;
+
+  padding:22px 26px !important;
+
+  font-size:22px !important;
+  line-height:1.4 !important;
+
+  border-radius:18px !important;
+}
+/* =========================================
+   FINAL ROUTE LAYOUT CLEANUP
+   ========================================= */
+
+/* Push ONLY the map/floor controls farther left */
+#routeScreen .route-steps{
+  margin-left:-40px !important;
+}
+
+/* Clean, fixed instruction panel */
+#routeScreen .route-qr .fmw-instruct{
+  width:550px !important;
+
+
+  margin-top:0 !important;
+  margin-left:-155px !important;
+
+  padding:24px 28px !important;
+
+  background:#fff !important;
+
+  /* REMOVE the old faded/orange outline completely */
+  border:none !important;
+  border-left:none !important;
+  outline:none !important;
+
+  /* Match the clean QR-card appearance */
+  border-radius:20px !important;
+  box-shadow:var(--shadow) !important;
+
+  overflow:hidden;
+}
+
+/* Keep directions aligned neatly inside fixed box */
+#routeScreen .fmw-dir-list{
+  width:100%;
+  height:100%;
+
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+
+  gap:17px;
+}
+/* =========================================
+   FINAL MAP + RIGHT COLUMN ALIGNMENT
+   ========================================= */
+
+/* Map and right column touch at one clean edge */
+#routeScreen .route-main{
+  gap:0 !important;
+}
+
+/* Give the right side more room */
+#routeScreen .route-qr{
+  width:520px !important;
+  min-width:520px !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-end !important;
+
+  gap:12px !important;
+}
+
+/* Keep QR compact on the upper-right */
+#routeScreen .qr-card{
+  width:290px !important;
+  align-self:flex-end !important;
+}
+
+/* Directions begin EXACTLY at the right edge of the map */
+#routeScreen .route-qr .fmw-instruct{
+  width:100% !important;
+
+  margin-left:0 !important;
+  margin-right:0 !important;
+  margin-top:0 !important;
+
+  padding:24px 28px !important;
+
+  background:#fff !important;
+  border:none !important;
+  outline:none !important;
+
+  border-radius:20px !important;
+  box-shadow:var(--shadow) !important;
+}
+/* =========================================
+   RIGHT COLUMN — FIXED DIRECTIONS CARD
+   ========================================= */
+
+#routeScreen .route-qr{
+  width:520px !important;
+  min-width:520px !important;
+
+  align-self:flex-start !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:flex-end !important;
+
+  gap:12px !important;
+}
+
+/* QR remains compact */
+#routeScreen .qr-card{
+  width:290px !important;
+  flex:0 0 auto !important;
+  align-self:flex-end !important;
+}
+
+/* Directions card */
+#routeScreen .route-qr .fmw-instruct{
+  flex:none !important;
+
+  width:100% !important;
+  height:auto !important;
+
+  /* Same card size even with only one short instruction */
+  min-height:210px !important;
+
+  margin:0 !important;
+  padding:26px 30px !important;
+
+  background:#fff !important;
+  border:none !important;
+  outline:none !important;
+
+  border-radius:20px !important;
+  box-shadow:var(--shadow) !important;
+}
+
+/* Directions start from the TOP instead of floating in the middle */
+#routeScreen .fmw-dir-list{
+  width:100% !important;
+  height:auto !important;
+
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+
+  gap:18px !important;
+}
 /* PASTE ABOVE THIS LINE */
 </style>
 </head>
@@ -2041,12 +2280,10 @@
             </div>
 
             <div class="route-qr">
-              <div class="qr-card">
-                <canvas id="qrCanvas" width="300" height="300"></canvas>
-                <h3>Continue these directions on your phone</h3>
-                <p>Point your camera at the code to keep your route with you as you walk.</p>
-                <a id="qrOpenLink" class="qr-open-link" href="#" target="_blank" rel="noopener" hidden>Open mobile version</a>
-              </div>
+             <div class="qr-card">
+              <canvas id="qrCanvas" width="300" height="300"></canvas>
+              <h3>Continue these directions on your phone</h3>
+            </div>
             </div>
           </div>
         </div>
@@ -4185,6 +4422,501 @@ function routeConnMarker(n, dir){
     return { x:x1, y:y1, w:Math.max(1, x2-x1), h:Math.max(1, y2-y1) };
   }
 
+    /* ================================================================
+    LANDMARK-BASED WRITTEN DIRECTIONS
+    Finds nearby exhibits along each floor's route.
+    Maximum: 3 exhibit landmarks per floor.
+    ================================================================ */
+
+  var LANDMARK_MAX_DISTANCE = 150;
+  var LANDMARK_SIDE_MIN_DISTANCE = 40;
+  var LANDMARK_MAX_PER_FLOOR = 3;
+
+
+  /* Is this node an exhibit visitors can recognize? */
+  function isRouteLandmark(n){
+    if(!n) return false;
+
+    return (
+      n.type === "exhibit entrance" ||
+      String(n.visitorCategory || "").toLowerCase() === "exhibits"
+    );
+  }
+
+
+  /* Find the closest point on one line segment */
+  function landmarkProjection(p, a, b){
+
+    var dx = b.x - a.x;
+    var dy = b.y - a.y;
+
+    var len2 = dx * dx + dy * dy;
+
+    if(!len2){
+      return {
+        x:a.x,
+        y:a.y,
+        t:0,
+        dist:Math.hypot(p.x - a.x, p.y - a.y),
+        side:""
+      };
+    }
+
+    var t =
+      ((p.x - a.x) * dx +
+      (p.y - a.y) * dy) / len2;
+
+    t = Math.max(0, Math.min(1, t));
+
+    var x = a.x + dx * t;
+    var y = a.y + dy * t;
+
+    var dist =
+      Math.hypot(
+        p.x - x,
+        p.y - y
+      );
+
+    /*
+      Because SVG y coordinates increase downward:
+      negative cross = left
+      positive cross = right
+    */
+    var cross =
+      dx * (p.y - a.y) -
+      dy * (p.x - a.x);
+
+    var side = "";
+
+    if(dist >= LANDMARK_SIDE_MIN_DISTANCE){
+      side = cross < 0 ? "left" : "right";
+    }
+
+    return {
+      x:x,
+      y:y,
+      t:t,
+      dist:dist,
+      side:side
+    };
+  }
+
+
+  /* Find up to 3 useful exhibit landmarks for this floor segment */
+  function routeLandmarks(seg){
+
+    var pts =
+      seg.ids
+        .map(nodeById)
+        .filter(Boolean);
+
+    if(pts.length < 2) return [];
+
+
+    /* Cumulative walking distance along this floor */
+    var cumulative = [0];
+
+    for(var i = 1; i < pts.length; i++){
+      cumulative[i] =
+        cumulative[i - 1] +
+        Math.hypot(
+          pts[i].x - pts[i - 1].x,
+          pts[i].y - pts[i - 1].y
+        );
+    }
+
+    var totalLength =
+      cumulative[cumulative.length - 1];
+
+
+    /* Don't call out things sitting essentially at the start/end */
+    var edgeBuffer =
+      Math.min(
+        70,
+        totalLength * 0.12
+      );
+
+
+    var startNode = pts[0];
+
+    var destinationNode =
+      RT.route && RT.route.chosen
+        ? RT.route.chosen
+        : null;
+
+
+    var startName =
+      String(
+        startNode.name ||
+        startNode.visitorDestination ||
+        ""
+      ).trim().toLowerCase();
+
+
+    var destinationName =
+      destinationNode
+        ? String(
+            destinationNode.name ||
+            destinationNode.visitorDestination ||
+            ""
+          ).trim().toLowerCase()
+        : "";
+
+
+    var byName = {};
+
+
+    ED.nodes.forEach(function(n){
+
+      if(!isRouteLandmark(n)) return;
+
+      /* Must be on the floor currently displayed */
+      if(n.floorId !== seg.floorId) return;
+
+
+      var name =
+        String(
+          n.name ||
+          n.visitorDestination ||
+          ""
+        ).trim();
+
+      if(!name) return;
+
+
+      var key =
+        name.toLowerCase();
+
+
+      /* Don't describe the start or destination as landmarks */
+      if(key === startName) return;
+      if(destinationName && key === destinationName) return;
+
+
+      var best = null;
+
+
+      /* Find which part of the route this exhibit is nearest to */
+      for(var i = 0; i < pts.length - 1; i++){
+
+        var projection =
+          landmarkProjection(
+            n,
+            pts[i],
+            pts[i + 1]
+          );
+
+
+        var segLength =
+          Math.hypot(
+            pts[i + 1].x - pts[i].x,
+            pts[i + 1].y - pts[i].y
+          );
+
+
+        var along =
+          cumulative[i] +
+          segLength * projection.t;
+
+
+        if(
+          !best ||
+          projection.dist < best.dist
+        ){
+          best = {
+            name:name,
+            dist:projection.dist,
+            along:along,
+            side:projection.side
+          };
+        }
+      }
+
+
+      if(!best) return;
+
+      /* Too far away to be a useful visual landmark */
+      if(best.dist > LANDMARK_MAX_DISTANCE) return;
+
+
+      /*
+        Avoid landmarks that are practically sitting on top of
+        the start or final destination.
+      */
+      if(best.along < edgeBuffer) return;
+
+      if(
+        seg.isFinal &&
+        best.along > totalLength - edgeBuffer
+      ){
+        return;
+      }
+
+
+      /*
+        An exhibit can have multiple entrance nodes.
+        Keep only the closest instance.
+      */
+      if(
+        !byName[key] ||
+        best.dist < byName[key].dist
+      ){
+        byName[key] = best;
+      }
+
+    });
+
+
+    var candidates =
+      Object.keys(byName)
+        .map(function(key){
+          return byName[key];
+        });
+
+
+    /*
+      First choose the 3 exhibits closest to the route.
+    */
+    candidates.sort(function(a,b){
+      return a.dist - b.dist;
+    });
+
+    candidates =
+      candidates.slice(
+        0,
+        LANDMARK_MAX_PER_FLOOR
+      );
+
+
+    /*
+      Then put those 3 back into walking order.
+    */
+    candidates.sort(function(a,b){
+      return a.along - b.along;
+    });
+
+
+    return candidates;
+  }
+  /* Find staircases that the route actually passes through */
+function routeStairCallouts(seg){
+
+  var pts =
+    seg.ids
+      .map(nodeById)
+      .filter(Boolean);
+
+  if(pts.length < 3) return [];
+
+  var cumulative = [0];
+
+  for(var i = 1; i < pts.length; i++){
+    cumulative[i] =
+      cumulative[i - 1] +
+      Math.hypot(
+        pts[i].x - pts[i - 1].x,
+        pts[i].y - pts[i - 1].y
+      );
+  }
+
+  var stairs = [];
+
+  /*
+    Start at 1 and stop before the last node:
+    - don't call out the staircase we just entered from
+    - don't duplicate the staircase we're about to use
+      for a floor change
+  */
+  for(var i = 1; i < pts.length - 1; i++){
+
+    var n = pts[i];
+
+    if(n.type !== "stairs") continue;
+
+    /* Floor-change connector already gets its own "Take..." direction */
+    if(seg.exitId && n.id === seg.exitId) continue;
+
+    var name =
+      (n.name && n.name.trim())
+        ? n.name.trim()
+        : "Stairs";
+
+    stairs.push({
+      kind:"stairs",
+      name:name,
+      along:cumulative[i]
+    });
+  }
+
+  return stairs;
+}
+
+  /* Build the written directions shown beside the QR code */
+function buildFloorInstructions(seg){
+
+  var lines = [];
+
+  var landmarks =
+    routeLandmarks(seg);
+
+  var stairs =
+    routeStairCallouts(seg);
+
+
+  /*
+    Combine exhibits + staircases so instructions remain
+    in the actual order the visitor encounters them.
+  */
+  var events = [];
+
+
+  landmarks.forEach(function(landmark){
+
+    events.push({
+      kind:"exhibit",
+      name:landmark.name,
+      side:landmark.side,
+      along:landmark.along
+    });
+
+  });
+
+
+  stairs.forEach(function(stair){
+
+    events.push(stair);
+
+  });
+
+
+  events.sort(function(a,b){
+    return a.along - b.along;
+  });
+
+
+  events.forEach(function(event){
+
+    /* Staircase */
+    if(event.kind === "stairs"){
+
+      lines.push(
+        'Pass the <b>' +
+        esc(event.name) +
+        '</b>.'
+      );
+
+      return;
+    }
+
+
+    /* Exhibit landmark */
+    var text =
+      'Pass <b>' +
+      esc(event.name) +
+      '</b>';
+
+    if(event.side){
+      text +=
+        ' on your ' +
+        event.side;
+    }
+
+    text += '.';
+
+    lines.push(text);
+
+  });
+
+
+    /* Final floor */
+    if(seg.isFinal){
+
+      var dn =
+        (RT.route.chosen && RT.route.chosen.name)
+          ? RT.route.chosen.name
+          : (RT.dest
+              ? RT.dest.name
+              : "your destination");
+
+
+      if(events.length){
+        lines.push(
+          'Arrive at <b>' +
+          esc(dn) +
+          '</b>.'
+        );
+      }else{
+        lines.push(
+          'Follow the highlighted route to <b>' +
+          esc(dn) +
+          '</b>.'
+        );
+      }
+
+    }
+
+
+    /* Floor transition */
+    else {
+
+      var exitNode =
+        nodeById(seg.exitId);
+
+      var connectorName =
+        (exitNode &&
+        exitNode.name &&
+        exitNode.name.trim())
+          ? exitNode.name.trim()
+          : (exitNode
+              ? typeLabel(exitNode.type)
+              : "connector");
+
+
+      lines.push(
+        'Take the <b>' +
+        esc(connectorName) +
+        '</b> ' +
+        directionWord(
+          seg.floorId,
+          seg.nextFloorId
+        ) +
+        ' to <b>' +
+        esc(
+          floorName(
+            seg.nextFloorId
+          )
+        ) +
+        '</b>.'
+      );
+
+    }
+
+
+    return (
+      '<div class="fmw-dir-list">' +
+
+      lines.map(function(line, index){
+
+        return (
+          '<div class="fmw-dir-line">' +
+
+            '<span class="fmw-dir-num">' +
+              (index + 1) +
+            '</span>' +
+
+            '<span class="fmw-dir-text">' +
+              line +
+            '</span>' +
+
+          '</div>'
+        );
+
+      }).join('') +
+
+      '</div>'
+    );
+  }
+
   function renderRouteMap(){
     var host = document.querySelector("#routeScreen .route-steps");
     if(!host) return;
@@ -4209,9 +4941,45 @@ function routeConnMarker(n, dir){
     var fw = (f && f.w) || 1920, fh = (f && f.h) || 1080;
 
     // Use the measured ink box once available; until then show the full frame.
-    var base = (f && f.__ink) ? f.__ink : { x:0, y:0, w:fw, h:fh };
-    if(f && f.image && !f.__ink){ getInkBox(f, function(){ renderRouteMap(); }); }
-    var box = unionRouteBox(base, seg, fw, fh);
+    var base;
+
+/* Main Level:
+   use the full floor image instead of the automatic ink crop */
+if(seg.floorId === "main-level"){
+
+  base = {
+    x:0,
+    y:0,
+    w:fw,
+    h:fh
+  };
+
+}else{
+
+  base =
+    (f && f.__ink)
+      ? f.__ink
+      : {
+          x:0,
+          y:0,
+          w:fw,
+          h:fh
+        };
+
+  if(f && f.image && !f.__ink){
+    getInkBox(f, function(){
+      renderRouteMap();
+    });
+  }
+}
+
+var box =
+  unionRouteBox(
+    base,
+    seg,
+    fw,
+    fh
+  );
 
     var pts = seg.ids.map(nodeById).filter(Boolean);
     var d = "";
@@ -4223,16 +4991,6 @@ function routeConnMarker(n, dir){
       if(pts.length) layer += routeMarker(pts[pts.length-1], "dest", "");    } else {
       var ex = nodeById(seg.exitId);
       if(ex) layer += routeConnMarker(ex, directionWord(seg.floorId, seg.nextFloorId));
-    }
-
-    var instr;
-    if(seg.isFinal){
-      var dn = (RT.route.chosen && RT.route.chosen.name) ? RT.route.chosen.name : (RT.dest ? RT.dest.name : "your destination");
-      instr = '<b>You have arrived.</b><br>' + esc(dn) + ' is on ' + esc(floorName(seg.floorId)) + '.';
-    } else {
-      var ex2 = nodeById(seg.exitId);
-      var nm = (ex2 && ex2.name && ex2.name.trim()) ? ex2.name.trim() : (ex2 ? typeLabel(ex2.type) : "connector");
-      instr = 'Take the <b>' + esc(nm) + '</b> ' + directionWord(seg.floorId, seg.nextFloorId) + ' to <b>' + esc(floorName(seg.nextFloorId)) + '</b>.';
     }
 
     // Image lives inside the svg so the crop applies to plan + route identically.
@@ -4251,10 +5009,13 @@ function routeConnMarker(n, dir){
             +    '<image href="'+mapSrc+'" xlink:href="'+mapSrc+'" x="0" y="0" width="'+fw+'" height="'+fh+'" preserveAspectRatio="none"></image>'
             +  '</g>';
     }
-    inner += layer;
+      inner += layer;
 
-    host.innerHTML =
-      '<div class="fmw-map-head">'
+      /* Build the written directions for this floor */
+      var instr = buildFloorInstructions(seg);
+
+      host.innerHTML =
+        '<div class="fmw-map-head">'
       +   '<div class="fmw-floor-pill">' + esc(floorName(seg.floorId)) + '  \u00b7  Floor ' + (RT.segIndex+1) + ' of ' + segs.length + '</div>'
       + '</div>'
       + '<div class="fmw-map-card' + ((f && f.image) ? '' : ' nomap') + '">'
