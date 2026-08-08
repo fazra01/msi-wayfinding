@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "activeFloor": "lower-level",
+  "activeFloor": "entry-hall",
   "activeKioskId": "",
   "floors": [
     {
@@ -321,7 +321,7 @@
       "x": 931,
       "y": 725,
       "floorId": "main-level",
-      "connectorId": "main",
+      "connectorId": "Main Escalator",
       "visitorDestination": "Escalator"
     },
     {
@@ -738,7 +738,7 @@
       "x": 927,
       "y": 836,
       "floorId": "lower-level",
-      "connectorId": "right-main",
+      "connectorId": "Right Entry Hall Elevator",
       "visitorDestination": "Elevator"
     },
     {
@@ -758,7 +758,7 @@
       "x": 996,
       "y": 600,
       "floorId": "lower-level",
-      "connectorId": "main",
+      "connectorId": "Main Escalator",
       "visitorDestination": "Escalator"
     },
     {
@@ -976,7 +976,7 @@
       "x": 890,
       "y": 288,
       "floorId": "entry-hall",
-      "connectorId": "right-main",
+      "connectorId": "Right Entry Hall Elevator",
       "visitorDestination": "Elevator"
     },
     {
@@ -986,7 +986,7 @@
       "x": 1103,
       "y": 287,
       "floorId": "entry-hall",
-      "connectorId": "left-main",
+      "connectorId": "Left Entry Hall Elevator",
       "visitorDestination": "Elevator"
     },
     {
@@ -1131,7 +1131,7 @@
       "x": 993,
       "y": 288,
       "floorId": "entry-hall",
-      "connectorId": "lower",
+      "connectorId": "Lower Escalator",
       "visitorDestination": "Escalator"
     },
     {
@@ -1445,7 +1445,7 @@
       "x": 1067,
       "y": 834,
       "floorId": "lower-level",
-      "connectorId": "left-main",
+      "connectorId": "Left Entry Hall Elevator",
       "visitorDestination": "Elevator"
     },
     {
@@ -1496,7 +1496,7 @@
       "x": 997,
       "y": 776,
       "floorId": "lower-level",
-      "connectorId": "lower"
+      "connectorId": "Lower Escalator"
     }
   ],
   "edges": [

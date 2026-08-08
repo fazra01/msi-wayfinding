@@ -58,23 +58,9 @@
       <h2 class="display h2" style="margin-bottom:16px;">Your visit</h2>
 
       <div class="card">
-        <div class="progress-track">
-  <div id="plan-progress-fill" class="progress-fill" style="width:0%"></div>
-</div>
-
-<div id="plan-progress-meta" class="progress-meta"></div>
-
-<div class="plan-reorder-tools">
-  <button id="plan-reorder" class="plan-reorder-btn" type="button">
-    Reorder stops
-  </button>
-
-  <div id="plan-reorder-hint" class="plan-reorder-hint hidden">
-    Press and hold a stop, then drag it.
-  </div>
-</div>
-
-<ul id="plan-stops" class="stop-list"></ul>
+        <div class="progress-track"><div id="plan-progress-fill" class="progress-fill" style="width:0%"></div></div>
+        <div id="plan-progress-meta" class="progress-meta"></div>
+        <ul id="plan-stops" class="stop-list"></ul>
       </div>
 
       <div class="btn-row">
@@ -312,8 +298,25 @@
       <div class="spacer"></div>
     </section>
 
+    <!-- ===================== LANGUAGE SELECTOR ===================== -->
+    <!-- Mirrors the kiosk: a .lang-select button whose dropdown is built by
+         i18n.js from the same LANGS list. Fixed to the app's top corner so it
+         is reachable on every screen and in QR-direct entry to Directions/My Plan.
+         Language choice persists in localStorage across screens. -->
+    <div class="lang-wrap">
+      <button class="lang-select" type="button" aria-label="Change language">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor"
+             stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="9"></circle>
+          <path d="M3 12h18"></path>
+          <path d="M12 3c2.5 2.5 3.8 5.7 3.8 9s-1.3 6.5-3.8 9c-2.5-2.5-3.8-5.7-3.8-9S9.5 5.5 12 3z"></path>
+        </svg>
+      </button>
+    </div>
+
   </div>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
-  <script src="app.js?v=5"></script>
+
+  <script src="i18n.js?v=1"></script>
+  <script src="app.js?v=4"></script>
 </body>
 </html>
